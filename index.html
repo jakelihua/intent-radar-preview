@@ -3,318 +3,1129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商机雷达 · 竞品弃用与高意向商机早报</title>
+    <title>商机雷达 · 竞品弃用与高意向商机晨报 - 2026年11月02日</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border-subtle: #e2e8f0;
+            --border-card: #e2e8f0;
             --primary: #2563eb;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-sub: #475569;
-            --border: #e2e8f0;
+            --primary-light: #eff6ff;
+            --success: #10b981;
+            --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+            --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-body);
+            line-height: 1.6;
+            padding: 32px 16px;
+            -webkit-font-smoothing: antialiased;
         }
-        .container {
-            max-width: 900px;
+
+        .wrapper {
+            max-width: 980px;
             margin: 0 auto;
         }
-        .banner {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 32px;
+
+        /* Top Executive Hero */
+        .executive-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             border-radius: 16px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.2);
+            padding: 36px 36px 30px;
+            color: #ffffff;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+            position: relative;
+            overflow: hidden;
         }
-        .banner h1 { margin: 0 0 8px 0; font-size: 26px; }
-        .banner p { margin: 0; opacity: 0.9; font-size: 14px; }
-        .stats {
+
+        .executive-header::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; width: 300px; height: 100%;
+            background: radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .top-badge-row {
             display: flex;
-            gap: 16px;
-            margin-top: 20px;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
         }
-        .stat-item {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px 16px;
-            border-radius: 8px;
+
+        .live-pulse {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .edition-date {
             font-size: 13px;
+            color: #94a3b8;
         }
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+
+        .main-headline {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            color: #f8fafc;
         }
-        .card:hover {
+
+        .header-subtext {
+            font-size: 14px;
+            color: #94a3b8;
+            max-width: 680px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .kpi-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Battlecards */
+        .battlecard {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .battlecard:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-hover);
+            border-color: #cbd5e1;
         }
+
         .card-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
         }
-        .header-left {
+
+        .entity-group {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 8px;
         }
-        .index {
+
+        .card-index {
+            font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            color: var(--primary);
-            font-size: 16px;
+            font-size: 15px;
+            color: #94a3b8;
         }
-        .source {
+
+        .competitor-pill {
+            display: inline-flex;
+            align-items: center;
+            background: #ede9fe;
+            border: 1px solid #ddd6fe;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5b21b6;
+        }
+
+        .comp-label {
+            color: #7c3aed;
+            margin-right: 4px;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .category-pill {
             background: #f1f5f9;
             color: #475569;
-            font-size: 12px;
+            border-radius: 6px;
             padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        .competitor {
-            background: #ede9fe;
-            color: #6d28d9;
             font-size: 12px;
+            font-weight: 500;
+        }
+
+        .source-tag {
+            background: #e2e8f0;
+            color: #334155;
+            border-radius: 6px;
             padding: 3px 8px;
-            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
+            text-transform: uppercase;
         }
-        .score {
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .title {
-            margin: 0 0 8px 0;
-            font-size: 18px;
-            line-height: 1.4;
-        }
-        .title a {
-            color: #0f172a;
-            text-decoration: none;
-        }
-        .title a:hover {
-            color: var(--primary);
-            text-decoration: underline;
-        }
-        .meta {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-bottom: 16px;
+
+        .score-badge {
             display: flex;
-            gap: 16px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px;
+            border-radius: 10px;
+            min-width: 80px;
+            text-align: center;
         }
-        .section-title {
+
+        .score-num {
+            font-size: 20px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.1;
+        }
+
+        .score-text {
+            font-size: 10px;
+            font-weight: 600;
+            opacity: 0.85;
+            letter-spacing: -0.01em;
+        }
+
+        .card-title {
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .card-title a {
+            color: var(--text-title);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-title a:hover {
+            color: var(--primary);
+        }
+
+        .outbound-icon {
+            color: #94a3b8;
+            transition: color 0.15s;
+        }
+
+        .card-title a:hover .outbound-icon {
+            color: var(--primary);
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .customer-voice {
+            background: #f8fafc;
+            border-left: 3px solid #94a3b8;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 18px;
+        }
+
+        .voice-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .voice-text {
+            font-size: 14px;
+            color: #334155;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .intel-block {
+            margin-bottom: 16px;
+        }
+
+        .block-label {
             font-size: 12px;
             font-weight: 700;
             color: #64748b;
             text-transform: uppercase;
-            margin: 12px 0 6px 0;
+            letter-spacing: 0.03em;
+            margin-bottom: 8px;
         }
-        .tags {
+
+        .tag-row {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-bottom: 12px;
         }
-        .badge {
+
+        .churn-tag {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 12px;
-            padding: 3px 8px;
-            border-radius: 4px;
             font-weight: 500;
         }
-        .summary {
+
+        .summary-text {
             font-size: 14px;
             line-height: 1.6;
-            margin: 0 0 12px 0;
-            color: #334155;
+            color: var(--text-body);
         }
-        .pitch-box {
+
+        /* Sales Playbook */
+        .playbook-box {
             background: #f0fdf4;
-            border-left: 4px solid #22c55e;
-            padding: 12px 16px;
-            border-radius: 0 8px 8px 0;
-            font-size: 13px;
-            line-height: 1.5;
-            color: #166534;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 20px;
         }
-        .pitch-box p {
-            margin: 6px 0 0 0;
+
+        .playbook-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 12px;
+        }
+
+        .tactic-desc {
+            font-size: 13px;
+            color: #047857;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .script-box {
+            background: #ffffff;
+            border: 1px solid #dcfce7;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .script-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #15803d;
+            margin-bottom: 6px;
+        }
+
+        .script-content {
+            font-size: 13px;
             color: #14532d;
+            line-height: 1.5;
+            user-select: all;
+            cursor: pointer;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 40px;
+            padding-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="banner">
-            <h1>🎯 商机雷达 · 竞品弃用与高意向商机早报</h1>
-            <p>生成时间: 2026-11-02 15:35:30 | 监控范围：全网实时技术社区、新闻源与代码生态</p>
-            <div class="stats">
-                <div class="stat-item">🔥 今日高潜商机: <strong>6 条</strong></div>
-                <div class="stat-item">⚡ 意向过滤阈值: <strong>≥ 50分</strong></div>
-                <div class="stat-item">🚀 状态: <strong>运行正常</strong></div>
+    <div class="wrapper">
+        <!-- Header -->
+        <header class="executive-header">
+            <div class="top-badge-row">
+                <div class="live-pulse">
+                    <span class="pulse-dot"></span>
+                    <span>LIVE 全天候持续监控中</span>
+                </div>
+                <div class="edition-date">生成于：2026-11-02 16:44</div>
             </div>
-        </div>
-        <div class="cards-list">
+            <h1 class="main-headline">🎯 商机雷达 · 竞品弃用与高意向商机晨报</h1>
+            <p class="header-subtext">
+                基于全球主流极客技术社区（Hacker News、GitHub、V2EX 与新闻源）实时抓取用户公开发布的平替诉求、价格异动与客诉痛点，经竞争情报引擎结构化萃取与意图评级。
+            </p>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">今日高潜商机</div>
+                    <div class="kpi-val">10 条</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">极高意向 (≥80分)</div>
+                    <div class="kpi-val">1 条</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">受波及重点竞品</div>
+                    <div class="kpi-val">5 家</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">意向过滤阈值</div>
+                    <div class="kpi-val">≥ 50 分</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cards List -->
+        <main class="cards-container">
             
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <span class="index">#1</span>
-                        <span class="source">Hacker News</span>
-                        <span class="competitor">Popular</span>
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#01</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">同赛道传统竞品</span>
+                        </div>
+                        <span class="category-pill">CRM 客户关系管理软件</span>
+                        <span class="source-tag">Hacker News</span>
                     </div>
-                    <span class="score" style="background-color: #10b981;">95 分</span>
-                </div>
-                <h3 class="title"><a href="https://peopleyouk.now/" target="_blank">Show HN: People you know, an end-to-end encrypted private Instagram replacement</a></h3>
-                <div class="meta">
-                    <span class="author">👤 jsbg</span>
-                    <span class="date">🕒 2026-11-02T00:15:38Z</span>
-                </div>
-                <div class="section-title">💡 痛点归因与标签</div>
-                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Tool Replacement</span> <span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
-                <div class="section-title">📝 智能分析摘要</div>
-                <p class="summary">用户在 Hacker News 发帖探讨针对 [Popular] 的替代方案。主要痛点集中在：Tool Replacement、Alternative Query。</p>
-                <div class="pitch-box">
-                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
-                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Popular 的替代方案，特别是关于 Tool Replacement/Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <span class="index">#2</span>
-                        <span class="source">Hacker News</span>
-                        <span class="competitor">Most</span>
+                    <div class="score-badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;">
+                        <span class="score-num">80</span>
+                        <span class="score-text">商业意向分</span>
                     </div>
-                    <span class="score" style="background-color: #f59e0b;">70 分</span>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://news.ycombinator.com/item?id=50333045" target="_blank" rel="noopener noreferrer">
+                        Pepperwind, a fictional company dataset with 223 tables and 79M rows
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>rasinmuhammed</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>中小企业管理者 / 研发技术主管</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-11-02T04:13:13Z</span>
                 </div>
-                <h3 class="title"><a href="https://news.ycombinator.com/item?id=50328896" target="_blank">Ask HN: Which TV do you recommend for privacy?</a></h3>
-                <div class="meta">
-                    <span class="author">👤 LecroJS</span>
-                    <span class="date">🕒 2026-11-01T19:35:27Z</span>
-                </div>
-                <div class="section-title">💡 痛点归因与标签</div>
-                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">🔒 隐私安全与自托管诉求</span> <span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
-                <div class="section-title">📝 智能分析摘要</div>
-                <p class="summary">用户在 Hacker News 发帖探讨针对 [Most] 的替代方案。主要痛点集中在：🔒 隐私安全与自托管诉求、Alternative Query。</p>
-                <div class="pitch-box">
-                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
-                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Most 的替代方案，特别是关于 🔒 隐私安全与自托管诉求/Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <span class="index">#3</span>
-                        <span class="source">GitHub</span>
-                        <span class="competitor">The</span>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
                     </div>
-                    <span class="score" style="background-color: #f59e0b;">70 分</span>
+                    <p class="voice-text">“Hi HN. I&#x27;m a software engineer, building Misata Studio.<p>Pepperwind Trading Co, is a fictional spice and tea trader from Kochi, selling in India, Europe and the US for three years. It has a storefront, a subscription club, a warehouse, ledgers in 3 currencies, support, CRM,...”</p>
                 </div>
-                <h3 class="title"><a href="https://github.com/eacryo/oh-my-tab" target="_blank">New Alternative: eacryo/oh-my-tab - A macOS window switcher — an alternative to the system Cmd+Tab</a></h3>
-                <div class="meta">
-                    <span class="author">👤 eacryo</span>
-                    <span class="date">🕒 2026-11-02T07:34:47Z</span>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">采购成本过高 / 价格激增</span></div>
                 </div>
-                <div class="section-title">💡 痛点归因与标签</div>
-                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
-                <div class="section-title">📝 智能分析摘要</div>
-                <p class="summary">用户在 GitHub 发帖探讨针对 [The] 的替代方案。主要痛点集中在：Alternative Query。</p>
-                <div class="pitch-box">
-                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
-                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 The 的替代方案，特别是关于 Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Hacker News 公开表达了对 [同赛道传统竞品] 现存短板的诉求。其核心诉求聚焦在解决「采购成本过高 / 价格激增」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
                 </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <span class="index">#4</span>
-                        <span class="source">GitHub</span>
-                        <span class="competitor">Beyond</span>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
                     </div>
-                    <span class="score" style="background-color: #f59e0b;">70 分</span>
-                </div>
-                <h3 class="title"><a href="https://github.com/chaxiu/OpenCompare" target="_blank">New Alternative: chaxiu/OpenCompare - Modern cross-platform desktop diff and three-way merge tool: directory compare and sync, template relocation, snapshots, code diff, CSV alignment, JSON/YAML semantic compare. Free MIT alternative to Beyond Compare 5 Pro.</a></h3>
-                <div class="meta">
-                    <span class="author">👤 chaxiu</span>
-                    <span class="date">🕒 2026-11-02T07:34:46Z</span>
-                </div>
-                <div class="section-title">💡 痛点归因与标签</div>
-                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
-                <div class="section-title">📝 智能分析摘要</div>
-                <p class="summary">用户在 GitHub 发帖探讨针对 [Beyond] 的替代方案。主要痛点集中在：Alternative Query。</p>
-                <div class="pitch-box">
-                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
-                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Beyond 的替代方案，特别是关于 Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <span class="index">#5</span>
-                        <span class="source">GitHub</span>
-                        <span class="competitor">Claude</span>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【采购成本过高 / 价格激增】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
                     </div>
-                    <span class="score" style="background-color: #f59e0b;">70 分</span>
-                </div>
-                <h3 class="title"><a href="https://github.com/Lakshay1509/ichiro" target="_blank">New Alternative: Lakshay1509/ichiro - Open source browser MCP for Claude Code, Codex and any coding agent. A free alternative to Claude in Chrome that works in your own Chrome, with you in the loop.</a></h3>
-                <div class="meta">
-                    <span class="author">👤 Lakshay1509</span>
-                    <span class="date">🕒 2026-11-02T07:34:13Z</span>
-                </div>
-                <div class="section-title">💡 痛点归因与标签</div>
-                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
-                <div class="section-title">📝 智能分析摘要</div>
-                <p class="summary">用户在 GitHub 发帖探讨针对 [Claude] 的替代方案。主要痛点集中在：Alternative Query。</p>
-                <div class="pitch-box">
-                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
-                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Claude 的替代方案，特别是关于 Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <span class="index">#6</span>
-                        <span class="source">Hacker News</span>
-                        <span class="competitor">General Competitor</span>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 同赛道传统竞品 的替代方案。很多同行团队也在反馈其在 采购成本过高 / 价格激增 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
                     </div>
-                    <span class="score" style="background-color: #f59e0b;">65 分</span>
                 </div>
-                <h3 class="title"><a href="https://github.com/VictorKildahl/cra" target="_blank">Cra Browser: open-source Arc replacement for macOS</a></h3>
-                <div class="meta">
-                    <span class="author">👤 nateb2022</span>
-                    <span class="date">🕒 2026-11-02T03:53:24Z</span>
-                </div>
-                <div class="section-title">💡 痛点归因与标签</div>
-                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">🔒 隐私安全与自托管诉求</span> <span class="badge" style="background:#e0f2fe; color:#0369a1;">Tool Replacement</span></div>
-                <div class="section-title">📝 智能分析摘要</div>
-                <p class="summary">用户在 Hacker News 发帖探讨针对 [General Competitor] 的替代方案。主要痛点集中在：🔒 隐私安全与自托管诉求、Tool Replacement。</p>
-                <div class="pitch-box">
-                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
-                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 General Competitor 的替代方案，特别是关于 🔒 隐私安全与自托管诉求/Tool Replacement 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
-                </div>
-            </div>
+            </article>
             
-        </div>
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#02</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">通用行业竞品</span>
+                        </div>
+                        <span class="category-pill">企业服务 / 数字化工具</span>
+                        <span class="source-tag">Google News RSS</span>
+                    </div>
+                    <div class="score-badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;">
+                        <span class="score-num">70</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://news.google.com/rss/articles/CBMifkFVX3lxTE5lbGhZUGJXajU1ZGQyX29kY0ZRTTB0Z3VVWDhlM1BiSzQ1OFhCZGFPM1FRSGtFQ2RPOHRzelFrZDZNOUNSMWhZbmpLZlRRRG9xR3MwUVFjVDEzLW05VFJQeGVUclViYTJPRno0eEc5eUlZYmhwMFprR0ctLTh1QQ?oc=5" target="_blank" rel="noopener noreferrer">
+                        As AI Reshapes SaaS, Companies Need Pivot-Ready Pricing - Boston Consulting Group
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>News Publisher</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：Fri, 30 Oct 2026 08:01:07 GMT</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“<a href="https://news.google.com/rss/articles/CBMifkFVX3lxTE5lbGhZUGJXajU1ZGQyX29kY0ZRTTB0Z3VVWDhlM1BiSzQ1OFhCZGFPM1FRSGtFQ2RPOHRzelFrZDZNOUNSMWhZbmpLZlRRRG9xR3MwUVFjVDEzLW05VFJQeGVUclViYTJPRno0eEc5eUlZYmhwMFprR0ctLTh1QQ?oc=5" target="_blank">As AI Reshapes SaaS, Companies Need P...”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">采购成本过高 / 价格激增</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Google News RSS 公开表达了对 [通用行业竞品] 现存短板的诉求。其核心诉求聚焦在解决「采购成本过高 / 价格激增」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【采购成本过高 / 价格激增】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 通用行业竞品 的替代方案。很多同行团队也在反馈其在 采购成本过高 / 价格激增 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#03</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">通用行业竞品</span>
+                        </div>
+                        <span class="category-pill">企业服务 / 数字化工具</span>
+                        <span class="source-tag">Google News RSS</span>
+                    </div>
+                    <div class="score-badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;">
+                        <span class="score-num">70</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://news.google.com/rss/articles/CBMijgFBVV95cUxOQ3NEaEVkNXpwUllEVzRTb2dKN0hPeThTMzIwTGpham4yVkJnT3hqLXVHam1Oa0FGaVpmajFFOXRQSXQxdzMzRTQ1U0JOaVVwMjl5R1dWblZBY1hPS0Q0MGxnWjMtTG5Gek1fc3lfaEI0Y1VHSHk0bmhOZWxYM1JPcGZ3dkxOajRRRDFRUlNB?oc=5" target="_blank" rel="noopener noreferrer">
+                        Beyond Subscriptions Navigating SaaS Pricing Models - FTI Consulting
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>News Publisher</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：Thu, 09 Apr 2026 07:00:00 GMT</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“<a href="https://news.google.com/rss/articles/CBMijgFBVV95cUxOQ3NEaEVkNXpwUllEVzRTb2dKN0hPeThTMzIwTGpham4yVkJnT3hqLXVHam1Oa0FGaVpmajFFOXRQSXQxdzMzRTQ1U0JOaVVwMjl5R1dWblZBY1hPS0Q0MGxnWjMtTG5Gek1fc3lfaEI0Y1VHSHk0bmhOZWxYM1JPcGZ3dkxOajRRRDFRUlNB?oc=5" target="_blank">Beyond Subscrip...”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">采购成本过高 / 价格激增</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Google News RSS 公开表达了对 [通用行业竞品] 现存短板的诉求。其核心诉求聚焦在解决「采购成本过高 / 价格激增」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【采购成本过高 / 价格激增】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 通用行业竞品 的替代方案。很多同行团队也在反馈其在 采购成本过高 / 价格激增 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#04</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">通用行业竞品</span>
+                        </div>
+                        <span class="category-pill">企业服务 / 数字化工具</span>
+                        <span class="source-tag">Hacker News</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://www.saasalternatives.online" target="_blank" rel="noopener noreferrer">
+                        Show HN: Open-sourced alternatives to every SaaS tool
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>macgirlt</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-11-02T06:11:27Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“Show HN: Open-sourced alternatives to every SaaS tool...”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Hacker News 公开表达了对 [通用行业竞品] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 通用行业竞品 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#05</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">Smart</span>
+                        </div>
+                        <span class="category-pill">行业竞品平替场景</span>
+                        <span class="source-tag">Hacker News</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://news.ycombinator.com/item?id=50328896" target="_blank" rel="noopener noreferrer">
+                        Ask HN: Which TV do you recommend for privacy?
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>LecroJS</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-11-01T19:35:27Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“I haven’t owned a TV in years and would like one that respects my privacy. Are there any TV’s which do this well? I am looking for something in the 60”to 80”range and would like a 4k display with at least 60hz display. I don’t mind paying a premium.<p>I have heard good things abo...”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Hacker News 公开表达了对 [Smart] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 Smart 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#06</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">通用行业竞品</span>
+                        </div>
+                        <span class="category-pill">企业服务 / 数字化工具</span>
+                        <span class="source-tag">Hacker News</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://picoplayer.net/" target="_blank" rel="noopener noreferrer">
+                        Show HN: PicoPlayer – A tiny, open-source website for playing quality webgames
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>popcar2</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-10-30T13:17:45Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“Hi HN! I just released a new minimalist website that lets you play over 150 PICO 8 games on the web that I curated myself. It&#x27;s fully open source and made from the ground up to be tiny and fast, allowing you to switch games instantly by hotswapping them into the game player....”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Hacker News 公开表达了对 [通用行业竞品] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 通用行业竞品 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#07</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">通用行业竞品</span>
+                        </div>
+                        <span class="category-pill">企业服务 / 数字化工具</span>
+                        <span class="source-tag">Hacker News</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://news.ycombinator.com/item?id=50240121" target="_blank" rel="noopener noreferrer">
+                        Show HN: Tabverse – a free, open-source, with self-hostable server Workona clone
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>liyu1981au</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-10-26T07:04:15Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“Hi, I want to share with you my chrome extension: Tabverse, as it is now passed the reveiw of Chrome Web Store and live at: <a href="https:&#x2F;&#x2F;chromewebstore.google.com&#x2F;detail&#x2F;tabverse&#x2F;lffblcippngalmglinedcbmikkncihdm" rel="nofollow">https:&#x2F;&#x2F;chrom...”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Hacker News 公开表达了对 [通用行业竞品] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 通用行业竞品 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#08</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">Arc Browser</span>
+                        </div>
+                        <span class="category-pill">桌面效率浏览器</span>
+                        <span class="source-tag">Hacker News</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://github.com/VictorKildahl/cra" target="_blank" rel="noopener noreferrer">
+                        Cra Browser: open-source Arc replacement for macOS
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>nateb2022</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-11-02T03:53:24Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“Cra Browser: open-source Arc replacement for macOS...”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 Hacker News 公开表达了对 [Arc Browser] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 Arc Browser 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#09</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">Tableau.</span>
+                        </div>
+                        <span class="category-pill">行业竞品平替场景</span>
+                        <span class="source-tag">GitHub</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://github.com/dataease/dataease" target="_blank" rel="noopener noreferrer">
+                        New Alternative: dataease/dataease - 🔥 人人可用的开源 BI 工具，数据可视化神器。An open-source BI tool alternative to Tableau.
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>dataease</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-11-02T08:43:33Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“Stars: 24666 | Language: Java | Description: 🔥 人人可用的开源 BI 工具，数据可视化神器。An open-source BI tool alternative to Tableau....”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 GitHub 公开表达了对 [Tableau.] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 Tableau. 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+            <article class="battlecard">
+                <!-- Card Header -->
+                <header class="card-header">
+                    <div class="entity-group">
+                        <span class="card-index">#10</span>
+                        <div class="competitor-pill">
+                            <span class="comp-label">竞品标的</span>
+                            <span class="comp-name">通用行业竞品</span>
+                        </div>
+                        <span class="category-pill">企业服务 / 数字化工具</span>
+                        <span class="source-tag">GitHub</span>
+                    </div>
+                    <div class="score-badge" style="background:#f8fafc; color:#475569; border:1px solid #e2e8f0;">
+                        <span class="score-num">60</span>
+                        <span class="score-text">商业意向分</span>
+                    </div>
+                </header>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title">
+                    <a href="https://github.com/celerixai-collab/openreply" target="_blank" rel="noopener noreferrer">
+                        New Alternative: celerixai-collab/openreply - Open-source ManyChat alternative: comment-dm automation + account analytics. NOTE: the link below will not allow you to OAuth; you must self-host with your own API keys.
+                        <svg class="outbound-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </h3>
+
+                <div class="card-meta">
+                    <span class="meta-item">👤 发帖者：<strong>celerixai-collab</strong></span>
+                    <span class="meta-item">🎯 买家画像：<strong>资深独立开发者 / 个人专业极客</strong></span>
+                    <span class="meta-item">🕒 发现时间：2026-11-02T08:43:28Z</span>
+                </div>
+
+                <!-- Customer Voice Snippet -->
+                <div class="customer-voice">
+                    <div class="voice-header">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>客户真实原声与核心诉求</span>
+                    </div>
+                    <p class="voice-text">“Stars: 0 | Language: TypeScript | Description: Open-source ManyChat alternative: comment-dm automation + account analytics. NOTE: the link below will not allow you to OAuth; you must self-host with your own API keys....”</p>
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="intel-block">
+                    <div class="block-label">⚡ 核心流失诱因</div>
+                    <div class="tag-row"><span class="churn-tag">数据主权与开源自托管诉求</span></div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <div class="intel-block">
+                    <div class="block-label">💡 竞争情报洞察</div>
+                    <p class="summary-text">目标客户在 GitHub 公开表达了对 [通用行业竞品] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                </div>
+
+                <!-- Sales Action Playbook -->
+                <div class="playbook-box">
+                    <div class="playbook-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        <span>销售截流策略与实战沟通建议</span>
+                    </div>
+                    <div class="action-tactics">
+                        <div class="tactic-desc">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</div>
+                    </div>
+                    <div class="script-box">
+                        <div class="script-header">💬 推荐高转化破冰话术（建议根据客群微调）：</div>
+                        <div class="script-content">“关注到您正在寻找 通用行业竞品 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”</div>
+                    </div>
+                </div>
+            </article>
+            
+        </main>
+
+        <footer class="footer">
+            <p>商机雷达 (IntentRadar) · 企业竞争情报与高意向潜客截流系统 | 自动化数据更新于每天 08:30</p>
+        </footer>
     </div>
 </body>
 </html>
