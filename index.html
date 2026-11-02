@@ -44,17 +44,17 @@
             <button onclick="filterByTag('all')" class="w-full flex items-center px-3 py-2 text-xs font-semibold text-white bg-slate-800 rounded-lg group text-left">
                 <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 高意向商机看板
-                <span id="sidebar-total-badge" class="ml-auto bg-blue-600/30 text-blue-400 py-0.5 px-2 rounded-full text-[10px] font-mono">6</span>
+                <span id="sidebar-total-badge" class="ml-auto bg-blue-600/30 text-blue-400 py-0.5 px-2 rounded-full text-[10px] font-mono">11</span>
             </button>
             <button onclick="filterByTag('high-intent')" class="w-full flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors group text-left">
                 <svg class="w-4 h-4 mr-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 极高采购意向 (≥80)
-                <span class="ml-auto bg-amber-500/20 text-amber-400 py-0.5 px-2 rounded-full text-[10px] font-mono">3</span>
+                <span class="ml-auto bg-amber-500/20 text-amber-400 py-0.5 px-2 rounded-full text-[10px] font-mono">11</span>
             </button>
             <button onclick="alert('当前监控覆盖重点竞品清单：\n- ' + Array.from(new Set(Array.from(document.querySelectorAll('.lead-card')).map(c => c.getAttribute('data-competitor')))).join('\n- '))" class="w-full flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors group text-left">
                 <svg class="w-4 h-4 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 竞品标的矩阵
-                <span class="ml-auto bg-indigo-500/20 text-indigo-400 py-0.5 px-2 rounded-full text-[10px] font-mono">6 家</span>
+                <span class="ml-auto bg-indigo-500/20 text-indigo-400 py-0.5 px-2 rounded-full text-[10px] font-mono">11 家</span>
             </button>
 
             <div class="pt-6 px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">全球数据源健康态</div>
@@ -105,7 +105,7 @@
             </div>
 
             <div class="flex items-center gap-4 text-xs text-slate-500">
-                <span>更新时间: <strong class="text-slate-700 font-mono">2026-11-02 17:04</strong></span>
+                <span>更新时间: <strong class="text-slate-700 font-mono">2026-11-02 17:31</strong></span>
             </div>
         </header>
 
@@ -116,21 +116,21 @@
                 <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
                     <div class="text-xs font-medium text-slate-500 mb-1">今日捕获商机</div>
                     <div class="flex items-baseline justify-between">
-                        <div class="text-2xl font-bold font-mono text-slate-900">6 条</div>
+                        <div class="text-2xl font-bold font-mono text-slate-900">11 条</div>
                         <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">+100% 真实客源</span>
                     </div>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
                     <div class="text-xs font-medium text-slate-500 mb-1">极高采购意向 (≥80分)</div>
                     <div class="flex items-baseline justify-between">
-                        <div class="text-2xl font-bold font-mono text-blue-600">3 条</div>
+                        <div class="text-2xl font-bold font-mono text-blue-600">11 条</div>
                         <span class="text-xs text-slate-400">已自动过滤水帖</span>
                     </div>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
                     <div class="text-xs font-medium text-slate-500 mb-1">涉及重点竞品</div>
                     <div class="flex items-baseline justify-between">
-                        <div class="text-2xl font-bold font-mono text-slate-900">6 家</div>
+                        <div class="text-2xl font-bold font-mono text-slate-900">11 家</div>
                         <span class="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">精准实体识别</span>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
                     <!-- Category Filter Buttons -->
                     <div class="flex flex-wrap items-center gap-1.5 text-xs">
                         <button onclick="filterByTag('all', this)" class="filter-tab-btn active px-3 py-1.5 rounded-lg font-semibold bg-slate-900 text-white transition-colors">
-                            全部 (6)
+                            全部 (11)
                         </button>
                         <button onclick="filterByTag('high-intent', this)" class="filter-tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
                             🔥 极高潜客 (≥80)
@@ -176,18 +176,18 @@
             <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
                  data-id="62b39928a591c9cdbdc308b5fe2b0176"
                  data-source="hacker news"
-                 data-competitor="atlassian jira"
-                 data-tags="high-intent pricing">
+                 data-competitor="jira"
+                 data-tags="high-intent">
                 <!-- Top Meta Bar -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="font-mono text-xs font-bold text-slate-400">#01</span>
                         <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                             <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            目标竞品：Atlassian Jira
+                            目标竞品：Jira
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                            研发项目协同与敏捷管理
+                            研发项目协同
                         </span>
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
                             Hacker News
@@ -197,7 +197,7 @@
                         
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
-                    意向分: 98 · 极高潜客
+                    意向分: 95 · 极高潜客
                 </span>
                 
                         <!-- CRM Status Toggle -->
@@ -216,18 +216,21 @@
                 </h3>
 
                 <!-- Context Meta -->
-                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-4">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         发帖人：<strong class="text-slate-700 ml-1">tech_founder_99</strong>
                     </span>
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        买家角色：<strong class="text-slate-700 ml-1">中小企业管理者 / 研发技术主管</strong>
+                        买家角色：<strong class="text-slate-700 ml-1">研发架构师 / 技术主管</strong>
                     </span>
                     <span class="inline-flex items-center text-slate-400">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         2026-11-02 08:12:00
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        🔥 142 关注 · 💬 84 条讨论
                     </span>
                 </div>
 
@@ -239,13 +242,13 @@
                 <!-- Churn Drivers -->
                 <div class="mb-3.5">
                     <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
-                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">主动寻优与迫切平替</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">采购成本过高 / 价格激增</span></div>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">按席位定价过高</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">界面响应慢</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">工程师团队抵触</span></div>
                 </div>
 
                 <!-- Strategic Intelligence -->
                 <div class="mb-4">
                     <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
-                    <p class="text-xs text-slate-600 leading-relaxed">目标客户在 Hacker News 公开表达了对 [Atlassian Jira] 现存短板的诉求。其核心诉求聚焦在解决「主动寻优与迫切平替 / 采购成本过高 / 价格激增」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">该信号显示一个25人研发团队因Jira的按席位定价过高和性能问题而主动寻求替代方案，购买意图强烈。竞品可重点强调成本可预测性和轻量敏捷体验，以吸引该客户从Jira迁移。</p>
                 </div>
 
                 <!-- Sales Action Plan & Script Box -->
@@ -255,13 +258,13 @@
                             <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             销售跟进建议与破冰话术
                         </div>
-                        <button onclick="copyToClipboard(this, `“关注到您正在寻找 Atlassian Jira 的替代方案。很多同行团队也在反馈其在 主动寻优与迫切平替 / 采购成本过高 / 价格激增 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                        <button onclick="copyToClipboard(this, `您好，看到您团队正在寻找Jira的轻量替代方案。我们专注为25-50人研发团队提供流畅的冲刺跟踪工具，采用透明定价避免席位成本飙升，且界面响应迅速，工程师上手快。方便聊聊您的具体需求吗？`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
                             一键复制话术
                         </button>
                     </div>
-                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【主动寻优与迫切平替与采购成本过高 / 价格激增】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</p>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">强调按团队固定定价或更灵活的计价模式，直接对比Jira按席位收费在团队扩张时的成本劣势。<br>演示轻量级界面和流畅的冲刺跟踪体验，突出工程师友好性和快速上手优势，并引用类似规模团队的迁移案例。</p>
                     <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
-                        “关注到您正在寻找 Atlassian Jira 的替代方案。很多同行团队也在反馈其在 主动寻优与迫切平替 / 采购成本过高 / 价格激增 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”
+                        您好，看到您团队正在寻找Jira的轻量替代方案。我们专注为25-50人研发团队提供流畅的冲刺跟踪工具，采用透明定价避免席位成本飙升，且界面响应迅速，工程师上手快。方便聊聊您的具体需求吗？
                     </div>
                 </div>
             </div>
@@ -269,18 +272,18 @@
             <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
                  data-id="549acdfe4e1d11408d18f323267635ef"
                  data-source="reddit r/saas"
-                 data-competitor="salesforce crm"
-                 data-tags="high-intent">
+                 data-competitor="salesforce"
+                 data-tags="high-intent pricing">
                 <!-- Top Meta Bar -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="font-mono text-xs font-bold text-slate-400">#02</span>
                         <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                             <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            目标竞品：Salesforce CRM
+                            目标竞品：Salesforce
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                            B2B 销售与 CRM 系统
+                            客户关系管理（CRM）软件
                         </span>
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
                             Reddit r/SaaS
@@ -290,7 +293,7 @@
                         
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
-                    意向分: 90 · 极高潜客
+                    意向分: 95 · 极高潜客
                 </span>
                 
                         <!-- CRM Status Toggle -->
@@ -309,18 +312,21 @@
                 </h3>
 
                 <!-- Context Meta -->
-                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-4">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         发帖人：<strong class="text-slate-700 ml-1">b2b_growth_lead</strong>
                     </span>
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        买家角色：<strong class="text-slate-700 ml-1">中小企业管理者 / 研发技术主管</strong>
+                        买家角色：<strong class="text-slate-700 ml-1">SaaS销售主管 / 销售运营负责人</strong>
                     </span>
                     <span class="inline-flex items-center text-slate-400">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         2026-11-02 07:45:10
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        🔥 96 赞同 · 💬 45 条建议
                     </span>
                 </div>
 
@@ -332,13 +338,13 @@
                 <!-- Churn Drivers -->
                 <div class="mb-3.5">
                     <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
-                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">主动寻优与迫切平替</span></div>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">实施周期长且复杂</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">总拥有成本高（已投入$15k）</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">销售团队采用率低（无人记录通话）</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">操作复杂、不够直观</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">邮件同步体验差</span></div>
                 </div>
 
                 <!-- Strategic Intelligence -->
                 <div class="mb-4">
                     <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
-                    <p class="text-xs text-slate-600 leading-relaxed">目标客户在 Reddit r/SaaS 公开表达了对 [Salesforce CRM] 现存短板的诉求。其核心诉求聚焦在解决「主动寻优与迫切平替」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">这是一个高意向的替换型商机：15人销售团队在Salesforce上经历6个月实施失败，已产生明确的沉没成本痛感与团队抵触，预算区间清晰（$30-50/用户/月）。核心决策驱动是易用性、落地速度与邮件同步能力，而非功能堆砌，属于典型的中小团队从重型CRM向轻量现代CRM迁移的场景。</p>
                 </div>
 
                 <!-- Sales Action Plan & Script Box -->
@@ -348,13 +354,205 @@
                             <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             销售跟进建议与破冰话术
                         </div>
-                        <button onclick="copyToClipboard(this, `“关注到您正在寻找 Salesforce CRM 的替代方案。很多同行团队也在反馈其在 主动寻优与迫切平替 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                        <button onclick="copyToClipboard(this, `你好，看到你们团队在Salesforce上折腾了6个月、投入不少但大家还是不愿意用，这种情况其实很常见——重型CRM对15人团队往往过重。我们专注让销售不用培训就能上手，通话和邮件自动同步、无需手动录入，通常两周内全员用起来。按席位计费也正好在你们$30-50的预算内，我们可以免费帮你们做数据迁移和试用，先跑一个小范围看看效果，方便聊聊吗？`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
                             一键复制话术
                         </button>
                     </div>
-                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【主动寻优与迫切平替】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</p>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">以“两周内全员上手、无需实施顾问”为切入，用同规模15人团队的快速上线案例对比Salesforce的长周期实施，直接量化迁移时间与成本节省。<br>针对“没人记录通话”这一核心痛点做现场演示：展示自动通话记录、双向邮件同步与零培训上手体验，并给出按席位计费、落在$30-50区间的透明报价与数据迁移协助承诺。</p>
                     <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
-                        “关注到您正在寻找 Salesforce CRM 的替代方案。很多同行团队也在反馈其在 主动寻优与迫切平替 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”
+                        你好，看到你们团队在Salesforce上折腾了6个月、投入不少但大家还是不愿意用，这种情况其实很常见——重型CRM对15人团队往往过重。我们专注让销售不用培训就能上手，通话和邮件自动同步、无需手动录入，通常两周内全员用起来。按席位计费也正好在你们$30-50的预算内，我们可以免费帮你们做数据迁移和试用，先跑一个小范围看看效果，方便聊聊吗？
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
+                 data-id="e25022a16c07aec76d4d520da695816c"
+                 data-source="v2ex"
+                 data-competitor="notion"
+                 data-tags="high-intent">
+                <!-- Top Meta Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-400">#03</span>
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            目标竞品：Notion
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            企业协同知识库
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
+                            V2EX
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 95 · 极高潜客
+                </span>
+                
+                        <!-- CRM Status Toggle -->
+                        <button onclick="toggleLeadStatus('e25022a16c07aec76d4d520da695816c', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                            待跟进
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
+                    <a href="https://www.v2ex.com/t/1089234" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>有没有好用的国内代替 Notion 的知识库？企微协同需求</span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </h3>
+
+                <!-- Context Meta -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        发帖人：<strong class="text-slate-700 ml-1">code_artisan</strong>
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        买家角色：<strong class="text-slate-700 ml-1">企业IT决策人</strong>
+                    </span>
+                    <span class="inline-flex items-center text-slate-400">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2026-11-02 09:20:00
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        💬 32 条回帖
+                    </span>
+                </div>
+
+                <!-- Voice of Customer -->
+                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
+                    “公司网络访问 Notion 经常加载慢，团队协作还要翻墙很不方便。希望找一个支持私有化部署或者国内云端稳定、能无缝对接企业微信的文档工具，付费也可以接受。...”
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="mb-3.5">
+                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">国内访问加载慢</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">团队协作需翻墙</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">缺乏企业微信集成</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据合规与私有化部署需求</span></div>
+                </div>
+
+                <!-- Strategic Intelligence -->
+                <div class="mb-4">
+                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">该V2EX用户代表了一个典型的企业IT决策场景：因Notion在国内的访问性能、合规及企微集成缺失问题，主动寻求国产替代方案，付费意愿明确。这反映了跨国SaaS工具在中国市场面临的本地化挑战，为国内协同知识库产品提供了高转化商机。</p>
+                </div>
+
+                <!-- Sales Action Plan & Script Box -->
+                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center text-xs font-bold text-emerald-800">
+                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            销售跟进建议与破冰话术
+                        </div>
+                        <button onclick="copyToClipboard(this, `您好，看到您在V2EX提到寻找Notion的国内替代方案，我们提供支持私有化部署和国内云端稳定访问的知识库工具，并且原生对接企业微信，可以帮您解决加载慢和协作不便的问题。方便的话，我可以为您安排一个简短演示，看看是否满足团队需求？`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                            一键复制话术
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">强调私有化部署或国内云端稳定性，直接解决访问慢和翻墙痛点，并提供与企微无缝集成的演示。<br>突出数据合规与安全认证，对比Notion的跨境数据风险，并展示按需付费的灵活定价以降低决策门槛。</p>
+                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
+                        您好，看到您在V2EX提到寻找Notion的国内替代方案，我们提供支持私有化部署和国内云端稳定访问的知识库工具，并且原生对接企业微信，可以帮您解决加载慢和协作不便的问题。方便的话，我可以为您安排一个简短演示，看看是否满足团队需求？
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
+                 data-id="59ceeb8b74abb1a2d94d8d9b517a8358"
+                 data-source="dev.to"
+                 data-competitor="datadog"
+                 data-tags="high-intent pricing privacy">
+                <!-- Top Meta Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-400">#04</span>
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            目标竞品：Datadog
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            云可观测性平台
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
+                            Dev.to
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 95 · 极高潜客
+                </span>
+                
+                        <!-- CRM Status Toggle -->
+                        <button onclick="toggleLeadStatus('59ceeb8b74abb1a2d94d8d9b517a8358', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                            待跟进
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
+                    <a href="https://dev.to/observability_fan/migrating-away-from-datadog-cost-breakdown-199" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>Migrating away from Datadog to an open-source observability stack</span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </h3>
+
+                <!-- Context Meta -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        发帖人：<strong class="text-slate-700 ml-1">cloud_architect_dan</strong>
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        买家角色：<strong class="text-slate-700 ml-1">研发架构师 / 技术主管</strong>
+                    </span>
+                    <span class="inline-flex items-center text-slate-400">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2026-11-02 04:30:00
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        💬 28 讨论 · 👍 65 赞同
+                    </span>
+                </div>
+
+                <!-- Voice of Customer -->
+                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
+                    “Our monthly Datadog bill reached $8,500 for custom metrics and APM. Looking for a modern SigNoz or Prometheus alternative that our DevOps team can self-host....”
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="mb-3.5">
+                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">自定义指标和APM费用过高</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">月度账单达8500美元</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">需要自托管方案以控制成本</span></div>
+                </div>
+
+                <!-- Strategic Intelligence -->
+                <div class="mb-4">
+                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">该用户因Datadog成本过高而明确寻求迁移至开源可观测性栈，显示出强烈的替换意向。目标客户为拥有DevOps团队的中大型企业，对自托管和成本可控性有明确需求。</p>
+                </div>
+
+                <!-- Sales Action Plan & Script Box -->
+                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center text-xs font-bold text-emerald-800">
+                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            销售跟进建议与破冰话术
+                        </div>
+                        <button onclick="copyToClipboard(this, `您好，看到您正在考虑从Datadog迁移到开源可观测性方案。我们提供自托管的SigNoz/Prometheus替代方案，可帮助您将月度成本降低70%以上，同时保持完整的APM和自定义指标能力。是否需要为您安排一次技术演示，详细对比成本与功能？`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                            一键复制话术
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">强调自托管方案的总拥有成本优势，提供详细的成本对比计算器，展示三年内可节省的费用。<br>提供无缝迁移工具和专业服务，突出开源方案的灵活性和社区支持，降低迁移风险。</p>
+                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
+                        您好，看到您正在考虑从Datadog迁移到开源可观测性方案。我们提供自托管的SigNoz/Prometheus替代方案，可帮助您将月度成本降低70%以上，同时保持完整的APM和自定义指标能力。是否需要为您安排一次技术演示，详细对比成本与功能？
                     </div>
                 </div>
             </div>
@@ -367,13 +565,13 @@
                 <!-- Top Meta Bar -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="font-mono text-xs font-bold text-slate-400">#03</span>
+                        <span class="font-mono text-xs font-bold text-slate-400">#05</span>
                         <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                             <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             目标竞品：DocuSign
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                            电子签名与数字合同
+                            电子签名与文档管理平台
                         </span>
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
                             GitHub
@@ -402,18 +600,21 @@
                 </h3>
 
                 <!-- Context Meta -->
-                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-4">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         发帖人：<strong class="text-slate-700 ml-1">OpenSignLabs</strong>
                     </span>
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        买家角色：<strong class="text-slate-700 ml-1">资深独立开发者 / 个人专业极客</strong>
+                        买家角色：<strong class="text-slate-700 ml-1">企业IT决策人 / 采购与法务负责人</strong>
                     </span>
                     <span class="inline-flex items-center text-slate-400">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         2026-11-02 05:10:00
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        ⭐ 4.2k Stars · 🍴 310 Forks
                     </span>
                 </div>
 
@@ -425,13 +626,13 @@
                 <!-- Churn Drivers -->
                 <div class="mb-3.5">
                     <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
-                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">采购成本过高 / 价格激增</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据主权与开源自托管诉求</span></div>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">API定价上涨40%</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">按席位/用量计费成本过高</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据主权与合规顾虑</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">缺乏自托管选项</span></div>
                 </div>
 
                 <!-- Strategic Intelligence -->
                 <div class="mb-4">
                     <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
-                    <p class="text-xs text-slate-600 leading-relaxed">目标客户在 GitHub 公开表达了对 [DocuSign] 现存短板的诉求。其核心诉求聚焦在解决「采购成本过高 / 价格激增 / 数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">DocuSign API涨价40%正推动价格敏感且重视数据合规的企业转向开源替代方案，OpenSign以自托管和防篡改能力快速获得4200星关注。这反映出电子签名市场对透明定价与数据主权的需求上升，是竞品替换的高意向窗口。</p>
                 </div>
 
                 <!-- Sales Action Plan & Script Box -->
@@ -441,32 +642,320 @@
                             <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             销售跟进建议与破冰话术
                         </div>
-                        <button onclick="copyToClipboard(this, `“关注到您正在寻找 DocuSign 的替代方案。很多同行团队也在反馈其在 采购成本过高 / 价格激增 / 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                        <button onclick="copyToClipboard(this, `您好，注意到DocuSign近期API涨价40%，不少企业正在重新评估电子签名的长期成本与数据合规策略。我们提供可自托管、防篡改的电子签名方案，支持按需部署且定价透明。如果您正在做替代方案评估，我可以为您准备一份针对您业务规模的TCO对比与迁移路径，方便您内部决策。`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
                             一键复制话术
                         </button>
                     </div>
-                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【采购成本过高 / 价格激增与数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</p>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">以TCO对比切入：量化DocuSign涨价后的API调用成本，突出自托管方案在规模化场景下的成本优势与预算可预测性。<br>强调合规与数据主权：针对金融、医疗、法务等敏感行业，演示防篡改审计日志与私有化部署能力，降低数据外流顾虑。</p>
                     <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
-                        “关注到您正在寻找 DocuSign 的替代方案。很多同行团队也在反馈其在 采购成本过高 / 价格激增 / 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”
+                        您好，注意到DocuSign近期API涨价40%，不少企业正在重新评估电子签名的长期成本与数据合规策略。我们提供可自托管、防篡改的电子签名方案，支持按需部署且定价透明。如果您正在做替代方案评估，我可以为您准备一份针对您业务规模的TCO对比与迁移路径，方便您内部决策。
                     </div>
                 </div>
             </div>
             
             <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
-                 data-id="e25022a16c07aec76d4d520da695816c"
-                 data-source="v2ex"
-                 data-competitor="notion"
-                 data-tags="privacy">
+                 data-id="2f1ba9747388fda658183cbcf47a51f9"
+                 data-source="github"
+                 data-competitor="firebase crashlytics"
+                 data-tags="high-intent privacy">
                 <!-- Top Meta Bar -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="font-mono text-xs font-bold text-slate-400">#04</span>
+                        <span class="font-mono text-xs font-bold text-slate-400">#06</span>
                         <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                             <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            目标竞品：Notion
+                            目标竞品：Firebase Crashlytics
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                            模块化团队协作与知识库
+                            移动应用监控与崩溃分析平台
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
+                            GitHub
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 85 · 极高潜客
+                </span>
+                
+                        <!-- CRM Status Toggle -->
+                        <button onclick="toggleLeadStatus('2f1ba9747388fda658183cbcf47a51f9', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                            待跟进
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
+                    <a href="https://github.com/measure-sh/measure" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>New Alternative: measure-sh/measure - Measure helps mobile teams monitor and fix crashes, ANRs, bugs, and performance issues. The open source alternative to Firebase Crashlytics.</span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </h3>
+
+                <!-- Context Meta -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        发帖人：<strong class="text-slate-700 ml-1">measure-sh</strong>
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        买家角色：<strong class="text-slate-700 ml-1">移动研发负责人 / 技术主管</strong>
+                    </span>
+                    <span class="inline-flex items-center text-slate-400">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2026-11-02T09:30:20Z
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        ⭐ 1427 Stars · 🍴 91 Forks
+                    </span>
+                </div>
+
+                <!-- Voice of Customer -->
+                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
+                    “Stars: 1427 | Forks: 91 | Language: TypeScript | Description: Measure helps mobile teams monitor and fix crashes, ANRs, bugs, and performance issues. The open source alternative to Firebase Crashlytics....”
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="mb-3.5">
+                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">开源替代方案可降低供应商锁定风险</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">对 Firebase 生态绑定与数据合规的顾虑</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">希望获得更透明的定价与自托管能力</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">需要更灵活的 ANR 与性能问题排查能力</span></div>
+                </div>
+
+                <!-- Strategic Intelligence -->
+                <div class="mb-4">
+                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">Measure 以开源替代 Firebase Crashlytics 的定位在 GitHub 获得较高关注，表明移动监控市场对供应商锁定和成本透明度存在明确不满。该信号显示中大型移动研发团队正在主动评估可自托管、可定制的崩溃与 ANR 监控工具，构成对 Crashlytics 的直接替代机会。</p>
+                </div>
+
+                <!-- Sales Action Plan & Script Box -->
+                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center text-xs font-bold text-emerald-800">
+                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            销售跟进建议与破冰话术
+                        </div>
+                        <button onclick="copyToClipboard(this, `您好，注意到贵团队在关注移动端崩溃与 ANR 监控的开源替代方案。我们提供可自托管、定价透明的移动监控平台，支持与现有研发流程无缝集成，并可在不影响线上稳定性的前提下与 Crashlytics 并行验证。是否需要我发一份迁移评估清单供您参考？`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                            一键复制话术
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">以“开源可自托管 + 数据主权”为核心卖点，对比 Crashlytics 的生态绑定与定价不透明，提供迁移评估清单和并行运行方案。<br>针对移动团队强调 ANR 与性能问题的深度排查能力，提供与现有 CI/CD 和告警体系集成的演示，降低切换风险。</p>
+                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
+                        您好，注意到贵团队在关注移动端崩溃与 ANR 监控的开源替代方案。我们提供可自托管、定价透明的移动监控平台，支持与现有研发流程无缝集成，并可在不影响线上稳定性的前提下与 Crashlytics 并行验证。是否需要我发一份迁移评估清单供您参考？
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
+                 data-id="bebd2b0073c8c187e0fbb13584e90132"
+                 data-source="github"
+                 data-competitor="grok bot"
+                 data-tags="high-intent pricing">
+                <!-- Top Meta Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-400">#07</span>
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            目标竞品：Grok Bot
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            AI智能体开发与编排平台
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
+                            GitHub
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 85 · 极高潜客
+                </span>
+                
+                        <!-- CRM Status Toggle -->
+                        <button onclick="toggleLeadStatus('bebd2b0073c8c187e0fbb13584e90132', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                            待跟进
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
+                    <a href="https://github.com/rome-os/rome" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>New Alternative: rome-os/rome - A compounding agent OS for recursive agents. Also an open source alternative to Grok Bot and Meta's Muse.</span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </h3>
+
+                <!-- Context Meta -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        发帖人：<strong class="text-slate-700 ml-1">rome-os</strong>
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        买家角色：<strong class="text-slate-700 ml-1">AI平台架构师 / 技术负责人</strong>
+                    </span>
+                    <span class="inline-flex items-center text-slate-400">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2026-11-02T09:29:56Z
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        ⭐ 881 Stars · 🍴 65 Forks
+                    </span>
+                </div>
+
+                <!-- Voice of Customer -->
+                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
+                    “Stars: 881 | Forks: 65 | Language: TypeScript | Description: A compounding agent OS for recursive agents. Also an open source alternative to Grok Bot and Meta's Muse....”
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="mb-3.5">
+                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">闭源生态锁定风险</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">按调用量计费成本不可控</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">缺乏递归代理编排能力</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据主权与合规顾虑</span></div>
+                </div>
+
+                <!-- Strategic Intelligence -->
+                <div class="mb-4">
+                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">GitHub上出现高星开源项目rome-os/rome，明确以Grok Bot与Meta Muse的替代者定位切入递归代理OS赛道，反映开发者对闭源代理平台锁定与计费模式的抵触正在转化为迁移行动。该信号表明AI代理基础设施层正形成'开源替代闭源'的竞争窗口，技术决策者已进入方案评估阶段。</p>
+                </div>
+
+                <!-- Sales Action Plan & Script Box -->
+                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center text-xs font-bold text-emerald-800">
+                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            销售跟进建议与破冰话术
+                        </div>
+                        <button onclick="copyToClipboard(this, `您好，注意到贵团队在关注递归代理的开源方案。我们理解闭源代理平台在扩展性和调用成本上的顾虑——很多技术负责人正面临同样的权衡。我们可以结合您的代理编排场景，做一次轻量的架构对比与成本测算，帮您判断开源路线是否契合现有技术栈，不涉及任何采购承诺。`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                            一键复制话术
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">• 以'递归代理编排+开源可控'为锚点做对比演示，量化Grok Bot按调用计费在规模化场景下的成本差距，突出rome-os的可自托管与二次开发优势。<br>• 针对已评估rome-os的团队提供迁移评估工作坊，聚焦代理状态持久化、多代理协作与合规部署，用POC验证替代可行性并降低切换风险。</p>
+                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
+                        您好，注意到贵团队在关注递归代理的开源方案。我们理解闭源代理平台在扩展性和调用成本上的顾虑——很多技术负责人正面临同样的权衡。我们可以结合您的代理编排场景，做一次轻量的架构对比与成本测算，帮您判断开源路线是否契合现有技术栈，不涉及任何采购承诺。
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
+                 data-id="0e2fe22e2992094c136e3191a8771762"
+                 data-source="github"
+                 data-competitor="pixieset"
+                 data-tags="high-intent pricing privacy">
+                <!-- Top Meta Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-400">#08</span>
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            目标竞品：Pixieset
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            摄影工作室客户交付与选片平台
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
+                            GitHub
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 85 · 极高潜客
+                </span>
+                
+                        <!-- CRM Status Toggle -->
+                        <button onclick="toggleLeadStatus('0e2fe22e2992094c136e3191a8771762', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                            待跟进
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
+                    <a href="https://github.com/markusthiel/lumio" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>New Alternative: markusthiel/lumio - Self-hosted client galleries for photographers — proofing, image selection, print shop, AI tagging. GDPR-native, your data stays with you. A source-available alternative to Pixieset & Picdrop.</span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </h3>
+
+                <!-- Context Meta -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        发帖人：<strong class="text-slate-700 ml-1">markusthiel</strong>
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        买家角色：<strong class="text-slate-700 ml-1">摄影工作室主理人 / 独立摄影师（兼技术与采购决策）</strong>
+                    </span>
+                    <span class="inline-flex items-center text-slate-400">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2026-11-02T09:31:13Z
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        ⭐ 86 Stars · 🍴 13 Forks
+                    </span>
+                </div>
+
+                <!-- Voice of Customer -->
+                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
+                    “Stars: 86 | Forks: 13 | Language: TypeScript | Description: Self-hosted client galleries for photographers — proofing, image selection, print shop, AI tagging. GDPR-native, your data stays with you. A source-available alternative to Pixieset & Picdrop....”
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="mb-3.5">
+                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">SaaS订阅按年付费成本高</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">客户照片托管在第三方云，数据主权与GDPR合规顾虑</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">缺乏自托管与数据本地化能力</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">AI打标等高级功能需额外付费或受限</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">对Pixieset/Picdrop的锁定效应不满</span></div>
+                </div>
+
+                <!-- Strategic Intelligence -->
+                <div class="mb-4">
+                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">该GitHub项目以source-available方式切入摄影工作室客户交付赛道，直接对标Pixieset与Picdrop，凭借自托管、GDPR原生与AI打标形成差异化，86星与13叉显示早期但真实的需求验证。信号表明欧洲及注重数据合规的摄影工作室存在明确的迁移意愿，是低成本获客的窗口期。</p>
+                </div>
+
+                <!-- Sales Action Plan & Script Box -->
+                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center text-xs font-bold text-emerald-800">
+                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            销售跟进建议与破冰话术
+                        </div>
+                        <button onclick="copyToClipboard(this, `您好，注意到您在关注自托管的客户画廊方案。很多摄影工作室在Pixieset/Picdrop上遇到数据合规与年费压力，我们可以帮您评估迁移成本，并演示如何把画廊、选片和打印商店平滑搬到您自己的服务器上，数据完全由您掌控。方便约15分钟聊聊您目前的交付流程吗？`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                            一键复制话术
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">以“数据主权+合规”为切入点，向使用Pixieset/Picdrop的摄影工作室量化对比年订阅成本与GDPR风险，强调自托管可消除第三方数据托管顾虑。<br>提供迁移陪跑方案：演示从Pixieset批量导入画廊、客户选片流程与打印商店配置，降低切换摩擦并突出AI打标带来的效率提升。</p>
+                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
+                        您好，注意到您在关注自托管的客户画廊方案。很多摄影工作室在Pixieset/Picdrop上遇到数据合规与年费压力，我们可以帮您评估迁移成本，并演示如何把画廊、选片和打印商店平滑搬到您自己的服务器上，数据完全由您掌控。方便约15分钟聊聊您目前的交付流程吗？
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
+                 data-id="b6fe919b87c5f410c4edb82c394874e3"
+                 data-source="v2ex"
+                 data-competitor="阿里云"
+                 data-tags="high-intent pricing">
+                <!-- Top Meta Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-400">#09</span>
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            目标竞品：阿里云
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            云服务器基础设施
                         </span>
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
                             V2EX
@@ -474,13 +963,13 @@
                     </div>
                     <div class="flex items-center gap-2">
                         
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-blue-500"></span>
-                    意向分: 70 · 评估寻优
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 85 · 极高潜客
                 </span>
                 
                         <!-- CRM Status Toggle -->
-                        <button onclick="toggleLeadStatus('e25022a16c07aec76d4d520da695816c', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                        <button onclick="toggleLeadStatus('b6fe919b87c5f410c4edb82c394874e3', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
                             待跟进
                         </button>
                     </div>
@@ -488,43 +977,46 @@
 
                 <!-- Discussion Title -->
                 <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
-                    <a href="https://www.v2ex.com/t/1089234" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
-                        <span>有没有好用的国内代替 Notion 的知识库？企微协同需求</span>
+                    <a href="https://www.v2ex.com/t/1253878" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>求推荐云服务器资源</span>
                         <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     </a>
                 </h3>
 
                 <!-- Context Meta -->
-                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-4">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        发帖人：<strong class="text-slate-700 ml-1">code_artisan</strong>
+                        发帖人：<strong class="text-slate-700 ml-1">JacksonTam</strong>
                     </span>
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        买家角色：<strong class="text-slate-700 ml-1">中小企业管理者 / 研发技术主管</strong>
+                        买家角色：<strong class="text-slate-700 ml-1">中小企业技术负责人 / 独立开发者</strong>
                     </span>
                     <span class="inline-flex items-center text-slate-400">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        2026-11-02 09:20:00
+                        2026-11-02 17:05:06
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        💬 2 条回帖
                     </span>
                 </div>
 
                 <!-- Voice of Customer -->
                 <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
-                    “公司网络访问 Notion 经常加载慢，团队协作还要翻墙很不方便。希望找一个支持私有化部署或者国内云端稳定、能无缝对接企业微信的文档工具，付费也可以接受。...”
+                    “国内大厂的收费太贵了，有没老哥推荐便宜可靠的云服务器厂商资源，谢谢啦...”
                 </div>
 
                 <!-- Churn Drivers -->
                 <div class="mb-3.5">
                     <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
-                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据主权与开源自托管诉求</span></div>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">国内大厂云服务器价格过高</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">成本敏感型用户寻求性价比替代</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">对便宜可靠云服务器的明确需求</span></div>
                 </div>
 
                 <!-- Strategic Intelligence -->
                 <div class="mb-4">
                     <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
-                    <p class="text-xs text-slate-600 leading-relaxed">目标客户在 V2EX 公开表达了对 [Notion] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">该V2EX帖子显示用户对阿里云等国内大厂云服务器的高定价产生明确不满，并主动寻求低成本替代方案，属于高购买意向的竞品替换信号。目标客户为价格敏感的中小企业技术决策者或独立开发者，是云服务器厂商获取新客户的优质机会。</p>
                 </div>
 
                 <!-- Sales Action Plan & Script Box -->
@@ -534,105 +1026,13 @@
                             <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             销售跟进建议与破冰话术
                         </div>
-                        <button onclick="copyToClipboard(this, `“关注到您正在寻找 Notion 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                        <button onclick="copyToClipboard(this, `您好，看到您在V2EX上寻找便宜可靠的云服务器。我们提供高性能云服务器，价格比阿里云低30%-50%，且支持无缝迁移和7x24小时技术支持。可为您免费提供一个月试用和迁移方案，方便对比测试。如有兴趣，欢迎私信了解详情。`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
                             一键复制话术
                         </button>
                     </div>
-                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</p>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">强调自身云服务器在同等可靠性下的价格优势，提供与阿里云同规格配置的详细成本对比表，突出长期节省成本。<br>提供限时迁移补贴或免费试用资源，降低用户切换门槛，并展示已有客户从阿里云迁移的成功案例与性能数据。</p>
                     <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
-                        “关注到您正在寻找 Notion 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”
-                    </div>
-                </div>
-            </div>
-            
-            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
-                 data-id="1bf0b7c95134fce9da354ad0572f24b7"
-                 data-source="hacker news"
-                 data-competitor="smart"
-                 data-tags="privacy">
-                <!-- Top Meta Bar -->
-                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="font-mono text-xs font-bold text-slate-400">#05</span>
-                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            目标竞品：Smart
-                        </div>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                            行业竞品平替场景
-                        </span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
-                            Hacker News
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    意向分: 60 · 行业观察
-                </span>
-                
-                        <!-- CRM Status Toggle -->
-                        <button onclick="toggleLeadStatus('1bf0b7c95134fce9da354ad0572f24b7', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
-                            待跟进
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Discussion Title -->
-                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
-                    <a href="https://news.ycombinator.com/item?id=50328896" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
-                        <span>Ask HN: Which TV do you recommend for privacy?</span>
-                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </a>
-                </h3>
-
-                <!-- Context Meta -->
-                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-4">
-                    <span class="inline-flex items-center">
-                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        发帖人：<strong class="text-slate-700 ml-1">LecroJS</strong>
-                    </span>
-                    <span class="inline-flex items-center">
-                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        买家角色：<strong class="text-slate-700 ml-1">资深独立开发者 / 个人专业极客</strong>
-                    </span>
-                    <span class="inline-flex items-center text-slate-400">
-                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        2026-11-01T19:35:27Z
-                    </span>
-                </div>
-
-                <!-- Voice of Customer -->
-                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
-                    “I haven’t owned a TV in years and would like one that respects my privacy. Are there any TV’s which do this well? I am looking for something in the 60”to 80”range and would like a 4k display with at least 60hz display. I don’t mind paying a premium.<p>I have heard good things abo...”
-                </div>
-
-                <!-- Churn Drivers -->
-                <div class="mb-3.5">
-                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
-                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据主权与开源自托管诉求</span></div>
-                </div>
-
-                <!-- Strategic Intelligence -->
-                <div class="mb-4">
-                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
-                    <p class="text-xs text-slate-600 leading-relaxed">目标客户在 Hacker News 公开表达了对 [Smart] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
-                </div>
-
-                <!-- Sales Action Plan & Script Box -->
-                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center text-xs font-bold text-emerald-800">
-                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            销售跟进建议与破冰话术
-                        </div>
-                        <button onclick="copyToClipboard(this, `“关注到您正在寻找 Smart 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
-                            一键复制话术
-                        </button>
-                    </div>
-                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</p>
-                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
-                        “关注到您正在寻找 Smart 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”
+                        您好，看到您在V2EX上寻找便宜可靠的云服务器。我们提供高性能云服务器，价格比阿里云低30%-50%，且支持无缝迁移和7x24小时技术支持。可为您免费提供一个月试用和迁移方案，方便对比测试。如有兴趣，欢迎私信了解详情。
                     </div>
                 </div>
             </div>
@@ -641,17 +1041,17 @@
                  data-id="b1d4ffb438f4cb86bc5641b9dbb0d970"
                  data-source="hacker news"
                  data-competitor="arc browser"
-                 data-tags="privacy">
+                 data-tags="high-intent privacy">
                 <!-- Top Meta Bar -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="font-mono text-xs font-bold text-slate-400">#06</span>
+                        <span class="font-mono text-xs font-bold text-slate-400">#10</span>
                         <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                             <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             目标竞品：Arc Browser
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                            桌面效率浏览器
+                            桌面浏览器与生产力工具
                         </span>
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
                             Hacker News
@@ -659,8 +1059,9 @@
                     </div>
                     <div class="flex items-center gap-2">
                         
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    意向分: 60 · 行业观察
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 85 · 极高潜客
                 </span>
                 
                         <!-- CRM Status Toggle -->
@@ -679,18 +1080,21 @@
                 </h3>
 
                 <!-- Context Meta -->
-                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 mb-4">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         发帖人：<strong class="text-slate-700 ml-1">nateb2022</strong>
                     </span>
                     <span class="inline-flex items-center">
                         <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        买家角色：<strong class="text-slate-700 ml-1">资深独立开发者 / 个人专业极客</strong>
+                        买家角色：<strong class="text-slate-700 ml-1">研发架构师 / 技术主管</strong>
                     </span>
                     <span class="inline-flex items-center text-slate-400">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         2026-11-02T03:53:24Z
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        🔥 1 关注
                     </span>
                 </div>
 
@@ -702,13 +1106,13 @@
                 <!-- Churn Drivers -->
                 <div class="mb-3.5">
                     <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
-                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">数据主权与开源自托管诉求</span></div>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">闭源产品缺乏透明度和可定制性</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">对开源替代方案有强烈偏好</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">可能对数据隐私和厂商锁定存在顾虑</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">希望获得社区驱动的功能演进</span></div>
                 </div>
 
                 <!-- Strategic Intelligence -->
                 <div class="mb-4">
                     <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
-                    <p class="text-xs text-slate-600 leading-relaxed">目标客户在 Hacker News 公开表达了对 [Arc Browser] 现存短板的诉求。其核心诉求聚焦在解决「数据主权与开源自托管诉求」。目前该用户群体决策链较短，处于从老旧方案迁出的最佳窗口期。</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">Hacker News上出现针对Arc浏览器的开源替代项目Cra Browser，反映出技术社区对闭源浏览器产品的不满和迁移意愿。该信号显示开发者群体对开源、可定制解决方案的强烈需求，是竞品替代和开发者工具营销的高价值机会。</p>
                 </div>
 
                 <!-- Sales Action Plan & Script Box -->
@@ -718,13 +1122,109 @@
                             <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             销售跟进建议与破冰话术
                         </div>
-                        <button onclick="copyToClipboard(this, `“关注到您正在寻找 Arc Browser 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                        <button onclick="copyToClipboard(this, `您好，注意到您在关注Arc的开源替代方案。我们的浏览器解决方案同样开源透明，支持深度定制和社区共建，并且提供从Arc平滑迁移的工具和文档。如果您希望摆脱厂商锁定、获得更高的数据自主权，欢迎了解我们如何帮助技术团队实现无缝切换。`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
                             一键复制话术
                         </button>
                     </div>
-                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">1. 核心定位：不要做功能 1:1 硬碰硬，主打「轻量化、高性价比、开箱即用」以穿透其核心痛点。<br>2. 转化抓手：针对该买家对【数据主权与开源自托管诉求】的关注，重点提供无感数据平滑迁移方案与更友好的阶梯定价策略。</p>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">强调开源透明、社区驱动和可审计性，直接对比Arc的闭源模式，突出数据主权和自定义能力。<br>针对技术决策者提供迁移指南和兼容性评估，降低从Arc切换的成本，并展示活跃的社区支持路线图。</p>
                     <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
-                        “关注到您正在寻找 Arc Browser 的替代方案。很多同行团队也在反馈其在 数据主权与开源自托管诉求 上的困扰。我们针对该场景做了深度优化，不仅开箱即用、交互更加轻快，整体拥有成本还能节省近 50%。我们准备了一份迁移对照表与在线体验环境，方便发您参考交流一下吗？”
+                        您好，注意到您在关注Arc的开源替代方案。我们的浏览器解决方案同样开源透明，支持深度定制和社区共建，并且提供从Arc平滑迁移的工具和文档。如果您希望摆脱厂商锁定、获得更高的数据自主权，欢迎了解我们如何帮助技术团队实现无缝切换。
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lead-card bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 mb-5"
+                 data-id="dbbf3032199eb70ab49b324703a12fb9"
+                 data-source="hacker news"
+                 data-competitor="instagram"
+                 data-tags="high-intent privacy">
+                <!-- Top Meta Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-400">#11</span>
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            目标竞品：Instagram
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            社交媒体应用
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-200">
+                            Hacker News
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    意向分: 85 · 极高潜客
+                </span>
+                
+                        <!-- CRM Status Toggle -->
+                        <button onclick="toggleLeadStatus('dbbf3032199eb70ab49b324703a12fb9', this)" class="lead-status-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">
+                            待跟进
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Discussion Title -->
+                <h3 class="card-title-text text-lg font-bold text-slate-900 mt-4 mb-2 leading-snug">
+                    <a href="https://peopleyouk.now/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group">
+                        <span>Show HN: People you know, an end-to-end encrypted private Instagram replacement</span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </h3>
+
+                <!-- Context Meta -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        发帖人：<strong class="text-slate-700 ml-1">jsbg</strong>
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        买家角色：<strong class="text-slate-700 ml-1">个人用户 / 隐私关注者</strong>
+                    </span>
+                    <span class="inline-flex items-center text-slate-400">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2026-11-02T00:15:38Z
+                    </span>
+                    <span class="inline-flex items-center text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 font-medium">
+                        🔥 3 关注
+                    </span>
+                </div>
+
+                <!-- Voice of Customer -->
+                <div class="bg-slate-50 border-l-4 border-slate-300 p-3.5 rounded-r-lg mb-4 text-xs text-slate-700 italic leading-relaxed">
+                    “I built an alternative to popular social networks because I was sick of the unending enshittification of instagram. Every UX change in recent years intended to make their app more addictive to teenagers has made me want to use it less, but I don&#x27;t want to lose contact with t...”
+                </div>
+
+                <!-- Churn Drivers -->
+                <div class="mb-3.5">
+                    <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mr-2">流失诱因:</span>
+                    <div class="inline-flex flex-wrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">算法驱动的成瘾性设计</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">强制每日打开的故事功能</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">无限滚动短视频化</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">隐私与数据收集担忧</span><span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100 mr-2 mb-1">用户体验过度商业化</span></div>
+                </div>
+
+                <!-- Strategic Intelligence -->
+                <div class="mb-4">
+                    <div class="text-xs font-bold text-slate-800 mb-1">💡 竞争情报简析</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">该信号显示用户对主流社交平台Instagram的“enshittification”现象强烈不满，明确寻求端到端加密的私密社交替代方案。这反映了隐私优先和反成瘾设计的细分市场需求，为注重用户福祉的社交产品提供了获客机会。</p>
+                </div>
+
+                <!-- Sales Action Plan & Script Box -->
+                <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center text-xs font-bold text-emerald-800">
+                            <svg class="w-4 h-4 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            销售跟进建议与破冰话术
+                        </div>
+                        <button onclick="copyToClipboard(this, `您好，看到您对Instagram的成瘾性设计感到疲惫，我们理解您希望与亲密好友保持联系而不被算法干扰。我们的端到端加密社交应用专注于简约和隐私，没有故事压力或无限滚动，让您真正掌控社交节奏。欢迎体验并给出反馈。`)" class="px-2.5 py-1 text-[11px] font-medium bg-white text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50 transition-colors shadow-2xs">
+                            一键复制话术
+                        </button>
+                    </div>
+                    <p class="text-xs text-emerald-900/80 mb-2 leading-relaxed">强调端到端加密和零数据挖掘的隐私保护，直接对比Instagram的广告驱动模式。<br>突出极简、无成瘾性设计的用户体验，避免无限滚动和强制每日打开机制。</p>
+                    <div class="bg-white/90 border border-emerald-200/60 rounded p-2.5 text-xs text-emerald-950 font-sans leading-relaxed">
+                        您好，看到您对Instagram的成瘾性设计感到疲惫，我们理解您希望与亲密好友保持联系而不被算法干扰。我们的端到端加密社交应用专注于简约和隐私，没有故事压力或无限滚动，让您真正掌控社交节奏。欢迎体验并给出反馈。
                     </div>
                 </div>
             </div>
