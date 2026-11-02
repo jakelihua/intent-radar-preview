@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="h-full bg-slate-50">
+<html lang="zh-CN" class="h-full bg-zinc-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +10,23 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif],
+                        mono: ['JetBrains Mono', 'Menlo', monospace],
+                    },
                     colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
+                        zinc: {
+                            950: '#09090b',
+                            900: '#18181b',
+                            800: '#27272a',
+                            700: '#3f3f46',
+                            600: '#52525b',
+                            500: '#71717a',
+                            400: '#a1a1aa',
+                            300: '#d4d4d8',
+                            200: '#e4e4e7',
+                            100: '#f4f4f5',
+                            50: '#fafafa',
                         }
                     }
                 }
@@ -28,228 +39,248 @@
     <style>
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Clean shadcn scrollbars */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .drawer-mask { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px); }
+        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+        .drawer-mask { background: rgba(9, 9, 11, 0.4); backdrop-filter: blur(4px); }
     </style>
 </head>
-<body class="h-full font-sans antialiased text-slate-800 flex overflow-hidden">
+<body class="h-full font-sans antialiased text-zinc-900 flex overflow-hidden">
 
-    <!-- Left Navigation Sidebar -->
-    <aside class="hidden lg:flex lg:flex-shrink-0 w-64 bg-slate-900 border-r border-slate-800 flex-col">
-        <!-- Logo Header -->
-        <div class="h-16 flex items-center px-6 border-b border-slate-800">
-            <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-bold mr-3 shadow-md shadow-emerald-500/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <!-- Left Navigation Sidebar (shadcn/ui dark zinc style) -->
+    <aside class="hidden lg:flex lg:flex-shrink-0 w-64 bg-zinc-950 border-r border-zinc-800/80 flex-col">
+        <!-- Bespoke Radar Interceptor Brand Mark -->
+        <div class="h-16 flex items-center px-6 border-b border-zinc-800/80">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-[1px] mr-3 shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                <div class="w-full h-full bg-zinc-950 rounded-[11px] flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9" opacity="0.35" />
+                        <path d="M12 3a9 9 0 0 1 9 9" />
+                        <circle cx="12" cy="12" r="5" opacity="0.6" />
+                        <path d="m15.5 8.5 4-4" stroke-width="2.5" />
+                        <circle cx="12" cy="12" r="2" fill="currentColor" />
+                    </svg>
+                </div>
             </div>
             <div class="flex flex-col">
-                <span class="text-sm font-bold text-white tracking-wide">商机雷达 INTENT RADAR</span>
-                <span class="text-[10px] text-slate-400 font-mono tracking-wider">COMMERCIAL CRM v2.0</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-white tracking-wide">IntentRadar</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1 py-0.2 rounded border border-emerald-500/30">v2.5</span>
+                </div>
+                <span class="text-[10px] text-zinc-400 font-mono tracking-wider">商机雷达 · 竞品弃用情报</span>
             </div>
         </div>
 
-        <!-- Sidebar Navigation -->
-        <div class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-            <div class="px-3 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">线索工作台</div>
+        <!-- Navigation Menu -->
+        <div class="flex-1 px-3.5 py-5 space-y-1 overflow-y-auto">
+            <div class="px-2.5 pb-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">情报线索工作台</div>
 
-            <button onclick="setFilterCategory('all', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-semibold text-white bg-slate-800 rounded-lg group text-left transition-colors">
-                <svg class="w-4 h-4 mr-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <button onclick="setFilterCategory('all', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-white bg-zinc-800 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                 全部商机线索
-                <span class="ml-auto bg-slate-700 text-slate-300 py-0.5 px-2 rounded-full text-[10px] font-mono">11</span>
+                <span class="ml-auto bg-zinc-700 text-zinc-300 py-0.5 px-2 rounded-full text-[10px] font-mono">10</span>
             </button>
 
-            <button onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg group text-left transition-colors">
-                <svg class="w-4 h-4 mr-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path></svg>
-                🔥 极高潜客 (≥80分)
-                <span class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">7</span>
+            <button onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                极高采购意向 (≥80分)
+                <span class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">10</span>
             </button>
 
-            <button onclick="setFilterCategory('pricing', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg group text-left transition-colors">
-                <svg class="w-4 h-4 mr-3 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                💰 价格暴涨 / 寻求平替
-                <span class="ml-auto bg-rose-500/20 text-rose-300 py-0.5 px-2 rounded-full text-[10px] font-mono">4</span>
+            <button onclick="setFilterCategory('pricing', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                价格涨价 / 寻求平替
+                <span class="ml-auto bg-rose-500/20 text-rose-300 py-0.5 px-2 rounded-full text-[10px] font-mono">6</span>
             </button>
 
-            <button onclick="setFilterCategory('privacy', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg group text-left transition-colors">
-                <svg class="w-4 h-4 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                🔒 隐私自托管 / 开源
+            <button onclick="setFilterCategory('privacy', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                数据合规 / 开源自托管
                 <span class="ml-auto bg-indigo-500/20 text-indigo-300 py-0.5 px-2 rounded-full text-[10px] font-mono">5</span>
             </button>
 
-            <div class="pt-6 px-3 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">数据资产操作</div>
+            <div class="pt-6 px-2.5 pb-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">批量生产力工具</div>
 
-            <button onclick="exportToCSV()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors group text-left">
-                <svg class="w-4 h-4 mr-3 text-slate-400 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                导出线索 (CSV 表格)
+            <button onclick="exportToCSV()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-zinc-400 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                导出标准 CSV 表格
             </button>
 
-            <button onclick="copyAllPitches()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors group text-left">
-                <svg class="w-4 h-4 mr-3 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                批量复制破冰话术
+            <button onclick="copyAllPitches()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-zinc-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                批量提取破冰私信
             </button>
 
-            <!-- Bottom Health Info -->
-            <div class="pt-8 px-3">
-                <div class="p-3 rounded-lg bg-slate-800/80 border border-slate-700/80 text-[11px] text-slate-400 space-y-1.5">
-                    <div class="flex items-center justify-between text-slate-300 font-semibold mb-1">
-                        <span>采集数据链路</span>
-                        <span class="inline-flex items-center text-emerald-400 text-[10px]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
-                            正常运行
+            <!-- Bottom Pipeline Specs -->
+            <div class="pt-6 px-1">
+                <div class="p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 text-[11px] text-zinc-400 space-y-2">
+                    <div class="flex items-center justify-between text-zinc-200 font-semibold">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            多源并发采集链路
                         </span>
+                        <span class="text-[10px] text-emerald-400 font-mono">1.3s</span>
                     </div>
-                    <div class="flex justify-between text-[10px] text-slate-400">
-                        <span>Hacker News / Dev.to</span>
-                        <span class="font-mono text-slate-300">在线</span>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-slate-400">
-                        <span>GitHub / V2EX</span>
-                        <span class="font-mono text-slate-300">在线</span>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-slate-400">
-                        <span>DeepSeek 推理引擎</span>
-                        <span class="font-mono text-emerald-400">并发已加速</span>
+                    <div class="text-[10px] text-zinc-400 space-y-1">
+                        <div class="flex justify-between"><span>Hacker News / Dev.to</span><span class="text-zinc-300 font-mono">在线</span></div>
+                        <div class="flex justify-between"><span>GitHub / V2EX</span><span class="text-zinc-300 font-mono">在线</span></div>
+                        <div class="flex justify-between"><span>DeepSeek-V3 并发推理</span><span class="text-emerald-400 font-mono">6 Workers</span></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Footer User -->
-        <div class="p-4 border-t border-slate-800 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-bold">
+        <!-- Footer Profile -->
+        <div class="p-4 border-t border-zinc-800/80 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
                     PL
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xs font-semibold text-slate-200">增长负责工作台</span>
-                    <span class="text-[10px] text-slate-400">2026年11月02日</span>
+                    <span class="text-xs font-medium text-zinc-200">商业增长负责人</span>
+                    <span class="text-[10px] text-zinc-400">2026年11月02日</span>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50">
-        <!-- Top Application Bar -->
-        <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between flex-shrink-0">
-            <!-- Search Bar -->
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-zinc-50/50">
+        <!-- Top Application Bar (shadcn/ui style header) -->
+        <header class="h-16 bg-white border-b border-zinc-200/80 px-6 flex items-center justify-between flex-shrink-0">
+            <!-- Search Bar with lucide icon -->
             <div class="relative w-full max-w-md">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <input type="text"
                        id="searchInput"
                        oninput="handleSearch()"
-                       placeholder="搜索竞品（如 Jira、Salesforce）、痛点、发帖人..."
-                       class="block w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-slate-50 hover:bg-white focus:bg-white">
+                       placeholder="搜索竞品（如 Jira、Notion、Salesforce）、痛点、发帖人..."
+                       class="block w-full pl-9 pr-4 py-2 border border-zinc-200 rounded-lg text-xs placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all bg-zinc-50 hover:bg-white focus:bg-white">
             </div>
 
-            <!-- Right Controls: View Toggle & Status Filter -->
+            <!-- Right Controls: View Switcher & Export -->
             <div class="flex items-center gap-3">
-                <!-- Status Filter Dropdown -->
-                <div class="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-100 p-1 rounded-lg border border-slate-200">
-                    <button onclick="setViewMode('table', this)" id="btnViewTable" class="px-2.5 py-1 rounded-md font-semibold text-slate-900 bg-white shadow-sm transition-all flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                <div class="flex items-center gap-1 text-xs text-zinc-600 bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+                    <button onclick="setViewMode('table', this)" id="btnViewTable" class="px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                         数据表格
                     </button>
-                    <button onclick="setViewMode('cards', this)" id="btnViewCards" class="px-2.5 py-1 rounded-md font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <button onclick="setViewMode('cards', this)" id="btnViewCards" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                         战报卡片
                     </button>
                 </div>
 
-                <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+                <button onclick="exportToCSV()" class="inline-flex items-center px-3.5 py-2 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs transition-colors">
                     <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    导出数据
+                    导出数据 (CSV)
                 </button>
             </div>
         </header>
 
-        <!-- Subheader: Interactive Competitor Pill Matrix -->
-        <div class="bg-white border-b border-slate-200/80 px-6 py-3 flex-shrink-0">
+        <!-- Subheader: Official Brand Logo Pills -->
+        <div class="bg-white border-b border-zinc-200/80 px-6 py-3 flex-shrink-0">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">🎯 竞品标的快速筛选</span>
-                    <span class="text-[11px] text-slate-400">点击竞品徽章即时锁定目标客户池</span>
+                    <span class="text-xs font-bold text-zinc-900 uppercase tracking-wider">🎯 标的竞品快速过滤</span>
+                    <span class="text-[11px] text-zinc-400">点击徽章即时锁定流失客户群</span>
                 </div>
-                <div class="text-[11px] text-slate-400 font-mono">已抓取 11 条高置信度商机</div>
+                <div class="text-[11px] text-zinc-400 font-mono">共捕获 10 条高意向商机</div>
             </div>
-            <!-- Horizontal Competitor Pills -->
+            <!-- Horizontal Competitor Pills with SimpleIcons -->
             <div class="flex items-center gap-2 overflow-x-auto pb-1" id="competitorPillContainer">
                 
-        <button onclick="filterByCompetitor('ALL', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition-all shadow-sm">
-            全部竞品 (11)
+        <button onclick="filterByCompetitor('ALL', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-white transition-all shadow-xs flex-shrink-0">
+            <span>全部竞品</span>
+            <span class="bg-zinc-700 text-zinc-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">10</span>
         </button>
         
-            <button onclick="filterByCompetitor('Jira', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Jira <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Jira', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Jira" loading="lazy" />
+                <span>Jira</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Salesforce', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Salesforce <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Notion', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/notion.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Notion" loading="lazy" />
+                <span>Notion</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Notion', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Notion <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Datadog', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/datadog.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Datadog" loading="lazy" />
+                <span>Datadog</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Datadog', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Datadog <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Salesforce', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Salesforce" loading="lazy" />
+                <span>Salesforce</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('DocuSign', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                DocuSign <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('DocuSign', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="DocuSign" loading="lazy" />
+                <span>DocuSign</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('阿里云', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                阿里云 <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Tableau', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>Tableau</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('RisuAI', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                RisuAI <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('阿里云', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>阿里云</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Instagram', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Instagram <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Instagram', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Instagram" loading="lazy" />
+                <span>Instagram</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Chalkpad', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Chalkpad <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Arc Browser', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Arc Browser" loading="lazy" />
+                <span>Arc Browser</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Arc Browser', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                Arc Browser <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
-            </button>
-            
-            <button onclick="filterByCompetitor('SaaS Price Increase', this)" class="comp-pill px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition-all shadow-sm">
-                SaaS Price Increase <span class="ml-1 text-[11px] font-mono text-slate-400">(1)</span>
+            <button onclick="filterByCompetitor('Claude Managed Agents', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>Claude Managed Agents</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
             </div>
         </div>
 
-        <!-- Main Scrollable Body -->
+        <!-- Main Scrollable Workspace -->
         <main class="flex-1 overflow-y-auto p-6" id="mainContainer">
 
-            <!-- 1. DATA GRID VIEW (Default, Enterprise Standard) -->
-            <div id="tableViewWrapper" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- 1. DATA GRID VIEW (Linear/Stripe style) -->
+            <div id="tableViewWrapper" class="bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
-                        <thead class="bg-slate-50/80 font-semibold text-slate-600 uppercase tracking-wider text-[11px]">
+                    <table class="min-w-full divide-y divide-zinc-200 text-left text-xs">
+                        <thead class="bg-zinc-50/80 font-semibold text-zinc-500 uppercase tracking-wider text-[11px]">
                             <tr>
                                 <th class="py-3 px-4 w-12 text-center">#</th>
-                                <th class="py-3 px-4 w-32">意向等级</th>
-                                <th class="py-3 px-4 w-36">目标竞品</th>
-                                <th class="py-3 px-4">原文标题与痛点诉求</th>
-                                <th class="py-3 px-4 w-40">社区热度 / 来源</th>
-                                <th class="py-3 px-4 w-32">跟进状态</th>
-                                <th class="py-3 px-4 w-28 text-right">操作</th>
+                                <th class="py-3 px-4 w-36 whitespace-nowrap">意向等级</th>
+                                <th class="py-3 px-4 w-44 whitespace-nowrap">目标标的</th>
+                                <th class="py-3 px-4 min-w-[340px]">原文标题与流失痛点诉求</th>
+                                <th class="py-3 px-4 w-44 whitespace-nowrap">社区热度 / 来源</th>
+                                <th class="py-3 px-4 w-28 whitespace-nowrap">跟进状态</th>
+                                <th class="py-3 px-4 w-28 whitespace-nowrap text-right">操作</th>
                             </tr>
                         </thead>
-                        <tbody id="leadTableBody" class="divide-y divide-slate-100 font-normal text-slate-700">
+                        <tbody id="leadTableBody" class="divide-y divide-zinc-100 font-normal text-zinc-700">
                             <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
@@ -262,92 +293,92 @@
             </div>
 
             <!-- Empty State -->
-            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-xl border border-slate-200 shadow-sm">
-                <div class="w-12 h-12 mx-auto text-slate-300 mb-3">
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-xl border border-zinc-200 shadow-xs">
+                <div class="w-12 h-12 mx-auto text-zinc-300 mb-3">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-900 mb-1">未找到匹配的商机线索</h3>
-                <p class="text-xs text-slate-500 mb-4">请尝试调整搜索关键词或重置筛选维度。</p>
-                <button onclick="resetAllFilters()" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors">
+                <h3 class="text-sm font-semibold text-zinc-900 mb-1">未找到匹配的商机线索</h3>
+                <p class="text-xs text-zinc-500 mb-4">请尝试调整搜索关键词或重置筛选维度。</p>
+                <button onclick="resetAllFilters()" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 transition-colors">
                     重置所有筛选
                 </button>
             </div>
         </main>
     </div>
 
-    <!-- RIGHT SLIDE-OVER DRAWER (Detailed Battlecard & Lead Context) -->
+    <!-- RIGHT SLIDE-OVER DRAWER (shadcn/ui Sheet Specification) -->
     <div id="detailDrawerMask" onclick="closeDrawer()" class="drawer-mask fixed inset-0 z-40 hidden transition-opacity duration-300"></div>
 
-    <aside id="detailDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-xl bg-white shadow-2xl border-l border-slate-200 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+    <aside id="detailDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-xl bg-white shadow-2xl border-l border-zinc-200 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         <!-- Drawer Header -->
-        <div class="h-16 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+        <div class="h-16 px-6 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80">
             <div class="flex items-center gap-2">
                 <span id="drawerScoreBadge"></span>
-                <span id="drawerCompetitorBadge" class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200"></span>
+                <span id="drawerCompetitorBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200"></span>
             </div>
-            <button onclick="closeDrawer()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors">
+            <button onclick="closeDrawer()" class="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-200/60 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
 
         <!-- Drawer Content -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
-            <!-- Title & Link -->
+            <!-- Title & Context -->
             <div>
-                <h2 id="drawerTitle" class="text-base font-bold text-slate-900 leading-snug mb-2"></h2>
-                <div class="flex items-center gap-3 text-xs text-slate-500">
+                <h2 id="drawerTitle" class="text-base font-bold text-zinc-900 leading-snug mb-2"></h2>
+                <div class="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
                     <span id="drawerAuthor"></span>
                     <span id="drawerTimestamp"></span>
                     <span id="drawerEngagement" class="text-amber-700 font-medium"></span>
                 </div>
             </div>
 
-            <!-- Original Customer Voice -->
+            <!-- Original Discussion Quote -->
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">📢 客户原始讨论原声</span>
+                    <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">📢 客户原始讨论原声</span>
                     <a id="drawerSourceLink" href="#" target="_blank" rel="noopener" class="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 font-medium">
                         打开原帖页面
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     </a>
                 </div>
-                <div id="drawerContent" class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 text-xs text-slate-700 leading-relaxed font-sans italic"></div>
+                <div id="drawerContent" class="bg-zinc-50 p-4 rounded-xl border border-zinc-200/80 text-xs text-zinc-700 leading-relaxed font-sans italic"></div>
             </div>
 
             <!-- Churn Drivers -->
             <div class="space-y-1.5">
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">⚡ 客户核心流失痛点</span>
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">⚡ 客户核心流失诱因</span>
                 <div id="drawerChurnBadges" class="flex flex-wrap gap-1.5 pt-1"></div>
             </div>
 
             <!-- AI Intelligence Summary -->
             <div class="space-y-1.5">
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">💡 商业情报与诉求研判</span>
-                <div id="drawerExecutiveSummary" class="text-xs text-slate-600 leading-relaxed bg-blue-50/50 p-3.5 rounded-xl border border-blue-100"></div>
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">💡 商业情报与诉求研判</span>
+                <div id="drawerExecutiveSummary" class="text-xs text-zinc-600 leading-relaxed bg-blue-50/50 p-3.5 rounded-xl border border-blue-100"></div>
             </div>
 
             <!-- Tactical Sales Battlecard -->
             <div class="space-y-1.5">
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">🎯 攻防对阵策略建议</span>
-                <div id="drawerTactics" class="text-xs text-slate-700 leading-relaxed bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/70"></div>
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">🎯 攻防对阵策略建议</span>
+                <div id="drawerTactics" class="text-xs text-zinc-700 leading-relaxed bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/70"></div>
             </div>
 
             <!-- Suggested Pitch Box -->
             <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">💬 推荐私信破冰模板</span>
+                    <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">💬 推荐私信破冰模板</span>
                     <button onclick="copyDrawerPitch()" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
                         复制话术
                     </button>
                 </div>
-                <div id="drawerPitch" class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono leading-relaxed select-all"></div>
+                <div id="drawerPitch" class="bg-zinc-950 text-zinc-100 p-4 rounded-xl text-xs font-mono leading-relaxed select-all"></div>
             </div>
 
             <!-- CRM Status in Drawer -->
-            <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-700">跟进状态流转:</span>
-                <div class="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-100 text-xs gap-1">
+            <div class="pt-4 border-t border-zinc-200 flex items-center justify-between">
+                <span class="text-xs font-bold text-zinc-700">跟进状态流转:</span>
+                <div class="inline-flex rounded-lg border border-zinc-200 p-1 bg-zinc-100 text-xs gap-1">
                     <button onclick="setDrawerStatus('待跟进')" id="btnStatusWait" class="px-2.5 py-1 rounded font-medium transition-colors">待跟进</button>
                     <button onclick="setDrawerStatus('跟进中')" id="btnStatusProgress" class="px-2.5 py-1 rounded font-medium transition-colors">跟进中</button>
                     <button onclick="setDrawerStatus('已转化')" id="btnStatusDone" class="px-2.5 py-1 rounded font-medium transition-colors">已转化</button>
@@ -356,9 +387,9 @@
         </div>
     </aside>
 
-    <!-- Sleek Toast Notification (Replaces amateur alerts) -->
+    <!-- Modern Toast Notification (No alert!) -->
     <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center space-x-3 text-xs">
+        <div class="bg-zinc-950 text-white px-4 py-3 rounded-xl shadow-2xl border border-zinc-800 flex items-center space-x-3 text-xs">
             <span id="toastIcon" class="text-emerald-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             </span>
@@ -366,21 +397,30 @@
         </div>
     </div>
 
-    <!-- Data Injection -->
+    <!-- Data Injection & Interactive Controller -->
     <script>
-        const LEADS_DATA = [{"idx": 1, "id": "62b39928a591c9cdbdc308b5fe2b0176", "title": "Looking for an alternative to Jira that doesn't cost an arm and a leg", "url": "https://news.ycombinator.com/item?id=39821455", "source": "Hacker News", "content": "Our team just crossed 25 people and Atlassian's per-seat pricing skyrocketed. The UI is sluggish and our engineers hate it. Any lightweight alternatives for sprint tracking?", "author": "tech_founder_99", "timestamp": "2026-11-02 08:12:00", "engagement": "🔥 142 关注 · 💬 84 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Jira", "category": "研发项目协同", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["按席位定价过高", "界面响应迟缓", "工程师团队抵触使用"], "core_issue": "团队规模突破25人后，Atlassian按席位收费导致成本激增，同时Jira界面卡顿引发工程师不满，促使团队寻找轻量级替代方案。", "executive_summary": "该信号显示一个25人研发团队因Jira按席位定价过高和性能问题正积极寻求替代方案，购买意图强烈。竞品应抓住其成本敏感和工程师体验痛点，定位轻量、高性价比的敏捷管理工具。", "tactical_action_plan": "强调按活跃用户或固定费率定价，直接对比Jira的席位成本，提供25人团队的成本节省测算。\n演示轻量级界面和流畅的冲刺规划体验，突出工程师友好设计和快速响应，邀请技术负责人参与试用。", "suggested_pitch": "您好，看到您团队正为Jira的席位成本和卡顿问题寻找替代方案。我们提供轻量级敏捷管理工具，按活跃用户计费，25人团队可节省40%以上成本，且界面流畅，工程师上手快。方便聊聊您的具体需求吗？"}, {"idx": 2, "id": "549acdfe4e1d11408d18f323267635ef", "title": "Switching from Salesforce to something modern for a 15-person sales team?", "url": "https://reddit.com/r/SaaS/comments/1gx891a", "source": "Reddit r/SaaS", "content": "Salesforce implementation has been a nightmare for 6 months. Spent $15k and nobody is logging calls. We need a simple, intuitive CRM with good email sync. Budget is around $30-50/user/mo.", "author": "b2b_growth_lead", "timestamp": "2026-11-02 07:45:10", "engagement": "🔥 96 赞同 · 💬 45 条建议", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Salesforce", "category": "客户关系管理(CRM)软件", "buyer_persona": "销售负责人 / 销售运营管理者（15人销售团队）", "churn_drivers": ["实施周期长且复杂（6个月仍未落地）", "前期投入成本高（已花费$15k）", "销售团队实际使用率极低（无人记录通话）", "操作复杂、不够直观易用", "邮件同步体验差"], "core_issue": "Salesforce实施半年仍无法落地、投入$15k却无人使用，团队急需一款简单直观、邮件同步良好的轻量CRM。", "executive_summary": "该信号来自一个15人销售团队，已明确表达从Salesforce迁移的意愿，并给出$30-50/用户/月的清晰预算区间，属于高转化意向的替换型商机。其核心痛点集中在实施复杂、成本沉没与一线采纳率低，说明决策者更看重开箱即用、易上手与邮件集成能力，而非功能大而全。", "tactical_action_plan": "以“两周内全员上手、无需实施顾问”为切入点，直接对比Salesforce的6个月落地失败与$15k沉没成本，强调迁移与数据导入的免费支持，降低切换风险。\n针对$30-50/用户/月的预算，提供15人团队打包报价与试用期，重点演示邮件自动同步、通话记录一键归档和销售漏斗可视化，用实际采纳率数据打消顾虑。", "suggested_pitch": "你好，看到你们在Salesforce上投入了半年和$15k却没人愿意用，这种情况其实很常见——复杂配置往往拖垮一线销售的积极性。我们专为15人左右的小型销售团队设计，开箱即用、邮件自动同步、通话记录一键归档，通常一周内全员就能上手，价格也正好落在你们$30-50/用户/月的预算内。如果方便，我可以帮你们做一次免费的数据迁移评估和15分钟演示，让你们先对比一下实际体验，再决定是否切换。"}, {"idx": 3, "id": "e25022a16c07aec76d4d520da695816c", "title": "有没有好用的国内代替 Notion 的知识库？企微协同需求", "url": "https://www.v2ex.com/t/1089234", "source": "V2EX", "content": "公司网络访问 Notion 经常加载慢，团队协作还要翻墙很不方便。希望找一个支持私有化部署或者国内云端稳定、能无缝对接企业微信的文档工具，付费也可以接受。", "author": "code_artisan", "timestamp": "2026-11-02 09:20:00", "engagement": "💬 32 条回帖", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Notion", "category": "企业协同知识库", "buyer_persona": "企业IT决策人", "churn_drivers": ["国内访问加载慢", "团队协作需翻墙", "缺乏企业微信集成", "数据合规与私有化部署需求"], "core_issue": "公司网络访问Notion经常加载慢，团队协作需翻墙，且无法无缝对接企业微信，导致协作效率低下并存在合规风险。", "executive_summary": "该V2EX用户代表企业主动寻求Notion的国内替代方案，明确要求私有化部署或国内云端稳定，并支持企业微信集成，付费意愿明确。这反映了跨国SaaS工具在中国市场面临的网络性能、本地化集成与合规性挑战，为国内协同知识库产品提供了高转化潜力的销售机会。", "tactical_action_plan": "强调国内云端或私有化部署的稳定访问体验，直接对比Notion的加载慢和翻墙问题，突出无需VPN的流畅协作。\n展示与企业微信的无缝集成能力，如消息通知、单点登录、文档分享等，并提及数据合规与安全认证，消除客户顾虑。", "suggested_pitch": "您好，看到您在V2EX上提到寻找Notion的国内替代方案，我们提供支持私有化部署和国内云端的企业知识库，能无缝对接企业微信，解决访问慢和翻墙问题。许多从Notion迁移的团队反馈协作效率显著提升，且数据合规有保障。如果您有兴趣，我可以分享一些迁移案例和方案细节，供您参考。"}, {"idx": 4, "id": "59ceeb8b74abb1a2d94d8d9b517a8358", "title": "Migrating away from Datadog to an open-source observability stack", "url": "https://dev.to/observability_fan/migrating-away-from-datadog-cost-breakdown-199", "source": "Dev.to", "content": "Our monthly Datadog bill reached $8,500 for custom metrics and APM. Looking for a modern SigNoz or Prometheus alternative that our DevOps team can self-host.", "author": "cloud_architect_dan", "timestamp": "2026-11-02 04:30:00", "engagement": "💬 28 讨论 · 👍 65 赞同", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Datadog", "category": "可观测性平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["自定义指标和APM成本过高", "月度账单达8500美元", "需要自托管方案", "寻求开源替代"], "core_issue": "Datadog月度账单高达8500美元，主要来自自定义指标和APM，成本压力促使团队寻找可自托管的开源替代方案。", "executive_summary": "该用户因Datadog自定义指标和APM费用过高（月账单8500美元）而积极寻求开源可观测性替代方案，明确提及SigNoz或Prometheus，并强调自托管需求。这反映了成本敏感型客户对Datadog定价模型的强烈不满，为竞品提供了高转化潜力的替换机会。", "tactical_action_plan": "强调自托管开源方案的成本优势，提供TCO对比工具，展示相比Datadog可节省的具体金额。\n针对DevOps团队提供无缝迁移支持，包括数据迁移工具和专家协助，降低切换风险。", "suggested_pitch": "您好，看到您提到Datadog月账单8500美元的压力，我们理解自定义指标和APM成本可能迅速累积。我们的开源可观测性平台支持完全自托管，无按量计费，可帮助您显著降低月度支出。是否需要我为您安排一次成本对比演示，看看能节省多少？"}, {"idx": 5, "id": "4d6fa2f26a0b762626f6bdb7efdf287a", "title": "New Alternative: OpenSign - The open source alternative to DocuSign and PandaDoc", "url": "https://github.com/OpenSignLabs/OpenSign", "source": "GitHub", "content": "Stars: 4200 | Language: TypeScript | DocuSign recently increased API pricing by 40%. OpenSign provides a self-hosted, tamper-proof electronic signature platform.", "author": "OpenSignLabs", "timestamp": "2026-11-02 05:10:00", "engagement": "⭐ 4.2k Stars · 🍴 310 Forks", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "DocuSign", "category": "电子签名与文档管理", "buyer_persona": "企业IT决策人 / 采购与法务负责人", "churn_drivers": ["API定价上涨40%", "按席位/用量计费成本过高", "数据主权与合规顾虑", "缺乏自托管选项"], "core_issue": "DocuSign API价格大幅上涨40%，促使企业寻找可自托管、防篡改且成本可控的电子签名替代方案。", "executive_summary": "DocuSign近期API涨价40%引发开源社区强烈关注，OpenSign作为自托管电子签名平台获得4200星标，显示企业用户对成本敏感且重视数据主权。这一信号表明电子签名市场存在明确的替代需求，尤其面向有开发能力的中大型企业。", "tactical_action_plan": "强调总拥有成本优势：对比DocuSign按用量计费模式，展示自托管方案在API调用量大时的成本节省，并提供迁移评估工具。\n突出数据合规与自主可控：针对金融、医疗等强监管行业，强调自托管部署满足数据驻留要求，并提供安全审计与防篡改技术白皮书。", "suggested_pitch": "您好，注意到DocuSign近期API涨价40%可能影响您的预算。我们提供可自托管的电子签名方案，在保持同等法律效力的同时，帮助您降低30%以上的API成本，并确保数据完全自主可控。是否需要为您安排一次15分钟的成本对比演示？"}, {"idx": 6, "id": "b6fe919b87c5f410c4edb82c394874e3", "title": "求推荐云服务器资源", "url": "https://www.v2ex.com/t/1253878", "source": "V2EX", "content": "国内大厂的收费太贵了，有没老哥推荐便宜可靠的云服务器厂商资源，谢谢啦", "author": "JacksonTam", "timestamp": "2026-11-02 17:05:06", "engagement": "💬 2 条回帖", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "阿里云", "category": "云服务器 IaaS", "buyer_persona": "中小企业技术负责人 / 开发者", "churn_drivers": ["国内大厂云服务器定价过高", "成本敏感，寻求性价比替代", "对便宜可靠云厂商有明确需求"], "core_issue": "用户认为国内大厂云服务器收费太贵，主动寻求便宜可靠的替代云厂商资源。", "executive_summary": "该信号显示用户对阿里云等国内头部云厂商的价格敏感度极高，已产生明确的替代意向。这是典型的成本驱动型流失风险，竞品可借机以性价比和可靠性切入。", "tactical_action_plan": "强调自身云服务器在同等配置下的价格优势，并提供与阿里云的详细成本对比表。\n突出可靠性保障（如SLA、可用区、备份方案），消除用户对低价厂商稳定性的顾虑。", "suggested_pitch": "您好，看到您在V2EX上寻找便宜可靠的云服务器。我们提供高性价比的云服务器方案，同等配置价格比大厂低30%-50%，且具备99.95% SLA保障和7x24技术支持。方便的话可以给您发一份对比方案，供您参考。"}, {"idx": 7, "id": "d1b0b651fa3cf237abba408e24d9f58b", "title": "New Alternative: jiniill/hazelle - A character chat app, written from scratch as an alternative to RisuAI. E2E-encrypted, one Docker image.", "url": "https://github.com/jiniill/hazelle", "source": "GitHub", "content": "Stars: 4 | Forks: 2 | Language: TypeScript | Description: A character chat app, written from scratch as an alternative to RisuAI. E2E-encrypted, one Docker image.", "author": "jiniill", "timestamp": "2026-11-02T09:36:23Z", "engagement": "⭐ 4 Stars · 🍴 2 Forks", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "RisuAI", "category": "AI角色聊天应用", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["缺乏端到端加密", "部署复杂，需要多容器编排", "数据隐私顾虑", "对现有方案的可定制性不满"], "core_issue": "用户因对RisuAI的隐私安全与部署便捷性不满，从零构建了端到端加密、单Docker镜像的替代方案。", "executive_summary": "GitHub上出现RisuAI的开源替代项目hazelle，主打端到端加密与单Docker镜像部署，表明部分技术用户对现有角色聊天工具的隐私安全和部署复杂度存在强烈不满。该信号显示细分市场中对安全、易部署的AI聊天方案有明确替换需求，可能吸引中小团队及隐私敏感用户。", "tactical_action_plan": "强调端到端加密和单容器部署的便捷性，直接对比RisuAI的复杂配置，突出开箱即用与数据自主可控。\n针对技术决策者提供私有化部署方案与安全白皮书，展示合规优势，并邀请参与开源社区共建以增强信任。", "suggested_pitch": "您好，注意到您在探索RisuAI的替代方案，我们提供同样端到端加密、单Docker镜像部署的AI角色聊天平台，无需复杂编排即可私有化上线，确保数据完全自主。如果您团队正评估更安全、易维护的方案，欢迎了解我们的开源版本或企业支持计划。"}, {"idx": 8, "id": "dbbf3032199eb70ab49b324703a12fb9", "title": "Show HN: People you know, an end-to-end encrypted private Instagram replacement", "url": "https://peopleyouk.now/", "source": "Hacker News", "content": "I built an alternative to popular social networks because I was sick of the unending enshittification of instagram. Every UX change in recent years intended to make their app more addictive to teenagers has made me want to use it less, but I don&#x27;t want to lose contact with the actual people that are close to me. First it was stories to make it your job to open the app every day, and then &quot;everything is a reel&quot; to try to get you to scroll infinitely.<p>This app is a more minimalist", "author": "jsbg", "timestamp": "2026-11-02T00:15:38Z", "engagement": "🔥 3 关注", "intent_score": 75, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Instagram", "category": "社交媒体应用", "buyer_persona": "个人用户 / 隐私关注者", "churn_drivers": ["过度商业化与成瘾性设计", "算法推荐导致信息流质量下降", "隐私泄露与数据滥用担忧", "缺乏端到端加密", "强制功能变更（如故事、Reels）"], "core_issue": "用户对Instagram不断推出成瘾性功能（如故事、无限滚动Reels）和算法操控感到厌倦，希望回归私密、简约的社交体验。", "executive_summary": "该信号显示部分用户对主流社交平台的成瘾性设计和隐私问题产生强烈不满，寻求端到端加密的替代方案。这为注重隐私、简约设计的社交应用或开发者工具（如加密通信、私密社交网络）提供了市场机会。", "tactical_action_plan": "强调端到端加密和隐私保护，对比Instagram的数据收集行为，突出安全性和用户控制权。\n定位为“反成瘾”社交工具，提供无算法、按时间线展示的简约界面，吸引追求真实连接的用户。", "suggested_pitch": "您好！看到您对Instagram的成瘾性设计和隐私问题感到困扰，我们完全理解。我们的端到端加密社交应用专注于私密、简约的沟通体验，没有算法干扰，让您与真正关心的人保持联系。欢迎体验并给出反馈！"}, {"idx": 9, "id": "753c6c51de42916524f5a27d8983445d", "title": "New Alternative: duwarkagupta123-maker/ChalkPlus - A lightning-fast, modern alternative to Chitkara University's Chalkpad. ChalkPlus offers a seamless UI for students to track attendance, view timetables, and manage college data using React, Tailwind CSS, Express, and Puppeteer-powered data syncing.", "url": "https://github.com/duwarkagupta123-maker/ChalkPlus", "source": "GitHub", "content": "Stars: 0 | Forks: 0 | Language: JavaScript | Description: A lightning-fast, modern alternative to Chitkara University's Chalkpad. ChalkPlus offers a seamless UI for students to track attendance, view timetables, and manage college data using React, Tailwind CSS, Express, and Puppeteer-powered data syncing.", "author": "duwarkagupta123-maker", "timestamp": "2026-11-02T09:35:23Z", "engagement": "⭐ 0 Stars · 🍴 0 Forks", "intent_score": 75, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Chalkpad", "category": "教育信息化管理平台", "buyer_persona": "高校IT管理员 / 教务系统负责人", "churn_drivers": ["界面陈旧，用户体验差", "访问速度慢，响应延迟高", "缺乏现代化技术栈支持", "数据同步效率低"], "core_issue": "现有Chalkpad系统界面过时、性能低下，无法满足学生实时查看考勤和课表的需求，促使开发者构建现代化替代方案。", "executive_summary": "GitHub上出现ChalkPlus项目，定位为Chitkara大学Chalkpad的轻量级现代替代品，采用React、Tailwind和Puppeteer实现快速数据同步。这反映了教育机构对传统校园管理系统在用户体验和性能方面的不满，存在替换或升级的潜在需求。", "tactical_action_plan": "强调现代化技术栈（React、Tailwind）带来的性能提升和用户体验优化，对比Chalkpad的陈旧界面和慢速响应。\n提供数据迁移和系统集成方案，突出Puppeteer驱动的自动化数据同步能力，减少学校IT团队的维护负担。", "suggested_pitch": "尊敬的IT负责人，您好！我们注意到贵校目前使用的Chalkpad系统在访问速度和界面体验上可能无法满足学生和教师的期望。我们的教育管理平台采用现代化前端框架和自动化数据同步技术，能显著提升系统响应速度并降低维护成本。是否方便安排一次简短沟通，探讨如何为贵校提供更流畅的数字化体验？"}, {"idx": 10, "id": "b1d4ffb438f4cb86bc5641b9dbb0d970", "title": "Cra Browser: open-source Arc replacement for macOS", "url": "https://github.com/VictorKildahl/cra", "source": "Hacker News", "content": "Cra Browser: open-source Arc replacement for macOS", "author": "nateb2022", "timestamp": "2026-11-02T03:53:24Z", "engagement": "🔥 1 关注", "intent_score": 75, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Arc Browser", "category": "桌面浏览器与生产力工具", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["闭源产品缺乏透明度与可审计性", "对数据隐私和厂商锁定存在顾虑", "希望获得可定制、可自托管的浏览器方案", "macOS 平台缺少开源替代品"], "core_issue": "用户因 Arc 浏览器闭源、存在数据隐私与厂商锁定风险，转而寻找可审计、可定制的开源 macOS 替代方案。", "executive_summary": "Hacker News 社区出现对 Arc 浏览器开源替代品 Cra Browser 的明确需求信号，反映出技术型用户对闭源浏览器在透明度、数据主权和可定制性上的不满。该信号指向开发者工具与桌面生产力赛道中开源替代方案的商业机会，目标客群为重视隐私与自主可控的研发决策者。", "tactical_action_plan": "强调开源可审计、数据本地化与自托管能力，直接回应 Arc 闭源带来的隐私与锁定顾虑，并提供迁移兼容性说明。\n针对 macOS 研发团队提供定制化部署与集成方案（如企业 SSO、策略管控），以技术深度建立信任而非价格战。", "suggested_pitch": "您好，注意到您在关注 Arc 的开源替代方案。我们提供可审计、可自托管的浏览器方案，支持 macOS 团队定制与数据本地化，帮助您在保留 Arc 式体验的同时消除闭源锁定与隐私顾虑。方便的话可以为您安排一次技术演示，看看是否契合您的迁移需求。"}, {"idx": 11, "id": "5b58f8e4a77a4383aa4a84bccd606316", "title": "How to Do a SaaS Price Increase - SaasRise", "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBMcy1udzI3WE5xTHhEQmJWLUVFbVdNc0lKRWlrcHZrMVRjaUp0UXNtVmhmYzllNGlMUzRCVERaTVF1RTNuTHA2STF6Z3hZVzVIV3B4emNxNlFiVzlHa0E5NWxTT1F4eFhGdG9lT2NR?oc=5", "source": "Google News RSS", "content": "<a href=\"https://news.google.com/rss/articles/CBMibkFVX3lxTFBMcy1udzI3WE5xTHhEQmJWLUVFbVdNc0lKRWlrcHZrMVRjaUp0UXNtVmhmYzllNGlMUzRCVERaTVF1RTNuTHA2STF6Z3hZVzVIV3B4emNxNlFiVzlHa0E5NWxTT1F4eFhGdG9lT2NR?oc=5\" target=\"_blank\">How to Do a SaaS Price Increase</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">SaasRise</font>", "author": "News Media", "timestamp": "Thu, 27 Aug 2026 07:00:00 GMT", "engagement": "📰 行业媒体报道", "intent_score": 55, "intent_level": "👀 市场雷达 · 行业生态异动观察", "competitor": "SaaS Price Increase", "category": "SaaS定价策略与收益管理", "buyer_persona": "SaaS企业创始人/CEO、产品负责人、收益运营主管", "churn_drivers": ["现有定价模式无法支撑涨价", "缺乏涨价沟通与客户留存策略", "担心涨价导致客户流失", "缺少数据支撑的定价决策工具"], "core_issue": "SaaS企业面临成本上升或价值提升，需要执行涨价，但缺乏系统化的定价策略与客户沟通方法，担心引发客户流失。", "executive_summary": "该信号来自SaaS行业媒体，讨论SaaS涨价方法论，反映SaaS企业在经济环境变化下对定价优化和收益管理的普遍需求。目标受众为SaaS管理层，存在对定价咨询、收益管理软件或客户成功工具的潜在采购意向。", "tactical_action_plan": "定位为定价策略与客户留存专家，提供基于数据的涨价影响模拟与分层沟通模板，帮助客户降低流失风险。\n强调与现有CRM/订阅管理工具的集成能力，展示如何通过自动化流程执行涨价并监控客户反馈。", "suggested_pitch": "您好，看到您关注SaaS涨价策略。我们帮助SaaS企业通过数据驱动的定价模拟和客户分层沟通，实现平稳涨价并降低流失率。如需了解如何在不影响客户关系的前提下提升收益，欢迎交流。"}];
+        const LEADS_DATA = [{"idx": 1, "id": "62b39928a591c9cdbdc308b5fe2b0176", "title": "Looking for an alternative to Jira that doesn't cost an arm and a leg", "url": "https://news.ycombinator.com/item?id=39821455", "source": "Hacker News", "content": "Our team just crossed 25 people and Atlassian's per-seat pricing skyrocketed. The UI is sluggish and our engineers hate it. Any lightweight alternatives for sprint tracking?", "author": "tech_founder_99", "timestamp": "2026-11-02 08:12:00", "engagement": "🔥 142 关注 · 💬 84 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Jira", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "category": "研发项目协同", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["按席位定价过高", "界面响应缓慢", "工程师团队抵触使用"], "core_issue": "团队规模突破25人后，Atlassian按席位收费导致成本激增，同时Jira界面卡顿引发工程师不满，促使团队寻求轻量级替代方案。", "executive_summary": "该信号表明一个25人研发团队因Jira的按席位定价过高和性能问题正积极寻找替代方案，购买意图强烈。竞品可重点强调透明定价、轻量体验和工程师友好设计，以抢占这一高转化机会。", "tactical_action_plan": "强调按团队固定定价或更灵活的席位模式，直接对比Jira的按人收费，突出成本可预测性。\n演示轻量级界面和流畅的 sprint 跟踪体验，邀请其工程师参与试用，以实际性能打消顾虑。", "suggested_pitch": "您好，看到您团队正在寻找Jira的替代方案。我们理解25人团队面临按席位收费的压力，以及Jira界面卡顿带来的效率损耗。我们的轻量级 sprint 跟踪工具采用透明定价，无隐藏成本，且专为工程师设计，响应迅速。是否方便花15分钟为您演示一下，看看是否能契合您的需求？"}, {"idx": 2, "id": "e25022a16c07aec76d4d520da695816c", "title": "有没有好用的国内代替 Notion 的知识库？企微协同需求", "url": "https://www.v2ex.com/t/1089234", "source": "V2EX", "content": "公司网络访问 Notion 经常加载慢，团队协作还要翻墙很不方便。希望找一个支持私有化部署或者国内云端稳定、能无缝对接企业微信的文档工具，付费也可以接受。", "author": "code_artisan", "timestamp": "2026-11-02 09:20:00", "engagement": "💬 32 条回帖", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Notion", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/notion.svg", "category": "企业协同知识库", "buyer_persona": "企业IT决策人", "churn_drivers": ["国内访问加载慢", "团队协作需翻墙", "缺乏企业微信集成", "数据合规与私有化部署需求"], "core_issue": "公司网络访问Notion经常加载慢，团队协作需翻墙，且无法无缝对接企业微信，导致协作效率低下并存在合规风险。", "executive_summary": "该V2EX用户代表了一个典型的企业IT决策场景：因Notion在国内的访问性能与合规问题，主动寻求支持私有化部署或国内云端稳定、并能无缝集成企业微信的替代方案，且明确表示付费意愿。这反映了国内企业对协同知识库工具在性能、集成与合规方面的迫切需求，是高转化潜力的销售线索。", "tactical_action_plan": "强调国内云端稳定性和私有化部署选项，直接解决访问慢和翻墙痛点，并提供性能对比数据。\n突出与企业微信的无缝集成能力，展示单点登录、消息通知、文档同步等具体场景，并引用同行业客户案例增强信任。", "suggested_pitch": "您好，看到您在V2EX上提到寻找Notion的国内替代方案，我们正好有一款专为企业协同设计的知识库工具，支持私有化部署和国内云端稳定访问，并且能无缝对接企业微信，解决加载慢和协作不便的问题。许多类似规模的企业已在使用，付费方案灵活。如果您有兴趣，我可以发送详细资料或安排演示，供您评估。"}, {"idx": 3, "id": "59ceeb8b74abb1a2d94d8d9b517a8358", "title": "Migrating away from Datadog to an open-source observability stack", "url": "https://dev.to/observability_fan/migrating-away-from-datadog-cost-breakdown-199", "source": "Dev.to", "content": "Our monthly Datadog bill reached $8,500 for custom metrics and APM. Looking for a modern SigNoz or Prometheus alternative that our DevOps team can self-host.", "author": "cloud_architect_dan", "timestamp": "2026-11-02 04:30:00", "engagement": "💬 28 讨论 · 👍 65 赞同", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Datadog", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/datadog.svg", "category": "可观测性平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["自定义指标与APM成本过高", "缺乏自托管选项", "开源替代方案需求强烈"], "core_issue": "Datadog月度账单高达8500美元，主要来自自定义指标和APM，促使团队寻求可自托管的开源替代方案。", "executive_summary": "该信号表明企业因Datadog按量计费模式导致成本失控，正积极评估SigNoz或Prometheus等开源可观测性方案。这反映了可观测性市场中对成本透明和自托管能力的强烈需求，为竞品提供了切入机会。", "tactical_action_plan": "强调自托管方案的总拥有成本优势，提供详细的成本对比计算器，展示三年内可节省的金额。\n突出开源方案的灵活性和数据主权，提供迁移支持服务，降低切换风险。", "suggested_pitch": "您好，看到您提到Datadog账单压力，我们提供可自托管的开源可观测性方案，能帮您将成本降低60%以上，同时保持全功能APM和自定义指标。是否需要我发送一份针对您场景的成本对比报告？"}, {"idx": 4, "id": "549acdfe4e1d11408d18f323267635ef", "title": "Switching from Salesforce to something modern for a 15-person sales team?", "url": "https://reddit.com/r/SaaS/comments/1gx891a", "source": "Reddit r/SaaS", "content": "Salesforce implementation has been a nightmare for 6 months. Spent $15k and nobody is logging calls. We need a simple, intuitive CRM with good email sync. Budget is around $30-50/user/mo.", "author": "b2b_growth_lead", "timestamp": "2026-11-02 07:45:10", "engagement": "🔥 96 赞同 · 💬 45 条建议", "intent_score": 92, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Salesforce", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "category": "客户关系管理（CRM）软件", "buyer_persona": "SaaS销售主管 / 销售运营负责人", "churn_drivers": ["实施周期长且交付效果差", "总体拥有成本高（已投入约1.5万美元）", "销售团队实际采用率极低（无人记录通话）", "操作复杂、不够直观易用", "邮件同步体验不佳"], "core_issue": "Salesforce实施折腾6个月、花费约1.5万美元却无人使用，团队急需一款简单直观、邮件同步好且单价在30-50美元/用户/月区间的现代CRM。", "executive_summary": "该信号来自一个15人销售团队，属于典型的中小企业CRM替换场景：高实施成本与低实际采用率形成强烈反差，已构成明确的流失与迁移意图。其预算区间（30-50美元/用户/月）与易用性、邮件同步诉求，直接指向HubSpot、Pipedrive等轻量现代CRM的替代窗口。", "tactical_action_plan": "以“6个月实施失败+1.5万美元沉没成本”为切入点，强调可在一周内完成迁移上线、无需专职管理员，直接对比Salesforce的重实施模式。\n围绕“销售真正愿意用”做演示：现场展示邮件自动同步、通话记录一键归档与移动端体验，并给出15人团队按30-50美元/用户/月的透明报价与迁移陪跑方案。", "suggested_pitch": "您好，看到您提到Salesforce实施半年、投入约1.5万美元但团队几乎不记录通话——这种情况在15人左右的销售团队里非常常见，问题往往不在团队，而在工具太重。我们可以帮您把现有联系人、邮件和通话记录一次性迁移过来，通常一周内上线，销售当天就能用邮件自动同步和通话记录，不需要专职管理员。按您30-50美元/用户/月的预算，我可以先给15人团队做一份透明报价和迁移方案，您方便约20分钟看看是否匹配吗？"}, {"idx": 5, "id": "4d6fa2f26a0b762626f6bdb7efdf287a", "title": "New Alternative: OpenSign - The open source alternative to DocuSign and PandaDoc", "url": "https://github.com/OpenSignLabs/OpenSign", "source": "GitHub", "content": "Stars: 4200 | Language: TypeScript | DocuSign recently increased API pricing by 40%. OpenSign provides a self-hosted, tamper-proof electronic signature platform.", "author": "OpenSignLabs", "timestamp": "2026-11-02 05:10:00", "engagement": "⭐ 4.2k Stars · 🍴 310 Forks", "intent_score": 90, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "DocuSign", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg", "category": "电子签名与文档管理", "buyer_persona": "企业IT决策人 / 采购负责人", "churn_drivers": ["API定价上涨40%", "按席位/用量计费成本过高", "数据主权与合规顾虑", "缺乏自托管选项"], "core_issue": "DocuSign API 涨价 40% 直接推高集成成本，促使企业寻找可自托管、防篡改的开源电子签名替代方案。", "executive_summary": "DocuSign 近期 API 提价 40% 已引发开发者社区强烈反弹，OpenSign 作为开源自托管替代方案获得 4200 星关注，显示价格敏感型与技术自主型买家正在加速评估迁移。该信号表明电子签名市场的价格战与数据主权需求正在重塑采购决策，竞品应抓住窗口期以成本可控与合规自托管为核心卖点切入。", "tactical_action_plan": "以 TCO 对比为切入点：量化 DocuSign API 涨价后的年度集成成本，突出自托管方案在规模化调用下的成本优势与无锁定风险。\n针对合规与数据主权需求：强调私有化部署、防篡改审计日志与数据不出境能力，提供 POC 迁移评估与 API 兼容层方案降低切换门槛。", "suggested_pitch": "您好，注意到 DocuSign 近期 API 涨价 40% 可能对您的集成成本带来压力。我们提供可自托管、防篡改的电子签名方案，支持平滑迁移与 API 兼容，帮助您在控制成本的同时满足数据合规要求。方便的话，我可以为您做一份针对现有用量的成本对比评估？"}, {"idx": 6, "id": "e7c80607774a2d461b6b7a1ed72f7f8b", "title": "New Alternative: dataease/dataease - 🔥 人人可用的开源 BI 工具，数据可视化神器。An open-source BI tool alternative to Tableau.", "url": "https://github.com/dataease/dataease", "source": "GitHub", "content": "Stars: 24666 | Forks: 4257 | Language: Java | Description: 🔥 人人可用的开源 BI 工具，数据可视化神器。An open-source BI tool alternative to Tableau.", "author": "dataease", "timestamp": "2026-11-02T09:43:01Z", "engagement": "⭐ 24666 Stars · 🍴 4257 Forks", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Tableau", "competitor_logo": "", "category": "商业智能与数据可视化平台", "buyer_persona": "企业IT决策人 / 数据分析负责人", "churn_drivers": ["Tableau按席位订阅成本过高", "开源替代方案可降低总体拥有成本", "需要本地化部署与数据合规可控", "希望避免供应商锁定并支持二次开发"], "core_issue": "用户因Tableau高昂的许可费用和封闭生态，主动寻找可自主部署、成本可控的开源BI替代方案。", "executive_summary": "DataEase作为Tableau的开源替代品在GitHub获得高关注，反映出企业级BI市场对成本敏感和自主可控的强烈需求。这一信号表明Tableau在中小型及成本敏感型企业中的客户流失风险正在上升，开源方案正成为有力的替代选择。", "tactical_action_plan": "强调DataEase的开源免费与本地部署优势，直接对比Tableau的席位订阅总成本，提供TCO测算工具帮助客户量化节省。\n针对数据合规与二次开发需求，展示DataEase的插件生态和API扩展能力，并安排POC验证与现有数据栈的集成可行性。", "suggested_pitch": "您好，注意到您在关注DataEase这类开源BI工具。很多团队从Tableau迁移，主要是为了降低按席位订阅的成本并实现本地化部署。我们可以帮您评估现有Tableau报表的迁移路径，并提供一份TCO对比，看看开源方案能为您节省多少预算，同时不影响可视化分析能力。方便约15分钟聊聊您的具体场景吗？"}, {"idx": 7, "id": "b6fe919b87c5f410c4edb82c394874e3", "title": "求推荐云服务器资源", "url": "https://www.v2ex.com/t/1253878", "source": "V2EX", "content": "国内大厂的收费太贵了，有没老哥推荐便宜可靠的云服务器厂商资源，谢谢啦", "author": "JacksonTam", "timestamp": "2026-11-02 17:05:06", "engagement": "💬 2 条回帖", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "阿里云", "competitor_logo": "", "category": "云服务器（IaaS）", "buyer_persona": "中小企业技术负责人 / 个人开发者", "churn_drivers": ["国内大厂云服务器价格过高", "成本敏感型用户寻求性价比替代", "对便宜可靠云厂商的资源信息缺乏"], "core_issue": "用户因国内头部云厂商收费过高而主动寻求更便宜可靠的云服务器替代方案。", "executive_summary": "该信号显示价格敏感型客户对阿里云等国内大厂云服务器存在明确成本不满，正在主动寻找替代供应商。这是典型的竞品替换购买意向，销售应聚焦成本对比与可靠性证明进行拦截。", "tactical_action_plan": "提供与阿里云同规格实例的详细价格对比表，突出长期使用成本节省比例，并附上SLA与可用性承诺。\n针对用户‘便宜可靠’的诉求，展示真实客户案例与性能基准测试数据，强调迁移零停机支持。", "suggested_pitch": "您好，看到您在V2EX上寻找高性价比云服务器。我们提供与阿里云同配置但价格低30%-50%的方案，且承诺99.95% SLA，支持无缝迁移。方便私信发您一份对比清单参考吗？"}, {"idx": 8, "id": "dbbf3032199eb70ab49b324703a12fb9", "title": "Show HN: People you know, an end-to-end encrypted private Instagram replacement", "url": "https://peopleyouk.now/", "source": "Hacker News", "content": "I built an alternative to popular social networks because I was sick of the unending enshittification of instagram. Every UX change in recent years intended to make their app more addictive to teenagers has made me want to use it less, but I don&#x27;t want to lose contact with the actual people that are close to me. First it was stories to make it your job to open the app every day, and then &quot;everything is a reel&quot; to try to get you to scroll infinitely.<p>This app is a more minimalist", "author": "jsbg", "timestamp": "2026-11-02T00:15:38Z", "engagement": "🔥 3 关注", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Instagram", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg", "category": "社交媒体应用", "buyer_persona": "个人用户 / 隐私敏感型消费者", "churn_drivers": ["算法驱动成瘾性设计", "强制每日打开的故事功能", "无限滚动短视频化", "隐私担忧与数据滥用", "用户体验持续恶化"], "core_issue": "用户因Instagram不断推出成瘾性设计（如故事、无限滚动Reels）而体验恶化，且担忧隐私，从而寻求端到端加密的私密社交替代品。", "executive_summary": "该信号显示用户对主流社交媒体平台Instagram的成瘾性设计和隐私问题强烈不满，主动寻找端到端加密的替代方案。这反映了隐私优先社交工具的市场需求正在增长，为竞品提供了明确的切入机会。", "tactical_action_plan": "强调端到端加密和隐私保护，直接对比Instagram的数据收集行为。\n突出极简、无成瘾性设计的用户体验，吸引厌倦算法推荐的用户。", "suggested_pitch": "您好，注意到您对Instagram的成瘾性设计和隐私问题感到不满。我们的端到端加密社交应用提供极简、无干扰的体验，让您只与亲密朋友保持联系，同时确保数据完全私密。欢迎了解我们如何帮助您摆脱算法操控。"}, {"idx": 9, "id": "b1d4ffb438f4cb86bc5641b9dbb0d970", "title": "Cra Browser: open-source Arc replacement for macOS", "url": "https://github.com/VictorKildahl/cra", "source": "Hacker News", "content": "Cra Browser: open-source Arc replacement for macOS", "author": "nateb2022", "timestamp": "2026-11-02T03:53:24Z", "engagement": "🔥 1 关注", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Arc Browser", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "category": "桌面浏览器与生产力工具", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["闭源产品缺乏透明度与可审计性", "对macOS平台依赖性强且无开源替代", "数据隐私与厂商锁定顾虑", "定制化与扩展能力受限"], "core_issue": "用户因Arc浏览器闭源、平台锁定及隐私顾虑，主动寻找开源可替代方案以降低技术依赖风险。", "executive_summary": "Hacker News社区出现针对Arc浏览器的开源替代需求，表明技术决策者对其闭源模式和平台锁定存在明确不满。该信号显示开发者工具市场对开源、可审计、可定制的桌面浏览器存在真实购买意向，竞品可借此切入技术型用户群体。", "tactical_action_plan": "强调开源架构与代码可审计性，直接回应Arc闭源带来的隐私与合规顾虑，提供自托管或本地化部署选项。\n针对macOS技术团队展示迁移成本低、扩展性强、无厂商锁定的优势，并提供从Arc一键导入书签与配置的迁移工具。", "suggested_pitch": "您好，注意到您在Hacker News上关注Arc浏览器的开源替代方案。我们提供一款完全开源、可审计的macOS浏览器，支持无缝迁移Arc数据，并允许团队自定义扩展与隐私策略。如果您正在评估替代方案，我可以为您安排一次15分钟的技术演示，看看是否契合您的需求。"}, {"idx": 10, "id": "c350ce9ffa2cc369ba25e61e2ac45e76", "title": "New Alternative: openma-ai/open-managed-agents - OpenMA handles sessions, execution and recovery, so you can build and run agents with any model, any harness, any sandbox, on any cloud. An open-source, self-hostable alternative to Claude Managed Agents and OpenAI Agents API.", "url": "https://github.com/openma-ai/open-managed-agents", "source": "GitHub", "content": "Stars: 346 | Forks: 52 | Language: TypeScript | Description: OpenMA handles sessions, execution and recovery, so you can build and run agents with any model, any harness, any sandbox, on any cloud. An open-source, self-hostable alternative to Claude Managed Agents and OpenAI Agents API.", "author": "openma-ai", "timestamp": "2026-11-02T09:43:18Z", "engagement": "⭐ 346 Stars · 🍴 52 Forks", "intent_score": 82, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Claude Managed Agents", "competitor_logo": "", "category": "AI Agent 编排与运行时平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["厂商锁定风险（绑定单一模型供应商）", "数据合规与私有化部署顾虑", "跨云与多沙箱环境缺乏灵活性", "托管服务成本不可控", "对执行会话与故障恢复缺乏自主可控"], "core_issue": "团队希望摆脱对 Claude Managed Agents 等闭源托管服务的模型与云厂商绑定，寻求可自托管、跨模型跨云的 Agent 运行时方案。", "executive_summary": "该开源项目以 346 星、52 分支的早期热度，明确对标 Claude Managed Agents 与 OpenAI Agents API，反映出市场对 Agent 基础设施“去厂商锁定”的真实需求正在形成。目标客户集中在需要私有化部署与多模型灵活性的研发型团队，属于高意向的替代型采购信号。", "tactical_action_plan": "以“模型与云中立、可自托管”为核心卖点，量化对比托管方案的锁定成本与合规风险，提供迁移路径与 POC 支持。\n针对会话管理、执行与故障恢复等关键能力做技术对标演示，突出跨沙箱、跨云的一致性运维体验，降低架构师的评估门槛。", "suggested_pitch": "您好，注意到你们在关注 OpenMA 这类可自托管的 Agent 运行时方案。很多团队正因模型与云厂商绑定、数据合规和托管成本而寻求替代。如果你们正在评估从 Claude Managed Agents 迁移，我们可以提供一份跨模型、可私有化部署的架构对比与 POC 方案，帮你们在不牺牲会话与故障恢复能力的前提下降低锁定风险，方便约 20 分钟聊聊吗？"}];
+        const BRAND_ICONS = {"jira": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "atlassian jira": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "salesforce": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "salesforce crm": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "notion": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/notion.svg", "datadog": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/datadog.svg", "docusign": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg", "instagram": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg", "arc": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "arc browser": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "github": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/github.svg", "slack": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/slack.svg", "docker": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docker.svg", "figma": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/figma.svg", "hubspot": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/hubspot.svg", "google": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/google.svg", "trello": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/trello.svg", "firebase": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/firebase.svg"};
 
         let currentCategory = 'all';
         let currentCompetitor = 'ALL';
         let currentViewMode = 'table';
         let activeLeadId = null;
 
-        // CRM Status config
+        // CRM Status config (shadcn neutral palette)
         const STATUS_CLASSES = {
-            '待跟进': 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200',
-            '跟进中': 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100',
-            '已转化': 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+            '待跟进': 'bg-zinc-100 text-zinc-700 border-zinc-200 hover:bg-zinc-200/80',
+            '跟进中': 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100',
+            '已转化': 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
         };
+
+        function getBrandLogoHtml(name, size = 'w-3.5 h-3.5') {
+            const key = (name || '').toLowerCase().trim();
+            if (BRAND_ICONS[key]) {
+                return `<img src="${BRAND_ICONS[key]}" class="${size} inline-block object-contain flex-shrink-0" alt="${name}" loading="lazy" />`;
+            }
+            return `<svg class="${size} text-zinc-400 inline-block flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`;
+        }
 
         function getLeadStatus(id) {
             return localStorage.getItem('lead_status_' + id) || '待跟进';
@@ -394,7 +434,7 @@
             showToast(`已更新线索状态为【${newStatus}】`);
         }
 
-        // Toast Helper (Zero Alert!)
+        // Toast Helper
         function showToast(message, isError = false) {
             const toast = document.getElementById('toastNotification');
             const toastMsg = document.getElementById('toastMessage');
@@ -458,44 +498,52 @@
             emptyState.classList.add('hidden');
             tableWrapper.classList.remove('hidden');
 
-            tbody.innerHTML = leads.map((lead, idx) => {
+            tbody.innerHTML = leads.map((lead) => {
                 const status = getLeadStatus(lead.id);
                 const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES['待跟进'];
+                const logoHtml = getBrandLogoHtml(lead.competitor);
 
+                // Fixed badge with whitespace-nowrap and dot indicator
                 const scoreBadge = lead.intent_score >= 85
-                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 mr-1 rounded-full bg-emerald-500"></span>${lead.intent_score}分 · 极高潜客</span>`
-                    : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200"><span class="w-1.5 h-1.5 mr-1 rounded-full bg-blue-500"></span>${lead.intent_score}分 · 优质商机</span>`;
+                    ? `<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>${lead.intent_score}分 · 极高潜客</span>`
+                    : `<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>${lead.intent_score}分 · 优质商机</span>`;
+
+                // Subtle badges for churn drivers instead of long harsh red text
+                const churnTagsHtml = lead.churn_drivers.slice(0, 2).map(d =>
+                    `<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/60">${d}</span>`
+                ).join(' ');
 
                 return `
-                <tr class="hover:bg-slate-50/80 transition-colors group cursor-pointer" onclick="openDrawer('${lead.id}')">
-                    <td class="py-3 px-4 font-mono text-slate-400 text-center">${lead.idx}</td>
-                    <td class="py-3 px-4">${scoreBadge}</td>
-                    <td class="py-3 px-4">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200/80">
-                            ${lead.competitor}
+                <tr class="hover:bg-zinc-50/90 transition-colors group cursor-pointer" onclick="openDrawer('${lead.id}')">
+                    <td class="py-3 px-4 font-mono text-zinc-400 text-center text-[11px]">${lead.idx}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${scoreBadge}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
+                            ${logoHtml}
+                            <span>${lead.competitor}</span>
                         </span>
                     </td>
-                    <td class="py-3 px-4">
-                        <div class="font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1 mb-0.5">
+                    <td class="py-3 px-4 min-w-[340px]">
+                        <div class="font-semibold text-zinc-900 group-hover:text-emerald-700 transition-colors line-clamp-1 mb-1 leading-snug">
                             ${lead.title}
                         </div>
-                        <div class="text-[11px] text-slate-500 line-clamp-1 flex items-center gap-1.5">
-                            <span class="text-rose-600 font-medium">${lead.churn_drivers.slice(0, 2).join(' · ')}</span>
-                            <span>•</span>
-                            <span>${lead.buyer_persona}</span>
+                        <div class="flex items-center gap-2 text-[11px] text-zinc-500">
+                            ${churnTagsHtml}
+                            <span class="text-zinc-300">•</span>
+                            <span class="text-zinc-500 truncate">${lead.buyer_persona}</span>
                         </div>
                     </td>
-                    <td class="py-3 px-4">
-                        <div class="text-[11px] font-medium text-slate-700">${lead.engagement || '⚡ 活跃求助'}</div>
-                        <div class="text-[10px] text-slate-400 font-mono">${lead.source}</div>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <div class="text-[11px] font-medium text-zinc-800">${lead.engagement || '⚡ 活跃求助'}</div>
+                        <div class="text-[10px] text-zinc-400 font-mono">${lead.source}</div>
                     </td>
-                    <td class="py-3 px-4" onclick="event.stopPropagation()">
-                        <button onclick="cycleStatus('${lead.id}')" class="px-2.5 py-1 rounded-md text-xs font-semibold border transition-all ${statusClass}">
+                    <td class="py-3 px-4 whitespace-nowrap" onclick="event.stopPropagation()">
+                        <button onclick="cycleStatus('${lead.id}')" class="px-2.5 py-1 rounded-md text-xs font-semibold border transition-all ${statusClass} shadow-2xs">
                             ${status}
                         </button>
                     </td>
-                    <td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
-                        <button onclick="openDrawer('${lead.id}')" class="px-2.5 py-1 rounded text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm">
+                    <td class="py-3 px-4 whitespace-nowrap text-right" onclick="event.stopPropagation()">
+                        <button onclick="openDrawer('${lead.id}')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
                             查看战报
                         </button>
                     </td>
@@ -520,20 +568,22 @@
             container.innerHTML = leads.map(lead => {
                 const status = getLeadStatus(lead.id);
                 const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES['待跟进'];
+                const logoHtml = getBrandLogoHtml(lead.competitor);
 
                 const churnBadges = lead.churn_drivers.map(d =>
-                    `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-100">${d}</span>`
+                    `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${d}</span>`
                 ).join(' ');
 
                 return `
-                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                <div class="bg-white rounded-xl border border-zinc-200/90 p-5 shadow-xs hover:shadow-md transition-all duration-200">
+                    <div class="flex items-center justify-between pb-3 border-b border-zinc-100 mb-3">
                         <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                标的：${lead.competitor}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
+                                ${logoHtml}
+                                <span>${lead.competitor}</span>
                             </span>
-                            <span class="text-xs text-slate-500 font-medium">${lead.category}</span>
-                            <span class="text-[11px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${lead.source}</span>
+                            <span class="text-xs text-zinc-500 font-medium">${lead.category}</span>
+                            <span class="text-[11px] font-mono bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded">${lead.source}</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${lead.intent_score}分</span>
@@ -543,13 +593,13 @@
                         </div>
                     </div>
 
-                    <h3 class="text-base font-bold text-slate-900 mb-2 leading-snug cursor-pointer hover:text-emerald-700 transition-colors" onclick="openDrawer('${lead.id}')">
+                    <h3 class="text-base font-bold text-zinc-900 mb-2 leading-snug cursor-pointer hover:text-emerald-700 transition-colors" onclick="openDrawer('${lead.id}')">
                         ${lead.title}
                     </h3>
 
-                    <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-3">
-                        <span>发帖人：<strong class="text-slate-700">${lead.author}</strong></span>
-                        <span>角色：<strong class="text-slate-700">${lead.buyer_persona}</strong></span>
+                    <div class="flex flex-wrap items-center gap-3 text-xs text-zinc-500 mb-3">
+                        <span>发帖人：<strong class="text-zinc-700">${lead.author}</strong></span>
+                        <span>角色：<strong class="text-zinc-700">${lead.buyer_persona}</strong></span>
                         <span class="text-amber-700 font-medium">${lead.engagement || '⚡ 活跃求助'}</span>
                     </div>
 
@@ -557,12 +607,12 @@
                         ${churnBadges}
                     </div>
 
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                    <div class="flex items-center justify-between pt-3 border-t border-zinc-100 text-xs">
                         <a href="${lead.url}" target="_blank" rel="noopener" class="text-blue-600 hover:underline font-medium inline-flex items-center gap-1">
-                            查看原帖
+                            查看社区原帖
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
-                        <button onclick="openDrawer('${lead.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-colors">
+                        <button onclick="openDrawer('${lead.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
                             查看攻防战报与话术
                         </button>
                     </div>
@@ -584,10 +634,11 @@
             if (!lead) return;
 
             activeLeadId = id;
+            const logoHtml = getBrandLogoHtml(lead.competitor);
 
             document.getElementById('drawerTitle').innerText = lead.title;
-            document.getElementById('drawerCompetitorBadge').innerText = '目标标的：' + lead.competitor;
-            document.getElementById('drawerScoreBadge').innerHTML = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分 · ${lead.intent_level.split('·')[0]}</span>`;
+            document.getElementById('drawerCompetitorBadge').innerHTML = `${logoHtml} <span>标的：${lead.competitor}</span>`;
+            document.getElementById('drawerScoreBadge').innerHTML = `<span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分 · ${lead.intent_level.split('·')[0]}</span>`;
             document.getElementById('drawerAuthor').innerText = '发帖人：' + lead.author;
             document.getElementById('drawerTimestamp').innerText = lead.timestamp;
             document.getElementById('drawerEngagement').innerText = lead.engagement || '';
@@ -595,7 +646,7 @@
             document.getElementById('drawerSourceLink').href = lead.url;
 
             document.getElementById('drawerChurnBadges').innerHTML = lead.churn_drivers.map(d =>
-                `<span class="px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">${d}</span>`
+                `<span class="px-2.5 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${d}</span>`
             ).join(' ');
 
             document.getElementById('drawerExecutiveSummary').innerText = lead.executive_summary;
@@ -623,12 +674,12 @@
 
             ['btnStatusWait', 'btnStatusProgress', 'btnStatusDone'].forEach(btnId => {
                 const el = document.getElementById(btnId);
-                el.className = 'px-2.5 py-1 rounded font-medium transition-colors text-slate-600 hover:text-slate-900';
+                el.className = 'px-2.5 py-1 rounded font-medium transition-colors text-zinc-600 hover:text-zinc-900';
             });
 
             const activeBtn = document.getElementById(map[status]);
             if (activeBtn) {
-                activeBtn.className = 'px-2.5 py-1 rounded font-bold bg-slate-900 text-white shadow-sm';
+                activeBtn.className = 'px-2.5 py-1 rounded font-bold bg-zinc-900 text-white shadow-xs';
             }
         }
 
@@ -649,11 +700,11 @@
         function setFilterCategory(cat, btn) {
             currentCategory = cat;
             document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('bg-slate-800', 'text-white', 'font-semibold');
-                b.classList.add('text-slate-400', 'font-medium');
+                b.classList.remove('bg-zinc-800', 'text-white', 'font-semibold');
+                b.classList.add('text-zinc-400', 'font-medium');
             });
-            btn.classList.add('bg-slate-800', 'text-white', 'font-semibold');
-            btn.classList.remove('text-slate-400', 'font-medium');
+            btn.classList.add('bg-zinc-800', 'text-white', 'font-semibold');
+            btn.classList.remove('text-zinc-400', 'font-medium');
 
             applyRender();
         }
@@ -661,11 +712,11 @@
         function filterByCompetitor(comp, btn) {
             currentCompetitor = comp;
             document.querySelectorAll('.comp-pill').forEach(b => {
-                b.classList.remove('bg-slate-900', 'text-white', 'font-semibold');
-                b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                b.classList.remove('bg-zinc-900', 'text-white', 'font-semibold');
+                b.classList.add('bg-white', 'text-zinc-700', 'border-zinc-200');
             });
-            btn.classList.add('bg-slate-900', 'text-white', 'font-semibold');
-            btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+            btn.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
+            btn.classList.remove('bg-white', 'text-zinc-700', 'border-zinc-200');
 
             applyRender();
         }
@@ -682,13 +733,13 @@
             const cardWrap = document.getElementById('cardViewWrapper');
 
             if (mode === 'table') {
-                btnTable.className = 'px-2.5 py-1 rounded-md font-semibold text-slate-900 bg-white shadow-sm transition-all flex items-center gap-1';
-                btnCards.className = 'px-2.5 py-1 rounded-md font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1';
+                btnTable.className = 'px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1.5';
+                btnCards.className = 'px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1.5';
                 tableWrap.classList.remove('hidden');
                 cardWrap.classList.add('hidden');
             } else {
-                btnCards.className = 'px-2.5 py-1 rounded-md font-semibold text-slate-900 bg-white shadow-sm transition-all flex items-center gap-1';
-                btnTable.className = 'px-2.5 py-1 rounded-md font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1';
+                btnCards.className = 'px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1.5';
+                btnTable.className = 'px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1.5';
                 cardWrap.classList.remove('hidden');
                 tableWrap.classList.add('hidden');
             }
@@ -706,11 +757,11 @@
             currentCompetitor = 'ALL';
             document.querySelectorAll('.comp-pill').forEach((b, idx) => {
                 if (idx === 0) {
-                    b.classList.add('bg-slate-900', 'text-white', 'font-semibold');
-                    b.classList.remove('bg-white', 'text-slate-700');
+                    b.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
+                    b.classList.remove('bg-white', 'text-zinc-700');
                 } else {
-                    b.classList.remove('bg-slate-900', 'text-white', 'font-semibold');
-                    b.classList.add('bg-white', 'text-slate-700');
+                    b.classList.remove('bg-zinc-900', 'text-white', 'font-semibold');
+                    b.classList.add('bg-white', 'text-zinc-700');
                 }
             });
             applyRender();
