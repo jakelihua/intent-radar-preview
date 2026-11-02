@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商机雷达 · 竞品弃用与高意向商机早报</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.2);
+        }
+        .banner h1 { margin: 0 0 8px 0; font-size: 26px; }
+        .banner p { margin: 0; opacity: 0.9; font-size: 14px; }
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .index {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 16px;
+        }
+        .source {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .competitor {
+            background: #ede9fe;
+            color: #6d28d9;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .score {
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .title {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            line-height: 1.4;
+        }
+        .title a {
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .title a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        .meta {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 16px;
+            display: flex;
+            gap: 16px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin: 12px 0 6px 0;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .badge {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .summary {
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 12px 0;
+            color: #334155;
+        }
+        .pitch-box {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #166534;
+        }
+        .pitch-box p {
+            margin: 6px 0 0 0;
+            color: #14532d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="banner">
+            <h1>🎯 商机雷达 · 竞品弃用与高意向商机早报</h1>
+            <p>生成时间: 2026-11-02 15:35:30 | 监控范围：全网实时技术社区、新闻源与代码生态</p>
+            <div class="stats">
+                <div class="stat-item">🔥 今日高潜商机: <strong>6 条</strong></div>
+                <div class="stat-item">⚡ 意向过滤阈值: <strong>≥ 50分</strong></div>
+                <div class="stat-item">🚀 状态: <strong>运行正常</strong></div>
+            </div>
+        </div>
+        <div class="cards-list">
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="index">#1</span>
+                        <span class="source">Hacker News</span>
+                        <span class="competitor">Popular</span>
+                    </div>
+                    <span class="score" style="background-color: #10b981;">95 分</span>
+                </div>
+                <h3 class="title"><a href="https://peopleyouk.now/" target="_blank">Show HN: People you know, an end-to-end encrypted private Instagram replacement</a></h3>
+                <div class="meta">
+                    <span class="author">👤 jsbg</span>
+                    <span class="date">🕒 2026-11-02T00:15:38Z</span>
+                </div>
+                <div class="section-title">💡 痛点归因与标签</div>
+                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Tool Replacement</span> <span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
+                <div class="section-title">📝 智能分析摘要</div>
+                <p class="summary">用户在 Hacker News 发帖探讨针对 [Popular] 的替代方案。主要痛点集中在：Tool Replacement、Alternative Query。</p>
+                <div class="pitch-box">
+                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
+                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Popular 的替代方案，特别是关于 Tool Replacement/Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="index">#2</span>
+                        <span class="source">Hacker News</span>
+                        <span class="competitor">Most</span>
+                    </div>
+                    <span class="score" style="background-color: #f59e0b;">70 分</span>
+                </div>
+                <h3 class="title"><a href="https://news.ycombinator.com/item?id=50328896" target="_blank">Ask HN: Which TV do you recommend for privacy?</a></h3>
+                <div class="meta">
+                    <span class="author">👤 LecroJS</span>
+                    <span class="date">🕒 2026-11-01T19:35:27Z</span>
+                </div>
+                <div class="section-title">💡 痛点归因与标签</div>
+                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">🔒 隐私安全与自托管诉求</span> <span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
+                <div class="section-title">📝 智能分析摘要</div>
+                <p class="summary">用户在 Hacker News 发帖探讨针对 [Most] 的替代方案。主要痛点集中在：🔒 隐私安全与自托管诉求、Alternative Query。</p>
+                <div class="pitch-box">
+                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
+                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Most 的替代方案，特别是关于 🔒 隐私安全与自托管诉求/Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="index">#3</span>
+                        <span class="source">GitHub</span>
+                        <span class="competitor">The</span>
+                    </div>
+                    <span class="score" style="background-color: #f59e0b;">70 分</span>
+                </div>
+                <h3 class="title"><a href="https://github.com/eacryo/oh-my-tab" target="_blank">New Alternative: eacryo/oh-my-tab - A macOS window switcher — an alternative to the system Cmd+Tab</a></h3>
+                <div class="meta">
+                    <span class="author">👤 eacryo</span>
+                    <span class="date">🕒 2026-11-02T07:34:47Z</span>
+                </div>
+                <div class="section-title">💡 痛点归因与标签</div>
+                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
+                <div class="section-title">📝 智能分析摘要</div>
+                <p class="summary">用户在 GitHub 发帖探讨针对 [The] 的替代方案。主要痛点集中在：Alternative Query。</p>
+                <div class="pitch-box">
+                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
+                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 The 的替代方案，特别是关于 Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="index">#4</span>
+                        <span class="source">GitHub</span>
+                        <span class="competitor">Beyond</span>
+                    </div>
+                    <span class="score" style="background-color: #f59e0b;">70 分</span>
+                </div>
+                <h3 class="title"><a href="https://github.com/chaxiu/OpenCompare" target="_blank">New Alternative: chaxiu/OpenCompare - Modern cross-platform desktop diff and three-way merge tool: directory compare and sync, template relocation, snapshots, code diff, CSV alignment, JSON/YAML semantic compare. Free MIT alternative to Beyond Compare 5 Pro.</a></h3>
+                <div class="meta">
+                    <span class="author">👤 chaxiu</span>
+                    <span class="date">🕒 2026-11-02T07:34:46Z</span>
+                </div>
+                <div class="section-title">💡 痛点归因与标签</div>
+                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
+                <div class="section-title">📝 智能分析摘要</div>
+                <p class="summary">用户在 GitHub 发帖探讨针对 [Beyond] 的替代方案。主要痛点集中在：Alternative Query。</p>
+                <div class="pitch-box">
+                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
+                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Beyond 的替代方案，特别是关于 Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="index">#5</span>
+                        <span class="source">GitHub</span>
+                        <span class="competitor">Claude</span>
+                    </div>
+                    <span class="score" style="background-color: #f59e0b;">70 分</span>
+                </div>
+                <h3 class="title"><a href="https://github.com/Lakshay1509/ichiro" target="_blank">New Alternative: Lakshay1509/ichiro - Open source browser MCP for Claude Code, Codex and any coding agent. A free alternative to Claude in Chrome that works in your own Chrome, with you in the loop.</a></h3>
+                <div class="meta">
+                    <span class="author">👤 Lakshay1509</span>
+                    <span class="date">🕒 2026-11-02T07:34:13Z</span>
+                </div>
+                <div class="section-title">💡 痛点归因与标签</div>
+                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">Alternative Query</span></div>
+                <div class="section-title">📝 智能分析摘要</div>
+                <p class="summary">用户在 GitHub 发帖探讨针对 [Claude] 的替代方案。主要痛点集中在：Alternative Query。</p>
+                <div class="pitch-box">
+                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
+                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 Claude 的替代方案，特别是关于 Alternative Query 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="index">#6</span>
+                        <span class="source">Hacker News</span>
+                        <span class="competitor">General Competitor</span>
+                    </div>
+                    <span class="score" style="background-color: #f59e0b;">65 分</span>
+                </div>
+                <h3 class="title"><a href="https://github.com/VictorKildahl/cra" target="_blank">Cra Browser: open-source Arc replacement for macOS</a></h3>
+                <div class="meta">
+                    <span class="author">👤 nateb2022</span>
+                    <span class="date">🕒 2026-11-02T03:53:24Z</span>
+                </div>
+                <div class="section-title">💡 痛点归因与标签</div>
+                <div class="tags"><span class="badge" style="background:#e0f2fe; color:#0369a1;">🔒 隐私安全与自托管诉求</span> <span class="badge" style="background:#e0f2fe; color:#0369a1;">Tool Replacement</span></div>
+                <div class="section-title">📝 智能分析摘要</div>
+                <p class="summary">用户在 Hacker News 发帖探讨针对 [General Competitor] 的替代方案。主要痛点集中在：🔒 隐私安全与自托管诉求、Tool Replacement。</p>
+                <div class="pitch-box">
+                    <strong>🎯 推荐销售/跟进破冰策略：</strong>
+                    <p>💬 推荐破冰沟通策略：<br>“看到您也在关注 General Competitor 的替代方案，特别是关于 🔒 隐私安全与自托管诉求/Tool Replacement 的痛点。我们研发的工具恰好针对此场景优化，支持极简平替且成本降低约 50%。附上产品详情与对比说明，欢迎免费试用交流！”</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</body>
+</html>
