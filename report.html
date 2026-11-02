@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full bg-zinc-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntentRadar · 商机雷达 竞品弃用与高意向商机看板</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Menlo', 'monospace'],
+                    },
+                    colors: {
+                        zinc: {
+                            950: '#09090b',
+                            900: '#18181b',
+                            800: '#27272a',
+                            700: '#3f3f46',
+                            600: '#52525b',
+                            500: '#71717a',
+                            400: '#a1a1aa',
+                            300: '#d4d4d8',
+                            200: '#e4e4e7',
+                            100: '#f4f4f5',
+                            50: '#fafafa',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        /* Clean shadcn scrollbars */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+        .drawer-mask { background: rgba(9, 9, 11, 0.4); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="h-full w-full max-w-full font-sans antialiased text-zinc-900 flex overflow-hidden">
+
+    <!-- Left Navigation Sidebar (shadcn/ui dark zinc style) -->
+    <aside class="hidden lg:flex lg:flex-shrink-0 w-64 bg-zinc-950 border-r border-zinc-800/80 flex-col">
+        <!-- Bespoke Radar Interceptor Brand Mark -->
+        <div class="h-16 flex items-center px-6 border-b border-zinc-800/80">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-[1px] mr-3 shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                <div class="w-full h-full bg-zinc-950 rounded-[11px] flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9" opacity="0.35" />
+                        <path d="M12 3a9 9 0 0 1 9 9" />
+                        <circle cx="12" cy="12" r="5" opacity="0.6" />
+                        <path d="m15.5 8.5 4-4" stroke-width="2.5" />
+                        <circle cx="12" cy="12" r="2" fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-white tracking-wide">IntentRadar</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1 py-0.2 rounded border border-emerald-500/30">v2.5</span>
+                </div>
+                <span class="text-[10px] text-zinc-400 font-mono tracking-wider">商机雷达 · 竞品弃用情报</span>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="flex-1 px-3.5 py-5 space-y-1 overflow-y-auto">
+            <div class="px-2.5 pb-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">情报线索工作台</div>
+
+            <button onclick="setFilterCategory('all', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-white bg-zinc-800 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                全部商机线索
+                <span class="ml-auto bg-zinc-700 text-zinc-300 py-0.5 px-2 rounded-full text-[10px] font-mono">10</span>
+            </button>
+
+            <button onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                极高采购意向 (≥80分)
+                <span class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">10</span>
+            </button>
+
+            <button onclick="setFilterCategory('pricing', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                价格涨价 / 寻求平替
+                <span class="ml-auto bg-rose-500/20 text-rose-300 py-0.5 px-2 rounded-full text-[10px] font-mono">4</span>
+            </button>
+
+            <button onclick="setFilterCategory('privacy', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
+                <svg class="w-4 h-4 mr-2.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                数据合规 / 开源自托管
+                <span class="ml-auto bg-indigo-500/20 text-indigo-300 py-0.5 px-2 rounded-full text-[10px] font-mono">1</span>
+            </button>
+
+            <div class="pt-5 px-2.5 pb-1.5 text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                <span>🚀 自营获客与代运营</span>
+            </div>
+
+            <button onclick="setViewMode('growth', document.getElementById('btnViewGrowth'))" id="sidebarBtnGrowth" class="w-full flex items-center px-3 py-2 text-xs font-semibold text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                <span>种子客户BD与引流帖</span>
+                <span class="ml-auto bg-emerald-500/30 text-emerald-200 py-0.5 px-1.5 rounded-full text-[10px] font-mono">10</span>
+            </button>
+
+            <button onclick="toggleBrandCustomizer()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span>定制我的产品话术</span>
+            </button>
+
+            <div class="pt-5 px-2.5 pb-1.5 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">批量生产力工具</div>
+
+            <button onclick="exportToExcel()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-900 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>导出精排 Excel (.xls)</span>
+            </button>
+
+            <button onclick="exportToCSV()" class="w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-zinc-400 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <span>导出标准 CSV 表格</span>
+            </button>
+
+            <button onclick="copyAllPitches(this)" class="w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition-all group text-left">
+                <svg class="w-4 h-4 mr-2.5 text-zinc-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                <span>批量提取破冰私信</span>
+            </button>
+
+            <!-- Bottom Pipeline Specs -->
+            <div class="pt-4 px-1">
+                <div class="p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 text-[11px] text-zinc-400 space-y-2">
+                    <div class="flex items-center justify-between text-zinc-200 font-semibold">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            多源并发采集链路
+                        </span>
+                        <span class="text-[10px] text-emerald-400 font-mono">1.3s</span>
+                    </div>
+                    <div class="text-[10px] text-zinc-400 space-y-1">
+                        <div class="flex justify-between"><span>HN / Reddit / Dev.to</span><span class="text-zinc-300 font-mono">在线</span></div>
+                        <div class="flex justify-between"><span>GitHub Issues / V2EX</span><span class="text-zinc-300 font-mono">在线</span></div>
+                        <div class="flex justify-between"><span>DeepSeek-V3 并发推理</span><span class="text-emerald-400 font-mono">6 Workers</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Profile -->
+        <div class="p-4 border-t border-zinc-800/80 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
+                    PL
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-medium text-zinc-200">商业增长负责人</span>
+                    <span class="text-[10px] text-zinc-400">2026年11月03日</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-hidden bg-zinc-50/50">
+        <!-- Top Application Bar (shadcn/ui style header) -->
+        <header class="min-h-14 py-2.5 px-4 sm:px-6 bg-white border-b border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 flex-shrink-0">
+            <!-- Search Bar with lucide icon & clear button -->
+            <div class="relative w-full sm:max-w-xs lg:max-w-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text"
+                       id="searchInput"
+                       oninput="handleSearch()"
+                       placeholder="搜索竞品（如 Jira、Notion）、痛点、发帖人... (快捷键 /)"
+                       class="block w-full pl-9 pr-8 py-1.5 border border-zinc-200 rounded-lg text-xs placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all bg-zinc-50 hover:bg-white focus:bg-white">
+                <button id="searchClearBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-zinc-700 transition-colors" title="清空搜索">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Right Controls: View Switcher & Export -->
+            <div class="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto flex-wrap">
+                <div class="flex items-center gap-0.5 text-xs text-zinc-600 bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+                    <button onclick="setViewMode('table', this)" id="btnViewTable" class="px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1 whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        数据表格
+                    </button>
+                    <button onclick="setViewMode('split', this)" id="btnViewSplit" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                        分屏工作台
+                    </button>
+                    <button onclick="setViewMode('cards', this)" id="btnViewCards" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        战报卡片
+                    </button>
+                    <button onclick="setViewMode('growth', this)" id="btnViewGrowth" class="px-2.5 py-1 rounded-md font-medium text-emerald-700 hover:text-emerald-900 transition-all flex items-center gap-1 whitespace-nowrap">
+                        <span>🚀 获客与代运营</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button id="btnToggleCustomizer" onclick="toggleBrandCustomizer()" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/90 transition-colors whitespace-nowrap" title="输入您的品牌与卖点，动态替换全场破冰话术">
+                        <span>🎯 定制产品话术</span>
+                    </button>
+                    <button id="btnExportExcel" onclick="exportToExcel()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors whitespace-nowrap" title="导出带自动列宽、自动换行与完整15列战报的WPS/Excel专属报表">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>导出精排 Excel</span>
+                    </button>
+                    <button id="btnExportCSV" onclick="exportToCSV()" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs transition-colors whitespace-nowrap" title="导出标准 UTF-8 CSV 供导入 CRM">
+                        <span>CSV</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Brand Pitch Customizer Drawer/Bar (Hidden by default, 1-click toggle) -->
+        <div id="brandCustomizerBar" class="hidden bg-gradient-to-r from-amber-50/90 via-white to-emerald-50/60 border-b border-amber-200/80 px-4 sm:px-6 py-3 flex-shrink-0 transition-all">
+            <div class="flex flex-col gap-2.5">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-zinc-900">🎯 我的产品视角与专属截流话术定制器</span>
+                        <span class="text-[11px] text-zinc-500">一键切换行业预设或输入您的产品卖点，全站三轨破冰私信与导出 Excel 即时动态重生成：</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap" id="brandPresetButtons">
+                        <!-- Populated via JS from BRAND_PRESETS_DATA -->
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                    <div class="sm:col-span-3">
+                        <input id="customBrandName" type="text" placeholder="您的产品/品牌名（如：Plane / 飞书协同）" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                    </div>
+                    <div class="sm:col-span-6">
+                        <input id="customBrandHook" type="text" placeholder="核心差异化卖点（如：成本直降60%、支持Docker私有化部署、1小时无损导入历史数据）" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                    </div>
+                    <div class="sm:col-span-3 flex items-center gap-1.5">
+                        <input id="customBrandLink" type="text" placeholder="试用/预约链接" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                        <button id="btnApplyBrandCustom" onclick="applyCustomBrandProfile()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white whitespace-nowrap shadow-xs">
+                            应用生效
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Category Nav (< lg) -->
+        <div class="lg:hidden flex items-center gap-1.5 overflow-x-auto px-4 py-2 bg-zinc-950 border-b border-zinc-800 text-xs flex-shrink-0">
+            <button onclick="setFilterCategory('all', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-white bg-zinc-800 flex-shrink-0">全部商机 (10)</button>
+            <button onclick="setFilterCategory('high-intent', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-zinc-400 flex-shrink-0">极高潜客 (10)</button>
+            <button onclick="setFilterCategory('pricing', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-zinc-400 flex-shrink-0">价格涨价 (4)</button>
+            <button onclick="setFilterCategory('privacy', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-zinc-400 flex-shrink-0">数据合规 (1)</button>
+            <button onclick="setViewMode('growth', document.getElementById('btnViewGrowth'))" class="px-2.5 py-1 rounded-md font-semibold text-emerald-300 bg-emerald-950 border border-emerald-700 flex-shrink-0">🚀 获客运营</button>
+        </div>
+
+        <!-- Subheader: Official Brand Logo Pills (flex-wrap so zero clipping on right edge) -->
+        <div class="bg-white border-b border-zinc-200/80 px-4 sm:px-6 py-2.5 flex-shrink-0 min-w-0">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+                <div class="flex items-center gap-2 truncate">
+                    <span class="text-xs font-bold text-zinc-900 uppercase tracking-wider shrink-0">🎯 标的竞品快速过滤</span>
+                    <span class="text-[11px] text-zinc-400 hidden sm:inline truncate">点击竞品徽章即时锁定对应流失买家群（导出 Excel 默认包含全量商机，绝不漏导）</span>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <span id="activeBrandIndicator" class="hidden text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md"></span>
+                    <div class="text-[11px] text-zinc-500 font-mono">共捕获 <strong class="text-zinc-900">10</strong> 条甲方采购商机</div>
+                </div>
+            </div>
+            <!-- Wrapped Competitor Pills -->
+            <div class="flex items-center flex-wrap gap-1.5 max-w-full" id="competitorPillContainer">
+                
+        <button onclick="filterByCompetitor('ALL', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-zinc-900 text-white transition-all shadow-xs flex-shrink-0">
+            <span>全部竞品</span>
+            <span class="bg-zinc-700 text-zinc-200 text-[10px] px-1.5 py-0.2 rounded-full font-mono">10</span>
+        </button>
+        
+            <button onclick="filterByCompetitor('Auth0', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23EB5424%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EA0%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Auth0" />
+                <span>Auth0</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Jira', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%230052CC%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EJ%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Jira" />
+                <span>Jira</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Postman', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23FF6C37%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EPM%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Postman" />
+                <span>Postman</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('DocuSign', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%234C00FF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EDS%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="DocuSign" />
+                <span>DocuSign</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Salesforce', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2300A1E0%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ESF%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Salesforce" />
+                <span>Salesforce</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Zendesk', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2303363D%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EZD%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Zendesk" />
+                <span>Zendesk</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Notion', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2318181B%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EN%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Notion" />
+                <span>Notion</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('HubSpot Marketing Hub', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%233f3f46%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EHU%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="HubSpot Marketing Hub" />
+                <span>HubSpot Marketing Hub</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Datadog', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23632CA6%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EDD%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Datadog" />
+                <span>Datadog</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Airtable', this)" class="comp-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2318BFFF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EAT%3C/text%3E%3C/svg%3E" class="w-3.5 h-3.5 rounded-[3px] object-contain flex-shrink-0" alt="Airtable" />
+                <span>Airtable</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            </div>
+        </div>
+
+        <!-- Main Scrollable Workspace -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-5 min-w-0 max-w-full" id="mainContainer">
+
+            <!-- Executive Hero & Value Proposition Banner (shadcn/ui Card + Tremor Metric Cards) -->
+            <div id="heroBanner" class="mb-4 bg-gradient-to-b from-white to-zinc-50/70 rounded-2xl border border-zinc-200/90 p-4 sm:p-5 shadow-xs transition-all relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-72 h-72 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 relative z-10">
+                    <div class="space-y-1 max-w-3xl">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                B2B 竞品弃用与高意向潜客截流雷达
+                            </span>
+                            <span class="text-xs text-zinc-400 font-mono">Klue & Crayon 工业级赋能</span>
+                        </div>
+                        <h1 class="text-base sm:text-lg font-bold text-zinc-900 tracking-tight">
+                            全网实时拦截竞品流失客户，一键生成攻防战报与双轨破冰私信
+                        </h1>
+                        <p id="heroDescText" class="text-xs text-zinc-600 leading-relaxed">
+                            7×24h 自动化并发监听 Hacker News、Reddit、GitHub Issues、V2EX、Dev.to 等社区中真实的<strong>甲方企业弃用与平替求助帖</strong>。AI 深度识别买家对 Jira、Salesforce、Notion、Datadog、DocuSign 等竞品的涨价、卡顿与私有化合规痛点，即时生成攻防战报与「决策人 ROI / 开发者破冰 / 社区引流神评」三轨话术。
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <button onclick="setViewMode('growth', document.getElementById('btnViewGrowth'))" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors whitespace-nowrap">
+                            <span>🚀 找客户与代运营工作台</span>
+                        </button>
+                        <button id="btnHowItWorks" onclick="openHowItWorksModal()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-zinc-100 text-zinc-800 border border-zinc-200 shadow-2xs transition-colors whitespace-nowrap">
+                            <svg class="w-3.5 h-3.5 mr-1 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>💡 运作原理与使用指南</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 Tremor-style KPI Metric Cards -->
+                <div id="heroMetricGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3.5 mt-3.5 border-t border-zinc-200/80 relative z-10">
+                    <div class="bg-white p-3 rounded-xl border border-zinc-200/80 shadow-2xs space-y-1">
+                        <div class="flex items-center justify-between text-zinc-500 text-[11px] font-medium">
+                            <span>今日捕获甲方采购潜客</span>
+                            <span class="text-emerald-600 font-mono text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">100% 真实买家</span>
+                        </div>
+                        <div class="text-xl font-bold text-zinc-900 font-mono flex items-baseline gap-1.5">
+                            <span id="metricTotalLeads">10</span>
+                            <span class="text-xs font-normal text-zinc-500">条明确平替线索</span>
+                        </div>
+                        <div class="text-[10px] text-zinc-400">平均意向评分 <strong class="text-zinc-700 font-mono">95.0分</strong> · 已剔除厂商自夸与C端杂讯</div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-zinc-200/80 shadow-2xs space-y-1">
+                        <div class="flex items-center justify-between text-zinc-500 text-[11px] font-medium">
+                            <span>流失最重标的 Top 3</span>
+                            <span class="text-amber-600 font-mono text-[10px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">黄金截流窗口</span>
+                        </div>
+                        <div id="metricTopCompetitor" class="text-xs font-bold text-zinc-800 flex items-center gap-1.5 truncate pt-0.5">
+                            <span class="inline-flex items-center gap-1 bg-zinc-100 px-2 py-0.5 rounded text-[11px] font-semibold text-zinc-800 border border-zinc-200/70">Auth0 <span class="text-zinc-400 font-mono">(1)</span></span> <span class="inline-flex items-center gap-1 bg-zinc-100 px-2 py-0.5 rounded text-[11px] font-semibold text-zinc-800 border border-zinc-200/70">Jira <span class="text-zinc-400 font-mono">(1)</span></span> <span class="inline-flex items-center gap-1 bg-zinc-100 px-2 py-0.5 rounded text-[11px] font-semibold text-zinc-800 border border-zinc-200/70">Postman <span class="text-zinc-400 font-mono">(1)</span></span>
+                        </div>
+                        <div class="text-[10px] text-zinc-400">支持一键导出 <strong class="text-zinc-700 font-mono">WPS/Excel 精排宽表</strong></div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-zinc-200/80 shadow-2xs space-y-1">
+                        <div class="flex items-center justify-between text-zinc-500 text-[11px] font-medium">
+                            <span>主要流失诱因分布</span>
+                            <span class="text-blue-600 font-mono text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">核心痛点</span>
+                        </div>
+                        <div id="metricTopTrigger" class="flex items-center gap-2 text-xs font-semibold text-zinc-800 pt-0.5">
+                            <span class="text-rose-600 font-mono">价格涨价 (4)</span>
+                            <span class="text-zinc-300">/</span>
+                            <span class="text-indigo-600 font-mono">合规自托管 (1)</span>
+                        </div>
+                        <div class="text-[10px] text-zinc-400">配套 <strong class="text-zinc-700">10 家种子客户名录</strong> 与代运营首发帖</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1. DATA GRID VIEW (Linear/Stripe style — zero horizontal overflow at 1440px!) -->
+            <div id="tableViewWrapper" class="bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden max-w-full">
+                <div class="overflow-x-auto max-w-full">
+                    <table class="w-full divide-y divide-zinc-200 text-left text-xs">
+                        <thead class="bg-zinc-50/80 font-semibold text-zinc-500 uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th onclick="toggleSort('idx')" class="py-2.5 px-2 w-9 text-center cursor-pointer hover:bg-zinc-100/80 transition-colors select-none group" title="点击按序号排序">
+                                    <span class="inline-flex items-center gap-0.5">#<span id="sortIndicatorIdx" class="text-zinc-400 group-hover:text-zinc-700 font-mono text-[10px]">↕</span></span>
+                                </th>
+                                <th onclick="toggleSort('score')" class="py-2.5 px-2 w-24 whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 transition-colors select-none group" title="点击按意向评分排序">
+                                    <span class="inline-flex items-center gap-1">意向等级 <span id="sortIndicatorScore" class="text-zinc-400 group-hover:text-zinc-700 font-mono text-[10px]">↕</span></span>
+                                </th>
+                                <th class="py-2.5 px-2 w-28 whitespace-nowrap">目标竞品</th>
+                                <th class="py-2.5 px-2.5">甲方痛点原声与采购画像</th>
+                                <th class="py-2.5 px-2 w-28 whitespace-nowrap">热度 / 渠道</th>
+                                <th class="py-2.5 px-2 w-20 whitespace-nowrap">跟进状态</th>
+                                <th class="py-2.5 px-2.5 w-36 whitespace-nowrap text-right">商机操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadTableBody" class="divide-y divide-zinc-100 font-normal text-zinc-700">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. SPLIT WORKSTATION VIEW (Linear/Clay style split) -->
+            <div id="splitViewWrapper" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-full">
+                <!-- Left: Compact Lead List -->
+                <div class="lg:col-span-5 bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden flex flex-col h-[700px]">
+                    <div class="p-3 bg-zinc-50/80 border-b border-zinc-200 flex items-center justify-between text-xs font-semibold text-zinc-700 flex-shrink-0">
+                        <span>商机线索流</span>
+                        <span id="splitCountBadge" class="text-[11px] font-mono text-zinc-400"></span>
+                    </div>
+                    <div id="splitLeadList" class="flex-1 overflow-y-auto divide-y divide-zinc-100">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Docked Battlecard Sheet -->
+                <div class="lg:col-span-7 bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden flex flex-col h-[700px]">
+                    <div id="splitDockedPlaceholder" class="hidden h-full flex flex-col items-center justify-center text-zinc-400 p-8 text-center space-y-2">
+                        <svg class="w-10 h-10 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <p class="text-xs text-zinc-500 font-medium">请从左侧列表选择一条商机，即刻在右侧审阅攻防战报与破冰方案</p>
+                    </div>
+
+                    <div id="splitDockedContainer" class="flex-1 flex flex-col overflow-hidden">
+                        <!-- Docked Header -->
+                        <div class="h-14 px-5 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80 flex-shrink-0">
+                            <div class="flex items-center gap-2">
+                                <span id="splitScoreBadge"></span>
+                                <span id="splitCompetitorBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200"></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="copySplitPitch(this)" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-all shadow-2xs">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                    <span>复制当前话术</span>
+                                </button>
+                                <a id="splitSourceLink" href="#" target="_blank" rel="noopener" class="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200/60 rounded-md transition-colors" title="打开原帖页面">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Docked Content -->
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                            <div>
+                                <h2 id="splitTitle" class="text-sm font-bold text-zinc-900 leading-snug mb-1"></h2>
+                                <div class="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+                                    <span id="splitAuthor"></span>
+                                    <span id="splitTimestamp"></span>
+                                    <span id="splitEngagement" class="text-amber-700 font-medium"></span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">📢 客户原始吐槽原声</span>
+                                <div id="splitContent" class="bg-zinc-50 p-3 rounded-lg border border-zinc-200/80 text-xs text-zinc-700 leading-relaxed font-sans italic whitespace-pre-wrap"></div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">⚡ 客户核心流失诱因</span>
+                                <div id="splitChurnBadges" class="flex flex-wrap gap-1.5 pt-0.5"></div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">💡 商业情报与诉求研判</span>
+                                <div id="splitExecutiveSummary" class="text-xs text-zinc-600 leading-relaxed bg-blue-50/50 p-3 rounded-lg border border-blue-100 whitespace-pre-wrap"></div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">🎯 攻防对阵策略建议</span>
+                                <div id="splitTactics" class="text-xs text-zinc-700 leading-relaxed bg-amber-50/60 p-3 rounded-lg border border-amber-200/70 whitespace-pre-wrap"></div>
+                            </div>
+
+                            <div id="splitObjectionWrapper" class="space-y-1">
+                                <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">🛡️ 竞品抗拒与反制解法 (Objection Handling)</span>
+                                <div id="splitObjection" class="text-xs text-zinc-700 leading-relaxed bg-zinc-50 p-3 rounded-lg border border-zinc-200/80 whitespace-pre-wrap"></div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">💬 推荐破冰与引流神评模板</span>
+                                    <button id="btnCopySplitPitch" onclick="copySplitPitch(this)" class="inline-flex items-center px-2 py-0.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-all shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                        <span>复制当前话术</span>
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-1 p-1 bg-zinc-100 rounded-lg border border-zinc-200/80 text-xs">
+                                    <button id="btnSplitPitchExec" onclick="switchSplitPitchTab('exec')" class="flex-1 py-1 px-2 rounded-md font-semibold text-zinc-900 bg-white shadow-2xs transition-all flex items-center justify-center gap-1">
+                                        <span>💼 决策人商业ROI方案</span>
+                                    </button>
+                                    <button id="btnSplitPitchDev" onclick="switchSplitPitchTab('dev')" class="flex-1 py-1 px-2 rounded-md font-medium text-zinc-500 hover:text-zinc-800 transition-all flex items-center justify-center gap-1">
+                                        <span>💻 开发者同行极简破冰</span>
+                                    </button>
+                                    <button id="btnSplitPitchReply" onclick="switchSplitPitchTab('reply')" class="flex-1 py-1 px-2 rounded-md font-medium text-zinc-500 hover:text-zinc-800 transition-all flex items-center justify-center gap-1">
+                                        <span>💬 社区原帖引流神评</span>
+                                    </button>
+                                </div>
+                                <div id="splitPitch" class="bg-zinc-950 text-zinc-100 p-3.5 rounded-xl text-xs font-mono leading-relaxed select-all whitespace-pre-wrap"></div>
+                            </div>
+                        </div>
+
+                        <!-- Docked Footer: CRM Status -->
+                        <div class="p-3 border-t border-zinc-200 bg-zinc-50/80 flex items-center justify-between text-xs flex-shrink-0">
+                            <span class="font-bold text-zinc-700">跟进状态流转:</span>
+                            <div class="inline-flex rounded-lg border border-zinc-200 p-0.5 bg-zinc-100 text-xs gap-1">
+                                <button onclick="setSplitStatus('待跟进')" id="btnSplitStatusWait" class="px-2.5 py-0.5 rounded font-medium transition-colors">待跟进</button>
+                                <button onclick="setSplitStatus('跟进中')" id="btnSplitStatusProgress" class="px-2.5 py-0.5 rounded font-medium transition-colors">跟进中</button>
+                                <button onclick="setSplitStatus('已转化')" id="btnSplitStatusDone" class="px-2.5 py-0.5 rounded font-medium transition-colors">已转化</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. CARD VIEW (Toggleable) -->
+            <div id="cardViewWrapper" class="hidden space-y-4">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <!-- 4. GROWTH & SELF-OPERATION HUB (获客与代运营中心) -->
+            <div id="growthViewWrapper" class="hidden space-y-6">
+                <!-- Banner Intro -->
+                <div class="bg-gradient-to-r from-zinc-900 via-zinc-900 to-emerald-950 text-white rounded-2xl p-6 border border-zinc-800 shadow-lg flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div class="space-y-2 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[11px] font-semibold">
+                            <span>🚀 IntentRadar 专属冷启动与代运营作战室 (Dogfooding Engine)</span>
+                        </div>
+                        <h2 class="text-lg font-bold tracking-tight text-white">不用等客户找上门：用「截流到的真实潜客」反向敲开 10 家高付费意愿 SaaS 厂商大门</h2>
+                        <p class="text-xs text-zinc-300 leading-relaxed">
+                            最顶级的 B2B 销售不是卖软件功能，而是<strong class="text-emerald-300">「带着已经找好的精准买家名单去敲门（Lead-in-Hand Outbound）」</strong>。下方已为您整理好<strong>最急需替代表达（Jira/Salesforce/Notion/Datadog/DocuSign 等）的 10 家挑战者厂商决策人名单与定制私信</strong>，以及<strong>4 篇可直接发布至 V2EX、小红书、Hacker News 的首发引流帖</strong>。
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+                        <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs transition-all shadow-sm flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>打包下载今日潜客精排 Excel (作为敲门砖附件)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section 1: 10 Seed Paying Clients for IntentRadar -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                                <span>🎯 第一步：定向狙击 10 家高付费意愿种子客户（带线索上门成交法）</span>
+                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">预估客单价 ¥2,999 - ¥9,800/月</span>
+                            </h3>
+                            <p class="text-xs text-zinc-500 mt-0.5">这些开源商业化（COSS）与国产出海 SaaS 正在重金抢夺巨头流失客户，点击「一键复制敲门话术」即可直接发给对方创始人或增长总监。</p>
+                        </div>
+                    </div>
+                    <div id="seedClientsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Section 2: 4 Multi-Channel Community Launch Posts -->
+                <div class="space-y-3 pt-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                            <span>📣 第二步：多渠道公域冷启动引流帖（一键复制直接发帖）</span>
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">零广告费自然获客</span>
+                        </h3>
+                        <p class="text-xs text-zinc-500 mt-0.5">已针对 V2EX「分享创造」、小红书/即刻、Hacker News「Show HN」及 Cold Email 调优排版，附上您的在线预览链接即可坐等意向客户加微信。</p>
+                    </div>
+                    <div id="launchCampaignsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-xl border border-zinc-200 shadow-xs">
+                <div class="w-12 h-12 mx-auto text-zinc-300 mb-3">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-sm font-semibold text-zinc-900 mb-1">未找到匹配的商机线索</h3>
+                <p class="text-xs text-zinc-500 mb-4">请尝试调整搜索关键词或重置筛选维度。</p>
+                <div class="flex items-center justify-center gap-2">
+                    <button onclick="clearSearch()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 transition-colors shadow-2xs">
+                        清除搜索词
+                    </button>
+                    <button onclick="resetAllFilters()" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
+                        重置所有筛选
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- RIGHT SLIDE-OVER DRAWER (shadcn/ui Sheet Specification) -->
+    <div id="detailDrawerMask" onclick="closeDrawer()" class="drawer-mask fixed inset-0 z-40 hidden transition-opacity duration-300"></div>
+
+    <aside id="detailDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-xl bg-white shadow-2xl border-l border-zinc-200 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <!-- Drawer Header -->
+        <div class="h-16 px-6 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80">
+            <div class="flex items-center gap-2">
+                <span id="drawerScoreBadge"></span>
+                <span id="drawerCompetitorBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200"></span>
+            </div>
+            <button onclick="closeDrawer()" class="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-200/60 transition-colors" title="关闭战报 (Esc)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- Drawer Content -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <!-- Title & Context -->
+            <div>
+                <h2 id="drawerTitle" class="text-base font-bold text-zinc-900 leading-snug mb-2"></h2>
+                <div class="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+                    <span id="drawerAuthor"></span>
+                    <span id="drawerTimestamp"></span>
+                    <span id="drawerEngagement" class="text-amber-700 font-medium"></span>
+                </div>
+            </div>
+
+            <!-- Original Discussion Quote -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">📢 客户原始讨论原声</span>
+                    <a id="drawerSourceLink" href="#" target="_blank" rel="noopener" class="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 font-medium">
+                        打开原帖页面
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+                <div id="drawerContent" class="bg-zinc-50 p-4 rounded-xl border border-zinc-200/80 text-xs text-zinc-700 leading-relaxed font-sans italic whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- Churn Drivers -->
+            <div class="space-y-1.5">
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">⚡ 客户核心流失诱因</span>
+                <div id="drawerChurnBadges" class="flex flex-wrap gap-1.5 pt-1"></div>
+            </div>
+
+            <!-- AI Intelligence Summary -->
+            <div class="space-y-1.5">
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">💡 商业情报与诉求研判</span>
+                <div id="drawerExecutiveSummary" class="text-xs text-zinc-600 leading-relaxed bg-blue-50/50 p-3.5 rounded-xl border border-blue-100 whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- Tactical Sales Battlecard -->
+            <div class="space-y-1.5">
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">🎯 攻防对阵策略建议</span>
+                <div id="drawerTactics" class="text-xs text-zinc-700 leading-relaxed bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/70 whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- Objection Handling Battlecard -->
+            <div id="drawerObjectionWrapper" class="space-y-1.5">
+                <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">🛡️ 竞品抗拒与反制解法 (Objection Handling)</span>
+                <div id="drawerObjection" class="text-xs text-zinc-700 leading-relaxed bg-zinc-50 p-3.5 rounded-xl border border-zinc-200/80 whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- Suggested Pitch Box with 3-Track Tabs -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">💬 推荐私信破冰与社区神评模板</span>
+                    <button onclick="copyDrawerPitch(this)" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-all shadow-2xs">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>复制当前话术</span>
+                    </button>
+                </div>
+                <!-- 3-Track Tab Switcher -->
+                <div class="flex items-center gap-1 p-1 bg-zinc-100 rounded-lg border border-zinc-200/80 text-xs">
+                    <button id="btnPitchExec" onclick="switchPitchTab('exec')" class="flex-1 py-1.5 px-2 rounded-md font-semibold text-zinc-900 bg-white shadow-2xs transition-all flex items-center justify-center gap-1">
+                        <span>💼 决策人商业ROI方案</span>
+                    </button>
+                    <button id="btnPitchDev" onclick="switchPitchTab('dev')" class="flex-1 py-1.5 px-2 rounded-md font-medium text-zinc-500 hover:text-zinc-800 transition-all flex items-center justify-center gap-1">
+                        <span>💻 开发者同行极简破冰</span>
+                    </button>
+                    <button id="btnPitchReply" onclick="switchPitchTab('reply')" class="flex-1 py-1.5 px-2 rounded-md font-medium text-zinc-500 hover:text-zinc-800 transition-all flex items-center justify-center gap-1">
+                        <span>💬 社区原帖引流神评</span>
+                    </button>
+                </div>
+                <div id="drawerPitch" class="bg-zinc-950 text-zinc-100 p-4 rounded-xl text-xs font-mono leading-relaxed select-all whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- CRM Status in Drawer -->
+            <div class="pt-4 border-t border-zinc-200 flex items-center justify-between">
+                <span class="text-xs font-bold text-zinc-700">跟进状态流转:</span>
+                <div class="inline-flex rounded-lg border border-zinc-200 p-1 bg-zinc-100 text-xs gap-1">
+                    <button onclick="setDrawerStatus('待跟进')" id="btnStatusWait" class="px-2.5 py-1 rounded font-medium transition-colors">待跟进</button>
+                    <button onclick="setDrawerStatus('跟进中')" id="btnStatusProgress" class="px-2.5 py-1 rounded font-medium transition-colors">跟进中</button>
+                    <button onclick="setDrawerStatus('已转化')" id="btnStatusDone" class="px-2.5 py-1 rounded font-medium transition-colors">已转化</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- How it Works Dialog (shadcn/ui Dialog Specification) -->
+    <div id="howItWorksMask" onclick="closeHowItWorksModal()" class="drawer-mask fixed inset-0 z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300">
+        <div id="howItWorksModal" onclick="event.stopPropagation()" class="bg-white rounded-2xl border border-zinc-200 shadow-2xl max-w-2xl w-full p-6 space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-zinc-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-zinc-900">IntentRadar · 运作原理与商业价值</h3>
+                        <p class="text-[11px] text-zinc-500 font-mono">从公域社区抱怨到 B2B 高转化订单的 4 步截流链路</p>
+                    </div>
+                </div>
+                <button id="btnCloseHowItWorks" onclick="closeHowItWorksModal()" class="p-1 rounded-md text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div class="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-zinc-900 text-white text-[11px] font-bold flex items-center justify-center font-mono">1</span>
+                        <span class="text-xs font-bold text-zinc-900">多源并发社区监听</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-600 leading-relaxed">
+                        多线程并发爬取 Hacker News、GitHub、Dev.to、V2EX 及 Google 行业新闻，捕获用户对竞品价格、性能痛点的真实吐槽原声。
+                    </p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-zinc-900 text-white text-[11px] font-bold flex items-center justify-center font-mono">2</span>
+                        <span class="text-xs font-bold text-zinc-900">DeepSeek 意向语义判研</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-600 leading-relaxed">
+                        基于大模型严格过滤个人消费杂讯，精准抽取标的竞品名称，按“采购急迫度、预算匹配度、角色权重”综合评定 0-100 意向分。
+                    </p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-zinc-900 text-white text-[11px] font-bold flex items-center justify-center font-mono">3</span>
+                        <span class="text-xs font-bold text-zinc-900">Klue 级攻防战报生成</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-600 leading-relaxed">
+                        自动剖析对手的定价与功能破绽，提炼反制推脱理由（如迁移历史数据成本高）的实战话术，直接武装一线销售团队。
+                    </p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-zinc-900 text-white text-[11px] font-bold flex items-center justify-center font-mono">4</span>
+                        <span class="text-xs font-bold text-zinc-900">双轨私信一键转化</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-600 leading-relaxed">
+                        区分“业务决策人商业 ROI 方案”与“技术开发者极简破冰”，无需销售绞尽脑汁构思邮件，一键复制即可高转化触达。
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-zinc-100 flex items-center justify-between">
+                <span class="text-xs text-zinc-500">支持一键导出标准 CSV，直接导入现有 CRM 系统</span>
+                <button onclick="closeHowItWorksModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white transition-colors shadow-xs">
+                    进入商机截流工作台
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Toast Notification (No alert!) -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-zinc-950 text-white px-4 py-3 rounded-xl shadow-2xl border border-zinc-800 flex items-center space-x-3 text-xs">
+            <span id="toastIcon" class="text-emerald-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </span>
+            <span id="toastMessage" class="font-medium"></span>
+        </div>
+    </div>
+
+    <!-- Data Injection & Interactive Controller -->
+    <script>
+        const LEADS_DATA = [{"idx": 1, "id": "8ce00b2eafc658f416997576c6fd0caa", "title": "Auth0 pricing cliff at 10,000 MAU is killing our B2B2C SaaS margins — best migration path?", "url": "https://news.ycombinator.com/item?id=39954321", "source": "Hacker News", "content": "Once you need Enterprise SAML/SSO connections in Auth0, the quote jumps from $240/mo to $22,000/yr. We need multi-tenant RBAC, SAML SSO, and passkeys without the punitive enterprise tax. Has anyone migrated 50k users with zero password reset friction?", "author": "saas_architect_leo", "timestamp": "2026-11-02 04:55:00", "engagement": "🔥 164 关注 · 💬 91 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Auth0", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23EB5424%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EA0%3C/text%3E%3C/svg%3E", "category": "身份认证与访问管理 (IAM) SaaS", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["企业级 SAML/SSO 定价过高（从 $240/月 跳至 $22,000/年）", "按 MAU 计费模式对 B2B2C 多租户场景不友好", "缺乏灵活的 RBAC 与 passkeys 支持而不触发企业税", "迁移时担心密码重置摩擦影响终端用户"], "core_issue": "Auth0 在企业级 SSO 功能上设置陡峭的定价悬崖，导致 B2B2C SaaS 的毛利被严重侵蚀，迫使团队寻找可替代的多租户身份认证方案。", "executive_summary": "该信号来自 Hacker News 上一位 B2B2C SaaS 技术负责人，明确表达因 Auth0 企业级 SAML/SSO 定价从 $240/月 跃升至 $22,000/年而寻求迁移。其需求集中在多租户 RBAC、SAML SSO 和 passkeys，且关注 5 万用户迁移的密码重置摩擦，属于高意向的替换型商机。", "tactical_action_plan": "强调按 MAU 阶梯定价且企业级 SSO 不额外收费，直接对比 Auth0 的 $22,000/年 报价，突出 TCO 节省 60% 以上。\n提供零密码重置摩擦的迁移方案：支持密码哈希导入、渐进式迁移和双写，并承诺迁移期间 SLA 99.99%。", "suggested_pitch": "针对您从 Auth0 迁移的需求，我们提供按 MAU 阶梯定价且企业级 SSO 不额外收费的方案，预计帮您节省 60% 以上的身份认证成本。迁移过程支持密码哈希导入和渐进式切换，确保零密码重置摩擦，并提供 99.99% SLA 保障。可否安排 15 分钟沟通，我为您算一笔具体的 TCO 账？", "pitch_dev": "看到你在 HN 上吐槽 Auth0 的定价悬崖，我们之前也踩过同样的坑。我们做了一套轻量级身份认证 API，多租户 RBAC、SAML SSO 和 passkeys 都原生支持，没有企业税。迁移支持密码哈希导入，5 万用户零重置。有兴趣可以聊聊，我发你文档和 demo。", "pitch_exec": "针对您从 Auth0 迁移的需求，我们提供按 MAU 阶梯定价且企业级 SSO 不额外收费的方案，预计帮您节省 60% 以上的身份认证成本。迁移过程支持密码哈希导入和渐进式切换，确保零密码重置摩擦，并提供 99.99% SLA 保障。可否安排 15 分钟沟通，我为您算一笔具体的 TCO 账？", "public_reply": "我们也是 B2B2C 场景，去年从 Auth0 迁走了，原因一模一样。选型时重点看了三点：多租户 RBAC 是否原生、SAML SSO 是否额外收费、迁移是否支持密码哈希导入。最后选了按 MAU 阶梯计价且企业功能不另收费的方案，5 万用户迁移零重置。需要的话可以私信我，发你对比清单。", "objection_handling": "迁移摩擦：我们支持密码哈希直接导入和渐进式迁移（双写并行），并提供迁移工具和专人支持，确保用户无感知、零密码重置。\n功能完整性：多租户 RBAC、SAML SSO、passkeys、MFA 均为原生功能且不额外收费，已服务多家 5 万+ MAU 的 B2B2C 客户，可提供案例和 SLA 保障。"}, {"idx": 2, "id": "6e397435c426d5c2a2ed9a60e5618af5", "title": "Looking for an alternative to Jira that doesn't cost an arm and a leg for 35 engineers", "url": "https://news.ycombinator.com/item?id=39821455", "source": "Hacker News", "content": "Our engineering team just crossed 35 people and Atlassian's Cloud Enterprise renewal jumped 42%. Worse, page loads take 4+ seconds and our developers actively avoid updating tickets. We need a fast, keyboard-first issue tracker with clean GitHub integration and a 1-click Jira importer. Budget is ~$10-15/seat.", "author": "tech_founder_99", "timestamp": "2026-11-02 09:15:00", "engagement": "🔥 142 关注 · 💬 84 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Jira", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%230052CC%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EJ%3C/text%3E%3C/svg%3E", "category": "研发项目协同", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["按席位定价过高", "访问响应慢", "开发者抵触更新工单", "缺乏键盘优先操作", "GitHub集成不够简洁"], "core_issue": "Atlassian Cloud Enterprise续费涨价42%且页面加载超过4秒，导致35人工程团队寻求更便宜、更快的键盘优先问题跟踪工具。", "executive_summary": "该信号显示一个35人工程团队因Jira Cloud Enterprise续费涨价42%和性能问题（页面加载4秒以上）而主动寻求替代方案，预算明确在每席位10-15美元。这是高转化率的替换意向，目标客户对价格敏感且重视开发者体验与GitHub集成。", "tactical_action_plan": "强调每席位10-15美元的透明定价，对比Jira Enterprise续费涨幅，提供TCO节省计算器。\n演示键盘优先操作和1-click Jira导入器，突出4秒页面加载的痛点解决与GitHub原生集成。", "suggested_pitch": "了解到贵团队因Jira续费上涨42%和性能问题寻求替代。我们提供每席位10-15美元的透明定价，零风险迁移（1-click导入+并行运行），并保证99.9% SLA。可为您算一笔3年TCO节省账，欢迎约15分钟聊聊。", "pitch_dev": "嘿，看到你们被Jira的加载速度和涨价折磨，我们也是过来人。我们做了个键盘优先、GitHub原生的问题跟踪器，页面秒开，API干净，1-click导入Jira数据。不搞销售套路，有兴趣可以试试免费版，直接DM我。", "pitch_exec": "了解到贵团队因Jira续费上涨42%和性能问题寻求替代。我们提供每席位10-15美元的透明定价，零风险迁移（1-click导入+并行运行），并保证99.9% SLA。可为您算一笔3年TCO节省账，欢迎约15分钟聊聊。", "public_reply": "同为工程团队负责人，我们去年也因Jira涨价和卡顿迁移了。选型时重点看：键盘操作流畅度、GitHub集成深度、导入是否无损。最后选了款轻量工具，迁移只花了一个周末。建议先并行跑两周再切，需要推荐可以私我。", "objection_handling": "迁移摩擦：提供1-click Jira导入器，支持字段、评论、附件无损迁移，并可并行运行两周，零业务中断。\n功能完整性：核心问题跟踪、敏捷看板、GitHub PR联动齐全，且API开放，缺失功能可快速反馈迭代。"}, {"idx": 3, "id": "fe39c444600d6af16767f9a6b49bef48", "title": "Ditching Postman after forced cloud sync policy: what are enterprise API teams moving to?", "url": "https://reddit.com/r/devops/comments/1h0291b", "source": "Reddit r/devops", "content": "Our security compliance team blocked Postman Desktop after their mandatory cloud scratchpad deprecation. We have 45 backend engineers who need local-first Git-friendly API collection testing without leaking internal staging tokens to a third-party cloud.", "author": "secops_director", "timestamp": "2026-11-02 06:15:00", "engagement": "🔥 215 赞同 · 💬 78 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Postman", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23FF6C37%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EPM%3C/text%3E%3C/svg%3E", "category": "API协作与测试平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["强制云同步策略", "安全合规团队封禁", "内部令牌泄露风险", "缺乏本地优先与Git友好支持"], "core_issue": "Postman强制云同步策略触发安全合规封禁，导致45人后端团队无法安全使用本地Git友好的API测试工具。", "executive_summary": "Postman的强制云同步政策正推动企业API团队寻求本地优先、Git集成的替代方案，安全合规成为关键决策因素。这为提供私有化部署和开发者友好体验的竞品创造了高转化商机。", "tactical_action_plan": "强调本地优先架构与Git原生集成，直接解决数据泄露顾虑，提供POC验证。\n针对45人团队提供无缝迁移工具和专属安全合规白皮书，降低切换风险。", "suggested_pitch": "了解到贵团队因Postman云同步政策面临合规风险，我们提供完全本地化、Git集成的API协作平台，已帮助多家金融企业实现零令牌泄露。可提供45人团队免费POC与迁移支持，确保零风险切换，并附SLA保障。", "pitch_dev": "嘿，我们之前也因Postman强制云同步被安全团队卡过。后来换了个本地优先、直接Git管理collection的工具，token完全不出内网，协作也没丢。要不要试试看？轻量无账号，5分钟就能跑起来。", "pitch_exec": "了解到贵团队因Postman云同步政策面临合规风险，我们提供完全本地化、Git集成的API协作平台，已帮助多家金融企业实现零令牌泄露。可提供45人团队免费POC与迁移支持，确保零风险切换，并附SLA保障。", "public_reply": "我们团队去年也因同样原因从Postman迁走了。关键选型标准：1) 本地存储且Git友好；2) 无需强制云账号；3) 支持环境变量加密。最后选了[某工具]，迁移挺顺的。需要的话可以私信交流细节。", "objection_handling": "迁移摩擦：提供一键导入Postman collection和环境变量工具，并有专人协助迁移，通常1-2天完成。\n功能完整性：支持Postman核心功能的90%以上，且针对Git协作和本地安全做了增强，可先试用再决定。"}, {"idx": 4, "id": "564f0c9324062adf6da64daf8b0af653", "title": "DocuSign API renewal increased 40% with strict envelope caps — seeking self-hosted or fair API alternative", "url": "https://news.ycombinator.com/item?id=39910234", "source": "Hacker News", "content": "We embed contract signing into our B2B onboarding flow (~4,000 envelopes/month). DocuSign account reps just forced us onto an enterprise tier with a 40% price hike. Looking for a developer-friendly, SOC2-compliant or self-hosted e-signature API with webhooks that we can switch to within 30 days.", "author": "fintech_cto_mark", "timestamp": "2026-11-02 06:50:00", "engagement": "🔥 118 关注 · 💬 63 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "DocuSign", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%234C00FF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EDS%3C/text%3E%3C/svg%3E", "category": "电子签名API", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["强制升级企业版导致40%涨价", "信封数量严格限制", "缺乏自托管选项", "定价不透明且不灵活"], "core_issue": "DocuSign销售代表强制要求升级到企业版并涨价40%，同时施加严格的信封数量限制，迫使企业寻找可自托管或定价更公平的替代方案。", "executive_summary": "DocuSign的激进涨价和信封限制策略正引发开发者社区强烈不满，为竞品创造了高意向替换窗口。该用户明确要求30天内迁移至开发者友好、支持SOC2合规或自托管、具备Webhook的电子签名API，是典型的紧急采购信号。", "tactical_action_plan": "强调30天无缝迁移方案：提供API兼容层和迁移工具，承诺零停机切换，并展示已有客户从DocuSign迁移的成功案例。\n突出定价透明与自托管选项：对比DocuSign的隐藏成本和信封限制，提供按需付费或自托管许可，并确保SOC2合规和Webhook支持。", "suggested_pitch": "了解到DocuSign强制涨价40%并限制信封数量，我们提供更灵活的电子签名API方案：TCO可降低30-50%，支持自托管或云部署，SOC2合规，并承诺30天零风险迁移与99.9% SLA。可否安排15分钟沟通，为您定制迁移路线图？", "pitch_dev": "嗨，看到你们被DocuSign的涨价和信封限制坑了。我们也是开发者，之前也遇到过类似问题。我们的API设计轻量，文档清晰，支持Webhook和自托管，SOC2合规。迁移工具可以帮你们在30天内平滑切换，需要的话可以聊聊具体怎么对接。", "pitch_exec": "了解到DocuSign强制涨价40%并限制信封数量，我们提供更灵活的电子签名API方案：TCO可降低30-50%，支持自托管或云部署，SOC2合规，并承诺30天零风险迁移与99.9% SLA。可否安排15分钟沟通，为您定制迁移路线图？", "public_reply": "我们之前也用过DocuSign，同样被涨价和信封限制困扰。后来迁移到一家开发者友好的API，支持自托管和Webhook，SOC2合规，迁移过程比想象中顺利。建议重点考察API文档质量、迁移工具和定价透明度。需要推荐可以私信我。", "objection_handling": "迁移摩擦：我们提供自动化迁移工具和API兼容层，并有专业团队协助，确保30天内完成切换且不影响业务，已有多个从DocuSign迁移的案例。\n功能完整性：我们的API覆盖签名、审计追踪、Webhook等核心功能，并支持自托管和SOC2合规，同时保持轻量和开发者友好，可提供功能对比清单。"}, {"idx": 5, "id": "158f70e195b21aefafb1d506ee78af78", "title": "Switching from Salesforce to something modern for a 20-person B2B sales team?", "url": "https://reddit.com/r/SaaS/comments/1gx891a", "source": "Reddit r/SaaS", "content": "Salesforce implementation has been a nightmare for 6 months. We spent $18k on consultants and nobody on the sales floor is logging calls because the UI takes 12 clicks to update an opportunity. We need an intuitive, modern CRM with automatic Gmail/LinkedIn sync and transparent pricing around $35-50/user/mo.", "author": "b2b_growth_lead", "timestamp": "2026-11-02 08:45:10", "engagement": "🔥 96 赞同 · 💬 52 条建议", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Salesforce", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2300A1E0%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ESF%3C/text%3E%3C/svg%3E", "category": "企业级CRM软件", "buyer_persona": "B2B销售负责人 / 销售运营经理", "churn_drivers": ["实施成本高昂（$18k顾问费）", "UI复杂导致销售效率低下（12次点击更新商机）", "缺乏自动Gmail/LinkedIn同步", "定价不透明且超出预算（目标$35-50/用户/月）"], "core_issue": "Salesforce实施6个月仍难用，销售因UI繁琐不愿记录通话，且顾问费用高昂，促使寻找现代替代方案。", "executive_summary": "该信号显示一个20人B2B销售团队因Salesforce实施失败和高昂成本而积极寻求替代，明确要求直观UI、自动Gmail/LinkedIn同步和透明定价（$35-50/用户/月）。购买意图极强，是CRM竞品的理想目标客户。", "tactical_action_plan": "强调零实施成本和开箱即用的Gmail/LinkedIn同步，直接对比Salesforce的$18k顾问费和复杂配置。\n提供透明定价（$35-50/用户/月）和免费迁移服务，展示UI简洁性（如一键更新商机）以提升销售采用率。", "suggested_pitch": "理解您对Salesforce实施成本和销售采用率的担忧。我们的现代CRM提供透明定价（$35-50/用户/月），零实施费用，内置Gmail/LinkedIn自动同步，UI直观使销售记录效率提升3倍。我们提供免费数据迁移和30天无风险试用，并保证99.9% SLA。可安排15分钟演示，展示如何降低TCO并提升销售生产力。", "pitch_dev": "嘿，看到你们从Salesforce迁移的痛点。我们的CRM API设计优先考虑开发者体验：RESTful接口、Webhook实时同步、OAuth2.0认证，文档齐全且无需顾问。轻量级架构确保低延迟，支持自定义字段和自动化工作流。欢迎试用免费开发者沙箱，直接调用API体验。", "pitch_exec": "理解您对Salesforce实施成本和销售采用率的担忧。我们的现代CRM提供透明定价（$35-50/用户/月），零实施费用，内置Gmail/LinkedIn自动同步，UI直观使销售记录效率提升3倍。我们提供免费数据迁移和30天无风险试用，并保证99.9% SLA。可安排15分钟演示，展示如何降低TCO并提升销售生产力。", "public_reply": "我们团队也从Salesforce迁移出来了，完全理解这种痛苦。当时我们评估了多个现代CRM，关键看中：1）UI是否让销售愿意用（点击次数少）；2）是否原生集成Gmail/LinkedIn；3）定价是否透明无隐藏成本。最后选了XXX，迁移只花了几天，销售采用率大幅提升。建议你重点测试移动端体验和自动化同步，需要推荐可以私信我。", "objection_handling": "迁移摩擦：我们提供免费数据迁移服务和专属迁移工程师，确保历史数据（包括商机、联系人、活动记录）完整导入，通常3-5个工作日完成，且迁移期间不影响现有业务。\n功能完整性：我们的CRM覆盖销售核心需求（商机管理、活动跟踪、邮件集成、报表分析），并通过开放API支持自定义扩展。相比Salesforce的过度复杂，我们更注重销售实际使用体验，且每两周迭代新功能。"}, {"idx": 6, "id": "3b32bca23f0e59a29e62c1535e2b1cc8", "title": "Replacing Zendesk: paying $115/agent/mo plus extra for AI bot resolution is insane", "url": "https://reddit.com/r/SaaS/comments/1h1048c", "source": "Reddit r/SaaS", "content": "We have 18 support agents and Zendesk now charges per-seat PLUS $1.50 per 'automated AI resolution'. Our renewal quote went from $18k/yr to $31k/yr. Looking for a modern omnichannel customer support platform (live chat + email + knowledge base) where we can bring our own LLM API key.", "author": "cx_vp_sarah", "timestamp": "2026-11-02 05:40:00", "engagement": "🔥 84 赞同 · 💬 49 条建议", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Zendesk", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2303363D%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EZD%3C/text%3E%3C/svg%3E", "category": "全渠道客户支持平台", "buyer_persona": "客户支持运营总监 / IT采购决策人", "churn_drivers": ["按坐席+AI解决量双重收费", "续费成本年增72%", "缺乏自带LLM API密钥的灵活性", "AI功能溢价不合理"], "core_issue": "Zendesk续费报价从1.8万/年暴涨至3.1万/年，且按坐席和AI自动解决量双重收费，迫使企业寻找支持自带LLM密钥的现代全渠道替代方案。", "executive_summary": "Zendesk的定价模式正引发中型支持团队强烈反弹，按坐席叠加AI解决量收费导致成本不可预测。市场出现明确替代需求：支持自带LLM密钥、全渠道整合且总拥有成本可控的客户支持平台。", "tactical_action_plan": "强调按坐席固定费率、无隐藏AI解决量收费，并提供TCO对比工具展示三年节省30%以上。\n突出自带LLM API密钥的开放架构，支持企业复用现有AI投资，避免供应商锁定。", "suggested_pitch": "了解到贵团队正评估Zendesk替代方案。我们提供按坐席固定费率、无AI解决量附加费的全渠道支持平台，支持自带LLM密钥，迁移零风险并承诺99.9% SLA。可为您定制TCO对比，展示首年节省30%以上。", "pitch_dev": "嘿，看到你们在找Zendesk替代方案。我们平台支持自带LLM API密钥，全渠道API设计轻量，集成只要几行代码。没有按解决量收费的坑，文档和SDK都很直接。有兴趣可以聊聊，我发你技术对比。", "pitch_exec": "了解到贵团队正评估Zendesk替代方案。我们提供按坐席固定费率、无AI解决量附加费的全渠道支持平台，支持自带LLM密钥，迁移零风险并承诺99.9% SLA。可为您定制TCO对比，展示首年节省30%以上。", "public_reply": "我们团队去年也从Zendesk迁走了，同样被AI解决量收费坑到。选型时重点看：是否按坐席一口价、能否自带LLM key、全渠道数据是否统一。最后选了支持BYO LLM的平台，成本降了40%。需要推荐可以私我。", "objection_handling": "迁移摩擦：提供一键数据导入工具和专属迁移工程师，历史工单、知识库、宏命令全量保留，通常2周内完成切换。\n功能完整性：全渠道（聊天+邮件+知识库）原生整合，开放API支持自定义工作流，且自带LLM密钥让AI能力可随模型升级而进化。"}, {"idx": 7, "id": "29454f3e0b4228a620d9e60c4cd4927a", "title": "有没有好用的国内代替 Notion 的企业知识库？80人团队企微协同+私有化需求", "url": "https://www.v2ex.com/t/1089234", "source": "V2EX", "content": "公司目前 80 多人，国内网络访问 Notion 经常转圈加载慢，新人入职配置网络非常麻烦，而且法务要求核心研发文档必须支持本地私有化部署或国内合规云存储。求推荐支持 Markdown 块编辑、能无缝对接企业微信审批与单点登录（SSO）的替代方案，预算充足。", "author": "code_artisan", "timestamp": "2026-11-02 09:30:00", "engagement": "💬 41 条回帖 · 🔥 1,850 浏览", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Notion", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2318181B%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EN%3C/text%3E%3C/svg%3E", "category": "企业协同知识库", "buyer_persona": "企业IT决策人", "churn_drivers": ["国内访问速度慢", "新人网络配置复杂", "缺乏私有化部署选项", "数据合规风险", "企微集成不足", "SSO支持不完善"], "core_issue": "Notion在国内访问慢且无法满足法务要求的私有化部署和企微集成，导致团队寻求替代方案。", "executive_summary": "该信号来自一个80人团队，因Notion的访问性能、网络配置复杂性和合规问题而寻求替代。预算充足，需求明确包括Markdown块编辑、企微审批与SSO集成、私有化部署，是高意向的企业知识库替换机会。", "tactical_action_plan": "强调私有化部署和国内合规云存储能力，直接解决法务顾虑；展示与企微审批、SSO的无缝集成方案。\n提供性能对比数据，突出国内访问速度优势，并给出平滑迁移工具和零风险切换承诺。", "suggested_pitch": "针对贵团队80人规模，我们提供私有化部署和国内合规云存储，无缝对接企微审批与SSO，确保数据安全与访问速度。迁移工具成熟，零风险切换，TCO可降低30%以上，并附SLA保障。可安排演示。", "pitch_dev": "兄弟，看到你们在找Notion替代。我们也是从Notion迁出来的，现在用的方案支持Markdown块编辑，API设计很干净，国内访问秒开，私有化部署也简单。有兴趣可以聊聊技术细节，我发你文档。", "pitch_exec": "针对贵团队80人规模，我们提供私有化部署和国内合规云存储，无缝对接企微审批与SSO，确保数据安全与访问速度。迁移工具成熟，零风险切换，TCO可降低30%以上，并附SLA保障。可安排演示。", "public_reply": "我们团队之前也遇到类似问题，后来迁到了支持私有化部署的国内知识库，Markdown编辑和企微集成都很顺。建议重点考察迁移成本和SSO体验，有兴趣可以私信交流。", "objection_handling": "迁移摩擦：我们提供一键导入工具和专属迁移支持，历史数据完整保留，通常1-2天完成切换，不影响业务。\n功能完整性：支持Markdown块编辑、企微审批、SSO、私有化部署，且持续迭代，可提供功能对比清单和试用环境验证。"}, {"idx": 8, "id": "6ff9a37d5c20b1fe3c9a7fa384be9ffe", "title": "HubSpot Marketing Hub renewal jumped from $800/mo to $3,200/mo due to contact tier bloat", "url": "https://reddit.com/r/marketing/comments/1h2891d", "source": "Reddit r/marketing", "content": "HubSpot's contact-based pricing ratchets up automatically and you can't downgrade mid-contract. We are paying $38k/yr just for email sequences, landing pages, and lead scoring. Looking for a leaner B2B marketing automation & outbound stack we can migrate to before Q4 renewal.", "author": "demand_gen_vp", "timestamp": "2026-11-02 03:20:00", "engagement": "🔥 73 赞同 · 💬 38 条建议", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "HubSpot Marketing Hub", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2327272a%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EHU%3C/text%3E%3C/svg%3E", "category": "B2B营销自动化与客户关系管理软件", "buyer_persona": "市场运营负责人 / 增长营销总监", "churn_drivers": ["基于联系人分级的定价模式导致成本自动膨胀", "合同期内无法降级，缺乏灵活性", "为未使用的功能（如邮件序列、落地页、线索评分）支付过高费用", "总体拥有成本（TCO）过高，年费达3.8万美元"], "core_issue": "HubSpot按联系人分级定价导致成本自动飙升，且合同期内无法降级，迫使企业寻求更精简的替代方案以在Q4续约前迁移。", "executive_summary": "该用户因HubSpot联系人分级定价的自动升级机制和合同锁定，面临成本从800美元/月暴涨至3200美元/月的困境，年费高达3.8万美元。其核心需求是寻找更精简、成本可控的B2B营销自动化与出站工具栈，并计划在Q4续约前完成迁移，显示出强烈的购买意图和明确的替换时间表。", "tactical_action_plan": "强调按需付费或固定费率模式，避免联系人分级带来的成本不可预测性，提供TCO对比计算器展示三年节省金额。\n提供无缝迁移服务与合同灵活性承诺（如按月付费、随时降级），并针对其使用的邮件序列、落地页和线索评分功能提供对标演示。", "suggested_pitch": "了解到贵司因HubSpot联系人分级导致成本激增，我们提供固定费率的B2B营销自动化平台，涵盖邮件序列、落地页和线索评分，无隐藏费用，支持按月付费和随时降级。可提供免费TCO评估和零风险迁移方案，确保Q4前平滑切换，并附赠SLA保障。", "pitch_dev": "嘿，看到你们被HubSpot的联系人分级坑了，我们之前也经历过。我们做了一套轻量的营销自动化API，没有隐藏的费用阶梯，联系人数量不影响定价，而且所有功能都可以通过API调用。文档很直白，集成大概半天就能搞定。有兴趣可以聊聊，我发你几个迁移案例。", "pitch_exec": "了解到贵司因HubSpot联系人分级导致成本激增，我们提供固定费率的B2B营销自动化平台，涵盖邮件序列、落地页和线索评分，无隐藏费用，支持按月付费和随时降级。可提供免费TCO评估和零风险迁移方案，确保Q4前平滑切换，并附赠SLA保障。", "public_reply": "作为过来人，完全理解这种被联系人分级绑架的感觉。我们去年也因类似问题从HubSpot迁出，选型时重点看了定价透明度、合同灵活性和核心功能匹配度。建议先列出必须的功能清单，再对比几家按需付费的替代品，很多都能无缝迁移。需要推荐可以私信我，避免踩坑。", "objection_handling": "迁移摩擦：我们提供全自动迁移工具和专业服务团队，保证数据完整性和业务连续性，通常2-4周完成，且迁移期间原系统可并行运行。\n功能完整性：我们的平台覆盖邮件序列、落地页、线索评分等核心需求，并开放API支持自定义扩展，已服务数百家B2B企业，可提供对标功能清单和客户案例。"}, {"idx": 9, "id": "b795c39e7a7529569639f19de7746593", "title": "Migrating away from Datadog: our monthly bill hit $9,200 due to custom metrics & host spikes", "url": "https://dev.to/observability_fan/migrating-away-from-datadog-cost-breakdown-199", "source": "Dev.to", "content": "Our Series A startup's Datadog bill unexpectedly hit $9,200/month because of high-cardinality custom metrics and APM ingestion overages. We are actively evaluating OpenTelemetry-native alternatives (self-hosted or predictable flat-rate cloud) that can cut our observability TCO by at least 50% this quarter.", "author": "cloud_architect_dan", "timestamp": "2026-11-02 07:30:00", "engagement": "💬 36 讨论 · 👍 89 赞同", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Datadog", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23632CA6%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EDD%3C/text%3E%3C/svg%3E", "category": "可观测性与监控平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["高基数自定义指标导致成本不可预测", "APM 数据摄取超量收费", "按主机与指标数量计费模式在业务波动时费用激增", "缺乏成本控制与预算预警机制"], "core_issue": "Datadog 因高基数自定义指标和 APM 摄取超量导致月账单飙升至 9,200 美元，远超初创公司预算，迫使团队紧急寻找可降低 50% 以上 TCO 的 OpenTelemetry 原生替代方案。", "executive_summary": "该 Series A 初创公司因 Datadog 的按量计费模式在自定义指标和 APM 摄取上产生不可控成本，月账单达 9,200 美元，已明确启动迁移评估。其核心诉求是 OpenTelemetry 原生、自托管或固定费率云方案，并要求本季度内实现至少 50% 的可观测性总成本削减。这代表了一个高意向的替换机会，竞争对手需突出成本可预测性与迁移平滑性。", "tactical_action_plan": "强调固定费率或自托管模式下的成本可预测性，提供基于其当前数据量的 TCO 对比测算，直接展示 50%+ 节省空间。\n突出 OpenTelemetry 原生兼容与零锁定架构，提供分阶段迁移工具与专家支持，降低切换摩擦。", "suggested_pitch": "了解到贵团队因 Datadog 高基数指标和 APM 超量导致月成本达 9,200 美元，我们提供 OpenTelemetry 原生的可观测性方案，支持自托管或固定费率云，可帮助您在本季度内实现至少 50% 的 TCO 削减。我们提供零风险迁移评估与 SLA 保障，确保平滑过渡且功能不降级。是否方便安排 15 分钟，我基于您的数据量做一个成本对比？", "pitch_dev": "嘿，看到你们被 Datadog 的账单坑了，我们之前也经历过。我们现在的方案是 OpenTelemetry 原生，自托管或固定费率云都行，指标和日志不按基数收费，API 和 SDK 跟 OTel 完全兼容，迁移基本就是改个 exporter 地址。有兴趣可以聊聊，我发你我们的迁移踩坑记录。", "pitch_exec": "了解到贵团队因 Datadog 高基数指标和 APM 超量导致月成本达 9,200 美元，我们提供 OpenTelemetry 原生的可观测性方案，支持自托管或固定费率云，可帮助您在本季度内实现至少 50% 的 TCO 削减。我们提供零风险迁移评估与 SLA 保障，确保平滑过渡且功能不降级。是否方便安排 15 分钟，我基于您的数据量做一个成本对比？", "public_reply": "我们也从 Datadog 迁走了，同样是被自定义指标账单吓到。选型时重点看：是否 OTel 原生、计费是否按主机/固定费率而非指标基数、迁移工具是否成熟。最后选了自托管方案，成本降了 60%+，功能覆盖 90% 场景。建议先做小范围双跑验证，别一刀切。有需要可以私信我聊细节。", "objection_handling": "迁移摩擦：我们提供 OpenTelemetry 原生兼容和自动化迁移工具，支持分阶段双跑，先迁移非核心指标，确保业务无感知，通常 2-4 周完成核心迁移。\n功能完整性：我们覆盖指标、日志、追踪和告警核心场景，且支持自定义仪表盘和 API 扩展，缺失的高级功能可通过插件或 OTel 生态补齐，迁移前可提供功能对比清单。"}, {"idx": 10, "id": "d3e465005234a61f9077f2581486be5f", "title": "求推荐 Airtable 的国内私有化平替，业务部门 50 人多维表格与自动化工作流需求", "url": "https://www.v2ex.com/t/1091045", "source": "V2EX", "content": "目前海外电商运营团队 50 人全在用 Airtable 管理 SKU 和达人寄样流水线，但按人头 $20/月太贵，而且超过 5 万行数据后极其卡顿。想找一个支持 Docker 私有化部署、自带 Webhook 自动化和权限视图的无代码数据库/多维表格工具。", "author": "ops_tech_lead", "timestamp": "2026-11-02 04:10:00", "engagement": "💬 29 条回帖 · 🔥 1,420 浏览", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Airtable", "competitor_logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2318BFFF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EAT%3C/text%3E%3C/svg%3E", "category": "无代码数据库与多维表格协作平台", "buyer_persona": "业务运营负责人 / IT采购决策人", "churn_drivers": ["按席位定价过高（$20/人/月）", "超过5万行数据后性能严重下降", "数据主权与私有化部署需求", "缺乏国内本地化支持与合规保障"], "core_issue": "50人团队使用Airtable管理SKU和寄样流水线，因按人头订阅成本过高且大数据量下卡顿，急需可私有化部署的替代方案。", "executive_summary": "该信号显示一个50人海外电商运营团队因Airtable的席位定价和性能瓶颈产生明确迁移意向，并提出了Docker私有化、Webhook自动化和权限视图等具体技术要求。这代表了中大型业务部门对高性价比、可私有化部署的无代码数据库工具的强烈需求，是竞品替代的黄金机会。", "tactical_action_plan": "强调总拥有成本（TCO）优势：对比Airtable按人头订阅的长期费用，突出私有化部署的一次性投入或更低年费，并提供ROI测算工具。\n针对性能痛点进行技术对标：展示在5万行以上数据量下的响应速度测试报告，并演示Webhook自动化与权限视图的无缝迁移方案。", "suggested_pitch": "您好，了解到贵团队正在寻找Airtable的私有化替代方案。我们可以提供Docker部署的无代码数据库，支持50人团队协作，年费仅为Airtable的30%，且承诺99.9% SLA。可安排一次零风险的POC迁移验证，确保业务无缝切换。", "pitch_dev": "兄弟，看到你们被Airtable的卡顿和账单折磨了。我们做的开源多维表格引擎，Docker一键部署，10万行数据内查询毫秒级，Webhook和权限视图全都有，API设计也很开发者友好。有兴趣可以给你个测试镜像玩玩，随时交流。", "pitch_exec": "您好，了解到贵团队正在寻找Airtable的私有化替代方案。我们可以提供Docker部署的无代码数据库，支持50人团队协作，年费仅为Airtable的30%，且承诺99.9% SLA。可安排一次零风险的POC迁移验证，确保业务无缝切换。", "public_reply": "我们团队之前也用过Airtable，后来因为成本和数据量问题迁移到了自建方案。建议重点考察私有化部署的维护成本、Webhook的稳定性以及权限模型的灵活性。我们最后选了一个支持Docker的国产工具，迁移挺平滑的，有需要可以私信交流细节。", "objection_handling": "迁移摩擦：提供一键导入Airtable数据（包括结构和记录）的工具，并配备专属迁移顾问，确保业务零中断。\n功能完整性：我们的产品覆盖Airtable核心功能（多维表格、视图、自动化、API），并针对国内网络环境优化，且支持定制开发。"}];
+        const BRAND_ICONS = {"jira": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%230052CC%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EJ%3C/text%3E%3C/svg%3E", "atlassian jira": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%230052CC%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EJ%3C/text%3E%3C/svg%3E", "salesforce": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2300A1E0%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ESF%3C/text%3E%3C/svg%3E", "salesforce crm": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2300A1E0%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ESF%3C/text%3E%3C/svg%3E", "notion": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2318181B%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EN%3C/text%3E%3C/svg%3E", "datadog": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23632CA6%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EDD%3C/text%3E%3C/svg%3E", "docusign": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%234C00FF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EDS%3C/text%3E%3C/svg%3E", "postman": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23FF6C37%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EPM%3C/text%3E%3C/svg%3E", "zendesk": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2303363D%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EZD%3C/text%3E%3C/svg%3E", "auth0": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23EB5424%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EA0%3C/text%3E%3C/svg%3E", "airtable": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2318BFFF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EAT%3C/text%3E%3C/svg%3E", "hubspot": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23FF7A59%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EHS%3C/text%3E%3C/svg%3E", "slack": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%234A154B%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ESL%3C/text%3E%3C/svg%3E", "github": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23181717%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EGH%3C/text%3E%3C/svg%3E", "linear": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%235E6AD2%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ELN%3C/text%3E%3C/svg%3E", "figma": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23F24E1E%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EFG%3C/text%3E%3C/svg%3E", "vercel": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2309090B%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3E%E2%96%B2%3C/text%3E%3C/svg%3E", "snowflake": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2329B5E8%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ESN%3C/text%3E%3C/svg%3E", "intercom": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%231F8DED%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EIC%3C/text%3E%3C/svg%3E", "confluence": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%230052CC%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ECF%3C/text%3E%3C/svg%3E", "trello": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%230079BF%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3ETR%3C/text%3E%3C/svg%3E", "firebase": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23FFCA28%22/%3E%3Ctext%20x%3D%2212%22%20y%3D%2216.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffffff%22%20font-family%3D%22Inter%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2211%22%3EFB%3C/text%3E%3C/svg%3E"};
+        const SEED_CLIENTS_DATA = [{"id": "client-plane", "name": "Plane (makeplane/plane)", "category": "开源研发协同与项目管理", "target_incumbent": "Atlassian Jira / Linear", "website": "https://plane.so", "github": "https://github.com/makeplane/plane", "stage": "商业化加速期 · 企业版主推", "matched_leads_count": 3, "pain_point": "急需捕获因 Jira Cloud 涨价 40%+ 及页面卡顿而计划迁出的 20-200 人研发团队 CTO 与技术主管。", "contact_channel": "GitHub Discussions / LinkedIn (Vihar Kurama) / 官网伙伴通道", "bd_pitch": "Hi Plane Growth Team，我们在 Hacker News 和 Reddit 实时监控到了多起 30+ 人研发团队因 Atlassian Jira 续费暴涨 42% 及 UI 卡顿而公开寻找平替的高意向讨论（例如 HN 用户 tech_founder_99 刚发布的求助帖，已有 84 条讨论）。\n\n我们构建了 IntentRadar（B2B 竞品弃用截流引擎），能 7×24h 自动抓取全网正在抱怨 Jira 的技术决策人，并自动生成针对 Plane 一键迁移优势的双轨破冰话术。\n\n随信免费附上本周我们为您截流到的 10 条高意向 Jira 弃用潜客完整名单与原帖链接。如果需要为您开通 Plane 专属实时监控订阅（支持 Webhook 直推 Slack/CRM），欢迎随时回复交流！"}, {"id": "client-twenty", "name": "Twenty CRM (twentyhq/twenty)", "category": "现代开源 B2B CRM 系统", "target_incumbent": "Salesforce / HubSpot", "website": "https://twenty.com", "github": "https://github.com/twentyhq/twenty", "stage": "YC 孵化 · 商业云与企业自托管双驱", "matched_leads_count": 2, "pain_point": "核心客群正是受够了 Salesforce 昂贵咨询费与繁琐操作的中小 B2B 销售团队负责人。", "contact_channel": "Twitter (@twentycrm) / Discord 社区创始人频道 / 邮件", "bd_pitch": "Hi Twenty Team，看到你们作为 Salesforce 的现代替代方案增长迅猛！我们刚刚在 Reddit r/SaaS 捕获到一位 20 人销售团队负责人（b2b_growth_lead），他们花了 $1.8 万实施 Salesforce 失败、全员抵触填单，正在寻找 $35-50/席位的现代 CRM。\n\n我们开发的 IntentRadar 每天都在全网实时锁定这类对 Salesforce/HubSpot 涨价和复杂性忍无可忍的销售 VP，并自动提炼攻防战报与破冰私信。\n\n我把今天抓取到的 Salesforce 真实弃用潜客表导出整理好了（含原帖直达链接与定制破冰信），免费发您测试跟进效果。若转化理想，我们可以为您提供每日实时情报流服务！"}, {"id": "client-affine", "name": "AFFiNE / AppFlowy / 思源笔记企业版", "category": "新一代融合知识库与白板协同", "target_incumbent": "Notion / Confluence", "website": "https://affine.pro", "github": "https://github.com/toeverything/AFFiNE", "stage": "全球化商业变现与国内企业私有化落地期", "matched_leads_count": 2, "pain_point": "国内与出海企业因 Notion 网络访问慢、缺乏企微集成与私有化合规诉求正在大面积寻找平替。", "contact_channel": "V2EX 活跃开发者 / 微信公众号 / 商务合作邮箱", "bd_pitch": "您好！关注到贵团队在企业知识库私有化与本地优先协同上的深耕。今天在 V2EX 刚冒出一个极高意向采购帖：《有没有好用的国内代替 Notion 的企业知识库？80人团队企微协同+私有化需求》（作者 code_artisan，明确表示预算充足、法务要求本地部署）。\n\n我们做的【IntentRadar 商机雷达】专门 24 小时监听 V2EX、HN、Reddit 上对 Notion/Confluence 加载慢、涨价及合规问题产生不满的企业 IT 决策人，并直接生成社区自然引流回复与 1对1 销售私信。\n\n现将今日捕获的 Notion 企业级流失潜客清单免费分享给贵司销售团队直接跟进。如需按月定制专属监控词，欢迎随时联系！"}, {"id": "client-signoz", "name": "SigNoz (SigNoz/signoz)", "category": "OpenTelemetry 原生可观测性平台", "target_incumbent": "Datadog / New Relic", "website": "https://signoz.io", "github": "https://github.com/SigNoz/signoz", "stage": "高客单价企业云服务高速增长期", "matched_leads_count": 2, "pain_point": "专门截流因 Datadog 自定义指标（Custom Metrics）与主机账单暴涨而寻求自托管或可预测计费的架构师。", "contact_channel": "LinkedIn (Pranay Prateek) / Slack 社区 / 官网 BD", "bd_pitch": "Hi SigNoz Team，Datadog 昂贵的自定义指标账单依然是今年 DevOps 社区最大的痛点。我们的 IntentRadar 引擎今天刚在 Dev.to 捕获到一位 A 轮公司云架构师（cloud_architect_dan），其月账单飙升至 $9,200，正明确评估在本季度内迁出 Datadog 以削减 50% TCO。\n\nIntentRadar 可以帮贵司销售团队在全网第一时间拦截所有抱怨 Datadog/New Relic 账单失控的技术买方，并自动产出 ROI 替换测算话术。附上今日实时捕获的潜客线索供贵团队直接触达验证！"}, {"id": "client-opensign", "name": "OpenSign / Documenso / 法大大海外版", "category": "开源自托管与API驱动电子签名", "target_incumbent": "DocuSign / PandaDoc", "website": "https://www.opensignlabs.com", "github": "https://github.com/OpenSignLabs/OpenSign", "stage": "API 商业化与企业合规订阅扩张期", "matched_leads_count": 2, "pain_point": "DocuSign 近期将 API 续费提价 40% 并严控信封配额，大量 Fintech 与 SaaS CTO 正在紧急寻找替代 API。", "contact_channel": "GitHub 组织主页邮箱 / Discord / LinkedIn", "bd_pitch": "您好！近期 DocuSign 强推企业级捆绑并将 API 提价 40%，引发了大量开发者吐槽。我们的商机雷达今天刚在 Hacker News 捕获到一位每月签署 4,000 份合同的 Fintech CTO（fintech_cto_mark），要求在 30 天内切换至支持 Webhook 与自托管的电子签名方案。\n\n我们通过 IntentRadar 为贵司整理了近期全网对 DocuSign 涨价不满的精准企业买家名单及一键破冰话术，助贵司销售团队零延迟截流成单！"}, {"id": "client-hoppscotch", "name": "Hoppscotch / Bruno / Apifox", "category": "本地优先与企业级 API 研发协作平台", "target_incumbent": "Postman", "website": "https://hoppscotch.io", "github": "https://github.com/hoppscotch/hoppscotch", "stage": "企业自托管版（Enterprise Self-Host）重点突破期", "matched_leads_count": 2, "pain_point": "Postman 强制上云策略导致大量金融、政企与合规敏感研发团队封禁 Postman 桌面端，急需整建制替换。", "contact_channel": "商务邮箱 / GitHub / 国内可重点对接 Apifox 政企销售团队", "bd_pitch": "您好！自从 Postman 强制要求云端同步后，企业安全合规部门禁用 Postman 的声音越来越多。我们今天刚抓取到一位管理 45 名后端工程师的安全总监（secops_director），因担心内部 Token 泄露正急寻支持 Git 本地优先与私有化部署的 API 协同工具。\n\nIntentRadar 可为贵司政企大客户销售团队提供全网实时“弃用 Postman”的高意向研发主管线索流，实现精准点对点截流转化。"}, {"id": "client-chatwoot", "name": "Chatwoot (chatwoot/chatwoot)", "category": "全渠道客户支持与 AI 客服工单平台", "target_incumbent": "Zendesk / Intercom", "website": "https://www.chatwoot.com", "github": "https://github.com/chatwoot/chatwoot", "stage": "YC 校友 · 商业云与私有化高增长期", "matched_leads_count": 1, "pain_point": "Zendesk 高达 $115/席位/月外加每次 AI 自动回复收 $1.50 的双重收费让大量客服 VP 寻求平替。", "contact_channel": "Twitter / LinkedIn / 官网合作伙伴通道", "bd_pitch": "Hi Chatwoot Team，Zendesk 新增的“按每次 AI 回复收 $1.50”政策正在引发大量客户流失！我们今天刚在 Reddit 捕获一位拥有 18 人客服团队的 VP（cx_vp_sarah），其续费报价从 $1.8 万暴涨到 $3.1 万，明确要求换到支持自带 LLM API Key 的全渠道客服平台。\n\n这就是为贵司量身定制的准签单客户！我们通过 IntentRadar 实时为您监控全网抱怨 Zendesk/Intercom 账单的客服负责人，附上今日线索详情供直接联系！"}, {"id": "client-logto", "name": "Logto (logto-io/logto) / Authing", "category": "现代身份认证 (CIAM) 与企业级 SSO 基础设施", "target_incumbent": "Auth0 / Okta", "website": "https://logto.io", "github": "https://github.com/logto-io/logto", "stage": "全球开发者增长与 B2B 企业订阅变现期", "matched_leads_count": 1, "pain_point": "Auth0 在超过 1 万 MAU 或开启企业 SAML SSO 时报价从 $240/月飙升至 $2.2 万/年（著名价格悬崖）。", "contact_channel": "创始人微信/飞书社区 / Discord / GitHub", "bd_pitch": "您好！Auth0 的“SSO 税”和 10,000 MAU 价格悬崖是 B2B SaaS 架构师最头疼的问题。今天我们的商机雷达在 HN 捕获到一位管理 5 万用户的 SaaS 架构师（saas_architect_leo），因 Auth0 报价跳涨至 $22,000/年，正在紧急寻找支持多租户 RBAC、SAML SSO 且平滑迁移的身份认证方案。\n\nIntentRadar 可以帮贵司增长团队 24 小时盯着全网踩中 Auth0 价格悬崖的急迫买家，在他们续约前 30 天精准截流！"}, {"id": "client-nocobase", "name": "NocoBase / Teable (teableio/teable)", "category": "开源多维表格与无代码企业应用平台", "target_incumbent": "Airtable", "website": "https://www.nocobase.com", "github": "https://github.com/nocobase/nocobase", "stage": "国内与海外商业插件及企业版黄金增长期", "matched_leads_count": 1, "pain_point": "跨境电商与中型企业业务团队因 Airtable 按人头 $20/月过贵且 5 万行数据卡顿，急寻私有化多维表格。", "contact_channel": "V2EX / 微信社区 / 官网商业支持邮箱", "bd_pitch": "您好！今天我们在 V2EX 实时捕获到一条极匹配的采购线索：《求推荐 Airtable 的国内私有化平替，业务部门 50 人多维表格与自动化工作流需求》（发帖人 ops_tech_lead，跨境电商团队，受困于 Airtable 5 万行数据卡顿与高额人头费，明确要求 Docker 私有化部署与权限视图）。\n\n我们开发的 IntentRadar 商机雷达已为您自动生成了针对该帖的 V2EX 自然引流回复与 1对1 私信话术。免费送您直接去对接成单，期待后续能为贵司长期提供高意向商机订阅服务！"}, {"id": "client-dify", "name": "Dify.AI / FastGPT 企业版团队", "category": "企业级私有化 LLM 应用与知识库编排平台", "target_incumbent": "OpenAI Enterprise / Coze / 闭源 SaaS Agent", "website": "https://dify.ai", "github": "https://github.com/langgenius/dify", "stage": "政企私有化与海外企业版规模化营收期", "matched_leads_count": 2, "pain_point": "企业客户因数据出境合规、API 调用成本及私有知识库安全要求，正大量从公有云闭源方案转向可自托管平台。", "contact_channel": "商务合作邮箱 / 飞书技术社区 / GitHub", "bd_pitch": "您好！目前大量中型企业 IT 决策人在 V2EX、Reddit 和 HN 咨询如何将内部知识库与 AI 工作流从公有云闭源 SaaS 迁移至支持 SSO 与本地部署的企业级底座。\n\n我们的 IntentRadar 平台可实时聚合全网带有“企业知识库私有化”、“自带大模型 Key”、“合规自托管替换”高意向标签的甲方技术负责人线索，并直接推送到贵司飞书/企微销售群，助力高客单价政企线索转化！"}];
+        const BRAND_PRESETS_DATA = [{"id": "preset-default", "label": "🔄 默认通用挑战者视角", "brand_name": "我们的现代平替方案", "core_hook": "交互响应快 3 倍、总体拥有成本（TCO）直降 50%+，支持 1 小时无损迁移与私有化合规部署", "cta_link": "https://jakelihua.github.io/intent-radar-preview/"}, {"id": "preset-jira", "label": "⚡ 敏捷协同（专打 Jira/Confluence）", "brand_name": "LinearFlow 极速研发协同", "core_hook": "全键盘毫秒级响应、原生 GitHub/GitLab 双向同步、1 键无损导入 Jira 历史工单，按席位成本直降 60%", "cta_link": "https://plane.so/migrate-from-jira"}, {"id": "preset-crm", "label": "💼 现代 CRM（专打 Salesforce/HubSpot）", "brand_name": "NextCRM 智能销售底座", "core_hook": "零实施费 1 天全员上线、邮件与通话全自动静默同步、告别手工填单，年费仅需传统巨头的 1/3", "cta_link": "https://twenty.com/book-demo"}, {"id": "preset-kb", "label": "📚 企业知识库（专打 Notion/Airtable）", "brand_name": "云枢知识库 Enterprise", "core_hook": "国内毫秒级秒开、支持 Docker 本地私有化部署、原生打通企业微信/飞书 SSO 与细粒度部门权限", "cta_link": "https://affine.pro/enterprise"}, {"id": "preset-obs", "label": "📊 云原生监控（专打 Datadog/Zendesk）", "brand_name": "OmniStack 可观测平台", "core_hook": "100% 兼容 OpenTelemetry、无自定义指标天价罚单、支持自带算力或固定阶梯计费，立省 55% 月度账单", "cta_link": "https://signoz.io/datadog-alternative"}];
+        const LAUNCH_CAMPAIGNS_DATA = [{"id": "camp-v2ex", "channel": "V2EX · 「分享创造 / 程序员」节点首发帖", "audience": "独立开发者、SaaS 创业者、开源商业化团队、ToB 产品技术负责人", "best_time": "工作日 10:00 - 11:30（V2EX 流量最高峰）", "title": "[分享创造] 做了个 B2B 竞品弃用截流雷达：24h 抓取全网正在骂 Jira/Salesforce/Notion 涨价难用的精准甲方，自动生成攻防战报和破冰私信", "content": "大家做 ToB SaaS、开源商业化或者独立开发软件时，最头疼的往往不是写代码，而是：**「去哪找第一批愿意付钱的精准企业客户？」**\n\n投 SEM 广告获客成本贵得离谱，冷邮件群发打开率不到 1%。\n但其实每天在 Hacker News、Reddit (r/SaaS, r/devops)、V2EX、GitHub Issues 上，都有大量团队的技术主管和采购决策人在发帖吐槽：\n- *“团队刚过 30 人，Jira 续费涨了 42% 且卡得要命，求轻量平替！”*\n- *“花了 1.8 万美金实施 Salesforce 彻底失败，销售根本不用，求推荐现代 CRM！”*\n- *“公司 80 人用 Notion 国内太慢且法务要求私有化，求支持企微 SSO 的知识库平替！”*\n\n当一个甲方公开抱怨现存服务商涨价、卡顿、合规不过关时，**这就是成单率最高、决策周期最短的「黄金截流窗口期」**。\n\n所以我用 Python 多线程并发采集 + DeepSeek 语义判研，做了一个开源/开箱即用的 **【IntentRadar · 竞品弃用与高意向商机截流雷达】**：\n1. **全网并发监听**：自动巡检 HN、GitHub Issues、V2EX、Dev.to、Reddit 等社区的真实替换求助帖（严格剔除个人消费与游戏杂讯）。\n2. **Klue 级攻防战报**：AI 自动提取对手的「核心流失诱因」、「买家角色画像」以及「当客户担心迁移历史数据麻烦时的异议反制话术」。\n3. **三轨破冰话术 + 品牌定制**：同时生成【💼 决策人商业 ROI 私信】、【💻 开发者极简破冰】、【💬 社区原帖自然引流回复】，输入你自己的产品名就能一键动态替换全场话术，还能一键导出精排 Excel 报表或直推飞书/企微群。\n\n👉 **在线实时交互看板预览（无需注册，直接可点可搜可导出 Excel）**：\nhttps://jakelihua.github.io/intent-radar-preview/\n\n如果你正在做某个垂直赛道的 B2B 软件或开源替代品，欢迎在评论区留下你的【产品方向 + 对标竞品】，我直接用雷达免费帮你跑一份你们赛道最近 7 天的真实流失潜客名单！"}, {"id": "camp-xhs", "channel": "小红书 / 即刻 / 公众号 · 商业增长爆款帖", "audience": "SaaS 创始人、ToB 销售总监、增长黑客、出海软件主理人", "best_time": "周二/周四 晚 20:00 - 21:30", "title": "别再盲目买死线索了！我用 AI 24h 盯着全网骂竞品的甲方法人，一抓一个准🔥", "content": "做 ToB 软件和出海 SaaS 的朋友，是不是每天都在焦虑线索从哪来？\n\n其实最高质量的客户，根本不在你买的行业黄页里，而在 **竞品的差评区和求助帖里**！\n\n想象一下：\n当一个 50 人团队的 CTO 刚收到 Datadog 或 Jira 涨价 40% 的续费账单，气得在社区发帖问“大家都在用什么平替？”——\n这时候你带着一份《1小时无损迁移方案 + 省50%成本对比表》出现在他面前，成单率是多少？至少是普通陌拜的 10 倍以上！\n\n为此我们搭建了这套 **【IntentRadar 商机截流雷达】**：\n✅ **实时锁定抱怨源头**：7×24h 监控全网谁在抱怨 Jira、Salesforce、Notion、DocuSign、Postman、Zendesk 贵和难用。\n✅ **直接喂到销售嘴边**：不仅抓出原帖链接，还用大模型自动写好「给老板算 ROI 的私信」、「给技术主管看架构的私信」以及「原帖评论区自然种草话术」。\n✅ **一键导出精排 Excel / 飞书群早报**：每天早上销售团队打开飞书，就能看到 10 条热乎的高意向平替线索。\n\n💡 评论区扣【截流】或私信你的赛道竞品名，免费送你一份你所在赛道的最新高意向流失客户战报！"}, {"id": "camp-hn", "channel": "Hacker News (Show HN) / Reddit r/SaaS 出海英文帖", "audience": "Global Indie Hackers, B2B SaaS Founders, DevTools Growth Leads", "best_time": "北京时间 21:30 - 23:00 (美东时间早 8:30 - 10:00)", "title": "Show HN: IntentRadar – Intercept high-intent B2B buyers actively churning from incumbents", "content": "Hi HN! Over the past few months, talking to dozens of open-source & challenger B2B SaaS founders, I noticed a recurring pattern: building a faster, fairer alternative to Jira, Salesforce, Datadog, or Auth0 is the easy part—finding teams right at the moment their renewal bill spikes is the hard part.\n\nSo I built **IntentRadar**, a lightweight competitive churn & buying-intent interception engine.\n\nHow it works:\n1. **Multi-source Concurrent Listening**: Continuously monitors HN (Ask HN), Reddit (r/SaaS, r/devops), GitHub Issues, Dev.to, and V2EX for explicit migration triggers ('switching from', 'pricing cliff', 'renewal jumped', 'alternative to').\n2. **Klue-style Battlecards**: Uses DeepSeek-V3 to filter out consumer noise, score buying urgency (0-100), extract exact churn drivers, and generate objection-handling playbooks.\n3. **3-Track Outreach Customizer**: Generates zero-fluff developer DMs, executive TCO pitches, and non-spammy public thread replies tailored to your product.\n\nLive interactive dashboard preview: https://jakelihua.github.io/intent-radar-preview/\n\nWould love your feedback on the signal scoring heuristics and what other developer communities we should index next!"}, {"id": "camp-email", "channel": "高客单价代运营服务 · 3步曲 Cold Email 变现序列", "audience": "已拿到融资的 B2B SaaS 创始人 / 开源商业化项目 CEO / 销售 VP", "best_time": "周二至周四 早 09:15 直接发送至创始人邮箱", "title": "主题：刚刚在 HN/V2EX 抓到 3 个正在找 [竞品名] 平替的团队负责人（附原帖链接）", "content": "【Day 1 · 带着猎物敲门（打开率 \u003e 65%）】\nHi [创始人姓名]，\n一直很关注 [客户产品名] 在 [赛道名] 上的进展。今天我们的商机雷达刚刚捕获到 3 位技术/业务决策人正在公开抱怨 [标的竞品] 涨价与卡顿，并寻求能在 30 天内切换的替代方案（原帖链接已附在下方表格）。\n我用我们的 IntentRadar 引擎帮贵司预生成了针对这 3 家客户的攻防战报与破冰私信，免费发您直接安排 SDR 跟进。如果这类实时竞品流失线索对贵司 Q4 营收有帮助，我们可以为您开通专属监控通道。\n\n-------------------\n【Day 3 · 价值强化跟进】\nHi [创始人姓名]，\n跟进一下周二发您的 3 条 [标的竞品] 弃用线索。今天全网又新增了 2 条关于 [标的竞品] 合规与 API 限制的迁移求助帖。我们支持将这类高意向线索（评分 ≥ 85分）每天早上 9 点直接推送到贵司的飞书/企微/Slack 销售群，需要帮您配置一个 7 天免费群机器人试用吗？"}];
+
+        let currentCategory = 'all';
+        let currentCompetitor = 'ALL';
+        let currentViewMode = 'table';
+        let activeLeadId = null;
+        let currentPitchTab = 'exec';
+        let currentSortField = 'default';
+        let currentSortDir = 'desc';
+        let customBrandProfile = null;
+
+        // Dynamic Brand Pitch Generator (Supports 3 tracks + Custom Brand Injection)
+        function getEffectivePitch(lead, type = 'exec') {
+            if (!lead) return '';
+            let basePitch = '';
+            if (type === 'dev') {
+                basePitch = lead.pitch_dev || lead.suggested_pitch || '';
+            } else if (type === 'reply') {
+                basePitch = lead.public_reply || `同感，我们团队上个月也刚从 ${lead.competitor} 迁移出来，核心痛点也是${(lead.churn_drivers && lead.churn_drivers[0]) || '续费涨价与封闭限制'}。建议重点考察支持无损导入且定透明的平替方案。`;
+            } else {
+                basePitch = lead.pitch_exec || lead.suggested_pitch || '';
+            }
+
+            if (!customBrandProfile || !customBrandProfile.brand_name) {
+                return basePitch;
+            }
+
+            const bName = customBrandProfile.brand_name;
+            const bHook = customBrandProfile.core_hook || '平滑替代方案，成本直降 50%';
+            const bLink = customBrandProfile.cta_link || '';
+            const pain = (lead.churn_drivers && lead.churn_drivers[0]) ? lead.churn_drivers[0] : '高昂成本与体验痛点';
+
+            if (type === 'exec') {
+                return `您好 @${lead.author}，在 ${lead.source} 看到贵司正在评估 ${lead.competitor} 的替代方案（核心痛点：${pain}）。我是【${bName}】的企业方案顾问：${bHook}。我们已帮助多家同规模企业完成从 ${lead.competitor} 的零停机平滑迁移，TCO 综合成本立省 55% 以上。${bLink ? '架构对比与免费迁移沙盒：' + bLink : '可随时为您开通专属测试沙盒。'}`;
+            } else if (type === 'dev') {
+                return `Hey @${lead.author}，刚在 ${lead.source} 看到你吐槽 ${lead.competitor} 的帖子，太有共鸣了！我们做的【${bName}】正好针对这个痛点做了底层重构：${bHook}。不需要走繁琐销售流程，直接一行命令或导入脚本就能跑通测试${bLink ? '：' + bLink : '，欢迎随时切磋架构！'}`;
+            } else {
+                return `过来人深有同感！我们团队之前也因为 ${lead.competitor} 的${pain}果断迁出，对比了一圈最后切到了【${bName}】（${bHook}），原有历史数据直接一键脚本无损同步，目前跑得很稳${bLink ? '，感兴趣可以看看：' + bLink : '，推荐题主试试。'}`;
+            }
+        }
+
+        // Security: Universal HTML & URL sanitization
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function sanitizeUrl(url) {
+            if (!url) return '#';
+            const trimmed = String(url).trim();
+            if (/^https?:\/\//i.test(trimmed)) {
+                return trimmed;
+            }
+            return '#';
+        }
+
+        // CRM Status config (shadcn neutral palette)
+        const STATUS_CLASSES = {
+            '待跟进': 'bg-zinc-100 text-zinc-700 border-zinc-200 hover:bg-zinc-200/80',
+            '跟进中': 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100',
+            '已转化': 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+        };
+
+        function getBrandLogoHtml(name, size = 'w-3.5 h-3.5') {
+            const key = (name || '').toLowerCase().trim();
+            if (BRAND_ICONS[key]) {
+                return `<img src="${BRAND_ICONS[key]}" class="${size} inline-block object-contain flex-shrink-0" alt="${escapeHtml(name)}" loading="lazy" />`;
+            }
+            return `<svg class="${size} text-zinc-400 inline-block flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`;
+        }
+
+        function getLeadStatus(id) {
+            try {
+                return localStorage.getItem('lead_status_' + id) || '待跟进';
+            } catch (e) {
+                return '待跟进';
+            }
+        }
+
+        function setLeadStatus(id, newStatus) {
+            try {
+                localStorage.setItem('lead_status_' + id, newStatus);
+            } catch (e) {
+                console.warn('localStorage not accessible:', e);
+            }
+            renderTable();
+            renderCards();
+            updateDrawerStatusUI(newStatus);
+            updateSplitStatusUI(newStatus);
+            renderSplitView();
+            showToast(`已更新线索状态为【${newStatus}】`);
+        }
+
+        // Toast Helper with queue clearance
+        let toastTimeout = null;
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+                toastTimeout = null;
+            }
+
+            toastMsg.innerText = message;
+            if (isError) {
+                toastIcon.innerHTML = `<svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+            } else {
+                toastIcon.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            }
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2400);
+        }
+
+        // Universal Clipboard Copy with legacy fallback and button visual feedback
+        function copyToClipboard(text, successMsg = '已复制到剪贴板！', btnElement = null) {
+            if (!text) return;
+
+            const onCopySuccess = () => {
+                if (btnElement) {
+                    const origHtml = btnElement.innerHTML;
+                    btnElement.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-600 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span class="text-emerald-700 font-bold">已复制</span>`;
+                    setTimeout(() => {
+                        btnElement.innerHTML = origHtml;
+                    }, 1800);
+                }
+                showToast(successMsg);
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(onCopySuccess).catch(() => {
+                    fallbackCopy(text, onCopySuccess);
+                });
+            } else {
+                fallbackCopy(text, onCopySuccess);
+            }
+        }
+
+        function fallbackCopy(text, onSuccess) {
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '1px';
+                textArea.style.height = '1px';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                textArea.style.opacity = '0';
+                textArea.setAttribute('readonly', '');
+                document.body.appendChild(textArea);
+                textArea.select();
+                textArea.setSelectionRange(0, text.length);
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if (successful && onSuccess) {
+                    onSuccess();
+                } else {
+                    showToast('已选中内容，请使用快捷键 Ctrl+C 复制');
+                }
+            } catch (e) {
+                showToast('复制异常，请手动选取文本', true);
+            }
+        }
+
+        // Filter Logic with multi-keyword tokenized search
+        function getFilteredLeads() {
+            const rawQuery = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            const tokens = rawQuery.split(/\s+/).filter(Boolean);
+
+            return LEADS_DATA.filter(item => {
+                // Category Filter
+                let matchCat = true;
+                if (currentCategory === 'high-intent') {
+                    matchCat = item.intent_score >= 80;
+                } else if (currentCategory === 'pricing') {
+                    matchCat = item.churn_drivers.some(c => /价格|成本|费用|涨价|贵/.test(c)) || /价格|成本|费用|涨价|贵/.test(item.title);
+                } else if (currentCategory === 'privacy') {
+                    matchCat = item.churn_drivers.some(c => /隐私|开源|自托管|合规|数据/.test(c)) || /开源|自托管|隐私/.test(item.title);
+                }
+
+                // Competitor Filter
+                let matchComp = (currentCompetitor === 'ALL') || (item.competitor.toLowerCase() === currentCompetitor.toLowerCase());
+
+                // Multi-term search query
+                let matchQuery = true;
+                if (tokens.length > 0) {
+                    const fullText = (item.title + ' ' + item.competitor + ' ' + item.category + ' ' + item.author + ' ' + item.churn_drivers.join(' ') + ' ' + (item.executive_summary || '')).toLowerCase();
+                    matchQuery = tokens.every(t => fullText.includes(t));
+                }
+
+                return matchCat && matchComp && matchQuery;
+            });
+        }
+
+        function toggleSort(field) {
+            if (currentSortField === field) {
+                currentSortDir = (currentSortDir === 'desc') ? 'asc' : 'desc';
+            } else {
+                currentSortField = field;
+                currentSortDir = (field === 'idx') ? 'asc' : 'desc';
+            }
+            updateSortIndicators();
+            applyRender();
+        }
+
+        function updateSortIndicators() {
+            const elScore = document.getElementById('sortIndicatorScore');
+            const elIdx = document.getElementById('sortIndicatorIdx');
+            if (elScore) elScore.innerText = currentSortField === 'score' ? (currentSortDir === 'desc' ? '↓' : '↑') : '↕';
+            if (elIdx) elIdx.innerText = currentSortField === 'idx' ? (currentSortDir === 'desc' ? '↓' : '↑') : '↕';
+        }
+
+        function getFilteredAndSortedLeads() {
+            const list = getFilteredLeads();
+            if (currentSortField === 'score') {
+                return [...list].sort((a, b) => {
+                    return currentSortDir === 'asc' ? a.intent_score - b.intent_score : b.intent_score - a.intent_score;
+                });
+            } else if (currentSortField === 'idx') {
+                return [...list].sort((a, b) => {
+                    return currentSortDir === 'asc' ? a.idx - b.idx : b.idx - a.idx;
+                });
+            }
+            return list;
+        }
+
+        function renderTable() {
+            const leads = getFilteredAndSortedLeads();
+            const tbody = document.getElementById('leadTableBody');
+            const emptyState = document.getElementById('empty-state');
+            const tableWrapper = document.getElementById('tableViewWrapper');
+
+            if (leads.length === 0) {
+                tbody.innerHTML = '';
+                if (currentViewMode === 'table') {
+                    emptyState.classList.remove('hidden');
+                    tableWrapper.classList.add('hidden');
+                }
+                return;
+            }
+
+            if (currentViewMode === 'table') {
+                emptyState.classList.add('hidden');
+                tableWrapper.classList.remove('hidden');
+            } else {
+                tableWrapper.classList.add('hidden');
+            }
+
+            tbody.innerHTML = leads.map((lead) => {
+                const status = getLeadStatus(lead.id);
+                const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES['待跟进'];
+                const logoHtml = getBrandLogoHtml(lead.competitor);
+
+                const cleanTitle = escapeHtml(lead.title);
+                const cleanComp = escapeHtml(lead.competitor);
+                const cleanPersona = escapeHtml(lead.buyer_persona);
+                const cleanSource = escapeHtml(lead.source);
+                const cleanEngagement = escapeHtml(lead.engagement || '⚡ 活跃求助');
+
+                const scoreBadge = lead.intent_score >= 85
+                    ? `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>${lead.intent_score}分 · 极高</span>`
+                    : `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>${lead.intent_score}分 · 优质</span>`;
+
+                const churnTagsHtml = lead.churn_drivers.slice(0, 2).map(d =>
+                    `<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/60 whitespace-nowrap">${escapeHtml(d)}</span>`
+                ).join(' ');
+
+                const isActive = (lead.id === activeLeadId);
+                const rowClasses = isActive
+                    ? 'bg-emerald-50/80 ring-1 ring-emerald-500/50 transition-colors group cursor-pointer'
+                    : 'hover:bg-zinc-50/90 transition-colors group cursor-pointer';
+
+                return `
+                <tr class="${rowClasses}" onclick="openDrawer('${lead.id}')">
+                    <td class="py-2.5 px-2 font-mono text-zinc-400 text-center text-[11px]">${lead.idx}</td>
+                    <td class="py-2.5 px-2 whitespace-nowrap">${scoreBadge}</td>
+                    <td class="py-2.5 px-2 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
+                            ${logoHtml}
+                            <span>${cleanComp}</span>
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-2.5 max-w-[380px]">
+                        <div class="font-semibold text-zinc-900 group-hover:text-emerald-700 transition-colors line-clamp-1 mb-1 leading-snug">
+                            ${cleanTitle}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-zinc-500 min-w-0 overflow-hidden">
+                            ${churnTagsHtml}
+                            <span class="text-zinc-300">•</span>
+                            <span class="text-zinc-500 truncate">${cleanPersona}</span>
+                        </div>
+                    </td>
+                    <td class="py-2.5 px-2 whitespace-nowrap max-w-[130px]">
+                        <div class="text-[11px] font-medium text-zinc-800 truncate" title="${cleanEngagement}">${cleanEngagement}</div>
+                        <div class="text-[10px] text-zinc-400 font-mono truncate">${cleanSource}</div>
+                    </td>
+                    <td class="py-2.5 px-2 whitespace-nowrap" onclick="event.stopPropagation()">
+                        <button onclick="cycleStatus('${lead.id}')" class="px-2 py-0.5 rounded-md text-[11px] font-semibold border transition-all ${statusClass} shadow-2xs">
+                            ${status}
+                        </button>
+                    </td>
+                    <td class="py-2.5 px-2.5 whitespace-nowrap text-right space-x-1" onclick="event.stopPropagation()">
+                        <button onclick="copyLeadPitch('${lead.id}', this)" class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 shadow-2xs transition-all" title="一键复制该商机私信">
+                            <span>复制私信</span>
+                        </button>
+                        <button onclick="openDrawer('${lead.id}')" class="px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
+                            查看战报
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function renderCards() {
+            const leads = getFilteredAndSortedLeads();
+            const container = document.getElementById('cardViewWrapper');
+            const emptyState = document.getElementById('empty-state');
+
+            if (leads.length === 0) {
+                container.innerHTML = '';
+                if (currentViewMode === 'cards') {
+                    emptyState.classList.remove('hidden');
+                    container.classList.add('hidden');
+                }
+                return;
+            }
+
+            if (currentViewMode === 'cards') {
+                emptyState.classList.add('hidden');
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+
+            container.innerHTML = leads.map(lead => {
+                const status = getLeadStatus(lead.id);
+                const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES['待跟进'];
+                const logoHtml = getBrandLogoHtml(lead.competitor);
+
+                const cleanTitle = escapeHtml(lead.title);
+                const cleanComp = escapeHtml(lead.competitor);
+                const cleanCategory = escapeHtml(lead.category);
+                const cleanAuthor = escapeHtml(lead.author);
+                const cleanPersona = escapeHtml(lead.buyer_persona);
+                const cleanSource = escapeHtml(lead.source);
+                const cleanEngagement = escapeHtml(lead.engagement || '⚡ 活跃求助');
+                const cleanUrl = sanitizeUrl(lead.url);
+
+                const churnBadges = lead.churn_drivers.map(d =>
+                    `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${escapeHtml(d)}</span>`
+                ).join(' ');
+
+                const isActive = (lead.id === activeLeadId);
+                const cardClasses = isActive
+                    ? 'bg-white rounded-xl border-2 border-zinc-900 p-5 shadow-md transition-all duration-200 cursor-pointer ring-2 ring-zinc-900/10'
+                    : 'bg-white rounded-xl border border-zinc-200/90 p-5 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer';
+
+                return `
+                <div class="${cardClasses}" onclick="openDrawer('${lead.id}')">
+                    <div class="flex items-center justify-between pb-3 border-b border-zinc-100 mb-3" onclick="event.stopPropagation()">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
+                                ${logoHtml}
+                                <span>${cleanComp}</span>
+                            </span>
+                            <span class="text-xs text-zinc-500 font-medium">${cleanCategory}</span>
+                            <span class="text-[11px] font-mono bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded">${cleanSource}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${lead.intent_score}分</span>
+                            <button onclick="cycleStatus('${lead.id}')" class="px-2.5 py-1 rounded text-xs font-semibold border ${statusClass}">
+                                ${status}
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 class="text-base font-bold text-zinc-900 mb-2 leading-snug hover:text-emerald-700 transition-colors">
+                        ${cleanTitle}
+                    </h3>
+
+                    <div class="flex flex-wrap items-center gap-3 text-xs text-zinc-500 mb-3">
+                        <span>发帖人：<strong class="text-zinc-700">${cleanAuthor}</strong></span>
+                        <span>角色：<strong class="text-zinc-700">${cleanPersona}</strong></span>
+                        <span class="text-amber-700 font-medium">${cleanEngagement}</span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5 mb-3">
+                        ${churnBadges}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-zinc-100 text-xs" onclick="event.stopPropagation()">
+                        <a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium inline-flex items-center gap-1">
+                            查看社区原帖
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyLeadPitch('${lead.id}', this)" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 shadow-2xs transition-all">
+                                <svg class="w-3.5 h-3.5 mr-1 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>复制私信</span>
+                            </button>
+                            <button onclick="openDrawer('${lead.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
+                                查看攻防战报与话术
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function cycleStatus(id) {
+            const current = getLeadStatus(id);
+            const flow = ['待跟进', '跟进中', '已转化'];
+            const nextStatus = flow[(flow.indexOf(current) + 1) % flow.length];
+            setLeadStatus(id, nextStatus);
+        }
+
+        // Drawer Operations
+        function openDrawer(id) {
+            const lead = LEADS_DATA.find(x => x.id === id);
+            if (!lead) return;
+
+            activeLeadId = id;
+            renderTable();
+            renderCards();
+
+            const logoHtml = getBrandLogoHtml(lead.competitor);
+
+            document.getElementById('drawerTitle').innerText = lead.title;
+            document.getElementById('drawerCompetitorBadge').innerHTML = `${logoHtml} <span>标的：${escapeHtml(lead.competitor)}</span>`;
+            document.getElementById('drawerScoreBadge').innerHTML = `<span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分 · ${escapeHtml(lead.intent_level.split('·')[0])}</span>`;
+            document.getElementById('drawerAuthor').innerText = '发帖人：' + lead.author;
+            document.getElementById('drawerTimestamp').innerText = lead.timestamp;
+            document.getElementById('drawerEngagement').innerText = lead.engagement || '';
+            document.getElementById('drawerContent').innerText = '“' + lead.content + '”';
+            document.getElementById('drawerSourceLink').href = sanitizeUrl(lead.url);
+
+            document.getElementById('drawerChurnBadges').innerHTML = lead.churn_drivers.map(d =>
+                `<span class="px-2.5 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${escapeHtml(d)}</span>`
+            ).join(' ');
+
+            document.getElementById('drawerExecutiveSummary').innerText = lead.executive_summary;
+            document.getElementById('drawerTactics').innerText = lead.tactical_action_plan;
+
+            // Objection handling playbook
+            const objectionWrap = document.getElementById('drawerObjectionWrapper');
+            const objectionEl = document.getElementById('drawerObjection');
+            if (objectionWrap && objectionEl) {
+                if (lead.objection_handling) {
+                    objectionEl.innerText = lead.objection_handling;
+                    objectionWrap.classList.remove('hidden');
+                } else {
+                    objectionWrap.classList.add('hidden');
+                }
+            }
+
+            // Sync Pitch Tabs
+            switchPitchTab(currentPitchTab || 'exec');
+
+            updateDrawerStatusUI(getLeadStatus(id));
+
+            document.getElementById('detailDrawerMask').classList.remove('hidden');
+            document.getElementById('detailDrawer').classList.remove('translate-x-full');
+        }
+
+        function closeDrawer() {
+            document.getElementById('detailDrawerMask').classList.add('hidden');
+            document.getElementById('detailDrawer').classList.add('translate-x-full');
+            activeLeadId = null;
+            renderTable();
+            renderCards();
+        }
+
+        function switchPitchTab(tab) {
+            currentPitchTab = tab;
+            const btnExec = document.getElementById('btnPitchExec');
+            const btnDev = document.getElementById('btnPitchDev');
+            const btnReply = document.getElementById('btnPitchReply');
+            const pitchEl = document.getElementById('drawerPitch');
+
+            const activeCls = 'flex-1 py-1.5 px-2 rounded-md font-semibold text-zinc-900 bg-white shadow-2xs transition-all flex items-center justify-center gap-1';
+            const inactiveCls = 'flex-1 py-1.5 px-2 rounded-md font-medium text-zinc-500 hover:text-zinc-800 transition-all flex items-center justify-center gap-1';
+
+            if (btnExec) btnExec.className = (tab === 'exec') ? activeCls : inactiveCls;
+            if (btnDev) btnDev.className = (tab === 'dev') ? activeCls : inactiveCls;
+            if (btnReply) btnReply.className = (tab === 'reply') ? activeCls : inactiveCls;
+
+            if (activeLeadId) {
+                const lead = LEADS_DATA.find(x => x.id === activeLeadId);
+                if (lead && pitchEl) {
+                    pitchEl.innerText = getEffectivePitch(lead, tab);
+                }
+            }
+        }
+
+        function copyLeadPitch(id, btn) {
+            const lead = LEADS_DATA.find(x => x.id === id);
+            if (!lead) return;
+            const textToCopy = getEffectivePitch(lead, 'exec');
+            copyToClipboard(textToCopy, `已复制【${lead.competitor}】潜客私信话术！`, btn);
+        }
+
+        function updateDrawerStatusUI(status) {
+            const map = {
+                '待跟进': 'btnStatusWait',
+                '跟进中': 'btnStatusProgress',
+                '已转化': 'btnStatusDone'
+            };
+
+            ['btnStatusWait', 'btnStatusProgress', 'btnStatusDone'].forEach(btnId => {
+                const el = document.getElementById(btnId);
+                if (el) el.className = 'px-2.5 py-1 rounded font-medium transition-colors text-zinc-600 hover:text-zinc-900';
+            });
+
+            const activeBtn = document.getElementById(map[status]);
+            if (activeBtn) {
+                activeBtn.className = 'px-2.5 py-1 rounded font-bold bg-zinc-900 text-white shadow-xs';
+            }
+        }
+
+        function setDrawerStatus(newStatus) {
+            if (activeLeadId) {
+                setLeadStatus(activeLeadId, newStatus);
+            }
+        }
+
+        function copyDrawerPitch(btn) {
+            const pitch = document.getElementById('drawerPitch').innerText;
+            const labelMap = { 'exec': '决策人ROI方案', 'dev': '开发者极简破冰', 'reply': '社区原帖引流神评' };
+            const label = labelMap[currentPitchTab] || '商业ROI方案';
+            copyToClipboard(pitch, `已复制【${label}】话术到剪贴板！`, btn);
+        }
+
+        // Nav & Category Filter (Synchronized Desktop & Mobile)
+        function setFilterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-zinc-800', 'text-white', 'font-semibold');
+                b.classList.add('text-zinc-400', 'font-medium');
+            });
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => {
+                b.classList.remove('bg-zinc-800', 'text-white');
+                b.classList.add('text-zinc-400');
+            });
+
+            if (btn) {
+                if (btn.classList.contains('nav-btn')) {
+                    btn.classList.add('bg-zinc-800', 'text-white', 'font-semibold');
+                    btn.classList.remove('text-zinc-400', 'font-medium');
+                } else if (btn.classList.contains('mobile-nav-btn')) {
+                    btn.classList.add('bg-zinc-800', 'text-white');
+                    btn.classList.remove('text-zinc-400');
+                }
+            }
+
+            if (currentViewMode === 'growth') {
+                setViewMode('table', document.getElementById('btnViewTable'));
+            } else {
+                applyRender();
+            }
+        }
+
+        function filterByCompetitor(comp, btn) {
+            currentCompetitor = comp;
+            document.querySelectorAll('.comp-pill').forEach(b => {
+                b.classList.remove('bg-zinc-900', 'text-white', 'font-semibold');
+                b.classList.add('bg-white', 'text-zinc-700', 'border-zinc-200');
+            });
+            if (btn) {
+                btn.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
+                btn.classList.remove('bg-white', 'text-zinc-700', 'border-zinc-200');
+            }
+
+            if (currentViewMode === 'growth') {
+                setViewMode('table', document.getElementById('btnViewTable'));
+            } else {
+                applyRender();
+            }
+        }
+
+        function handleSearch() {
+            const val = (document.getElementById('searchInput').value || '').trim();
+            const clearBtn = document.getElementById('searchClearBtn');
+            if (clearBtn) {
+                if (val.length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+            applyRender();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+            const clearBtn = document.getElementById('searchClearBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
+            applyRender();
+        }
+
+        let currentSplitPitchTab = 'exec';
+
+        // How it Works Modal Functions
+        function openHowItWorksModal() {
+            const modal = document.getElementById('howItWorksMask');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeHowItWorksModal() {
+            const modal = document.getElementById('howItWorksMask');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // Brand Customizer Functions
+        function toggleBrandCustomizer() {
+            const bar = document.getElementById('brandCustomizerBar');
+            if (!bar) return;
+            bar.classList.toggle('hidden');
+        }
+
+        function renderBrandPresets() {
+            const container = document.getElementById('brandPresetButtons') || document.getElementById('brandPresetPills');
+            if (!container || !Array.isArray(BRAND_PRESETS_DATA)) return;
+            container.innerHTML = BRAND_PRESETS_DATA.map(p => `
+                <button onclick="selectBrandPreset('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-white hover:bg-emerald-50 text-zinc-700 hover:text-emerald-700 border border-zinc-200 hover:border-emerald-300 transition-all shadow-2xs">
+                    ${escapeHtml(p.label)}
+                </button>
+            `).join('');
+        }
+
+        function selectBrandPreset(presetId) {
+            const preset = (BRAND_PRESETS_DATA || []).find(p => p.id === presetId);
+            if (!preset) return;
+            const nameInput = document.getElementById('customBrandName');
+            const hookInput = document.getElementById('customBrandHook');
+            const linkInput = document.getElementById('customBrandLink');
+            if (nameInput) nameInput.value = preset.brand_name || '';
+            if (hookInput) hookInput.value = preset.core_hook || '';
+            if (linkInput) linkInput.value = preset.cta_link || '';
+            applyCustomBrandProfile();
+        }
+
+        function applyCustomBrandProfile() {
+            const nameVal = (document.getElementById('customBrandName')?.value || '').trim();
+            const hookVal = (document.getElementById('customBrandHook')?.value || '').trim();
+            const linkVal = (document.getElementById('customBrandLink')?.value || '').trim();
+
+            if (!nameVal) {
+                customBrandProfile = null;
+                const badge = document.getElementById('brandActiveBadge');
+                if (badge) {
+                    badge.innerText = '默认通用模板';
+                    badge.className = 'text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/70 text-zinc-600';
+                }
+                applyRender();
+                if (activeLeadId && !document.getElementById('detailDrawer').classList.contains('translate-x-full')) {
+                    switchPitchTab(currentPitchTab || 'exec');
+                }
+                showToast('已恢复默认通用破冰话术模板');
+                return;
+            }
+
+            customBrandProfile = {
+                brand_name: nameVal,
+                core_hook: hookVal || '全兼容平滑替代方案，企业级 SLA 保障，综合采购成本直降 50%',
+                cta_link: linkVal
+            };
+
+            const badge = document.getElementById('brandActiveBadge');
+            if (badge) {
+                badge.innerText = `已注入品牌：${nameVal}`;
+                badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300';
+            }
+
+            applyRender();
+            if (activeLeadId && !document.getElementById('detailDrawer').classList.contains('translate-x-full')) {
+                switchPitchTab(currentPitchTab || 'exec');
+            }
+            showToast(`已将全站 10 条商机破冰话术定制为【${nameVal}】专属视角！`);
+        }
+
+        function renderGrowthHub() {
+            const seedContainer = document.getElementById('seedClientsContainer');
+            if (seedContainer && Array.isArray(SEED_CLIENTS_DATA)) {
+                seedContainer.innerHTML = SEED_CLIENTS_DATA.map((client, idx) => {
+                    const cName = client.name || client.company || '';
+                    const cStage = client.stage || client.decision_maker || '';
+                    const cPain = client.pain_point || client.why_they_buy || '';
+                    const cPitch = client.bd_pitch || client.outreach_pitch || '';
+                    return `
+                    <div class="bg-white rounded-xl border border-zinc-200/90 p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3">
+                        <div class="space-y-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-zinc-900 text-white font-mono text-[10px] font-bold inline-flex items-center justify-center">${idx + 1}</span>
+                                        <h4 class="text-sm font-bold text-zinc-900">${escapeHtml(cName)}</h4>
+                                    </div>
+                                    <p class="text-[11px] text-zinc-500 mt-0.5">${escapeHtml(client.category)} · 阶段：<strong class="text-zinc-700">${escapeHtml(cStage)}</strong></p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 whitespace-nowrap">
+                                    狙击标的：${escapeHtml(client.target_incumbent)}
+                                </span>
+                            </div>
+                            <p class="text-xs text-zinc-600 bg-zinc-50 p-2.5 rounded-lg border border-zinc-200/60 leading-relaxed">
+                                💡 <strong>为什么急需买单：</strong>${escapeHtml(cPain)}
+                            </p>
+                            <div class="bg-zinc-950 text-zinc-100 p-3 rounded-lg text-[11px] font-mono leading-relaxed whitespace-pre-wrap select-all">${escapeHtml(cPitch)}</div>
+                        </div>
+                        <div class="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs">
+                            <span class="text-[11px] text-zinc-500">触达渠道：${escapeHtml(client.contact_channel)}</span>
+                            <button onclick="copySeedClientPitch('${escapeHtml(client.id)}', this)" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>一键复制BD敲门话术</span>
+                            </button>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
+
+            const campContainer = document.getElementById('launchCampaignsContainer');
+            if (campContainer && Array.isArray(LAUNCH_CAMPAIGNS_DATA)) {
+                campContainer.innerHTML = LAUNCH_CAMPAIGNS_DATA.map(camp => {
+                    const cBody = camp.content || camp.body || '';
+                    return `
+                    <div class="bg-white rounded-xl border border-zinc-200/90 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3">
+                        <div class="space-y-2.5">
+                            <div class="flex items-center justify-between gap-2 pb-2 border-b border-zinc-100">
+                                <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-zinc-900 text-white">${escapeHtml(camp.channel)}</span>
+                                <span class="text-[11px] text-emerald-700 font-medium">${escapeHtml(camp.best_time)}</span>
+                            </div>
+                            <h4 class="text-sm font-bold text-zinc-900 leading-snug">📌 标题：${escapeHtml(camp.title)}</h4>
+                            <div class="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200/80 text-xs text-zinc-700 font-sans leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto select-all">${escapeHtml(cBody)}</div>
+                        </div>
+                        <div class="pt-2 flex items-center justify-end">
+                            <button onclick="copyCampaignPost('${escapeHtml(camp.id)}', this)" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white transition-all shadow-xs">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>一键复制标题与正文直接发帖</span>
+                            </button>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function copySeedClientPitch(clientId, btn) {
+            const client = (SEED_CLIENTS_DATA || []).find(c => c.id === clientId);
+            if (!client) return;
+            const cName = client.name || client.company || '';
+            const cPitch = client.bd_pitch || client.outreach_pitch || '';
+            copyToClipboard(cPitch, `已复制发往【${cName}】的 BD 敲门话术！`, btn);
+        }
+
+        function copyCampaignPost(campId, btn) {
+            const camp = (LAUNCH_CAMPAIGNS_DATA || []).find(c => c.id === campId);
+            if (!camp) return;
+            const cBody = camp.content || camp.body || '';
+            const fullPost = `${camp.title}
+
+${cBody}`;
+            copyToClipboard(fullPost, `已复制【${camp.channel}】首发引流帖全文！`, btn);
+        }
+
+        function setViewMode(mode, btn) {
+            currentViewMode = mode;
+            const btnTable = document.getElementById('btnViewTable');
+            const btnSplit = document.getElementById('btnViewSplit');
+            const btnCards = document.getElementById('btnViewCards');
+            const btnGrowth = document.getElementById('btnViewGrowth');
+            const tableWrap = document.getElementById('tableViewWrapper');
+            const splitWrap = document.getElementById('splitViewWrapper');
+            const cardWrap = document.getElementById('cardViewWrapper');
+            const growthWrap = document.getElementById('growthViewWrapper');
+            const heroBanner = document.getElementById('heroBanner');
+            const pillBar = document.getElementById('competitorPillContainer');
+
+            [btnTable, btnSplit, btnCards].forEach(b => {
+                if (b) b.className = 'px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap';
+            });
+            if (btnGrowth) {
+                btnGrowth.className = 'px-2.5 py-1 rounded-md font-semibold text-emerald-700 hover:bg-emerald-50 transition-all flex items-center gap-1 whitespace-nowrap';
+            }
+
+            if (tableWrap) tableWrap.classList.add('hidden');
+            if (splitWrap) splitWrap.classList.add('hidden');
+            if (cardWrap) cardWrap.classList.add('hidden');
+            if (growthWrap) growthWrap.classList.add('hidden');
+
+            if (mode === 'growth') {
+                if (btnGrowth) btnGrowth.className = 'px-2.5 py-1 rounded-md font-bold text-white bg-emerald-600 shadow-xs transition-all flex items-center gap-1 whitespace-nowrap';
+                if (growthWrap) growthWrap.classList.remove('hidden');
+                if (heroBanner) heroBanner.classList.add('hidden');
+                if (pillBar) pillBar.classList.add('hidden');
+                document.getElementById('empty-state')?.classList.add('hidden');
+                renderGrowthHub();
+                return;
+            }
+
+            if (heroBanner) heroBanner.classList.remove('hidden');
+            if (pillBar) pillBar.classList.remove('hidden');
+
+            if (mode === 'table') {
+                if (btnTable) btnTable.className = 'px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1 whitespace-nowrap';
+                if (tableWrap) tableWrap.classList.remove('hidden');
+            } else if (mode === 'split') {
+                if (btnSplit) btnSplit.className = 'px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1 whitespace-nowrap';
+                if (splitWrap) splitWrap.classList.remove('hidden');
+                const filtered = getFilteredAndSortedLeads();
+                if (!activeLeadId && filtered.length > 0) {
+                    activeLeadId = filtered[0].id;
+                }
+            } else if (mode === 'cards') {
+                if (btnCards) btnCards.className = 'px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1 whitespace-nowrap';
+                if (cardWrap) cardWrap.classList.remove('hidden');
+            }
+            applyRender();
+        }
+
+        function renderSplitView() {
+            const splitWrap = document.getElementById('splitViewWrapper');
+            if (!splitWrap) return;
+
+            const leads = getFilteredAndSortedLeads();
+            const listContainer = document.getElementById('splitLeadList');
+            const countBadge = document.getElementById('splitCountBadge');
+            const emptyState = document.getElementById('empty-state');
+
+            if (leads.length === 0) {
+                if (listContainer) listContainer.innerHTML = '';
+                if (currentViewMode === 'split') {
+                    splitWrap.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (currentViewMode === 'split') {
+                emptyState.classList.add('hidden');
+                splitWrap.classList.remove('hidden');
+            } else {
+                splitWrap.classList.add('hidden');
+            }
+
+            if (countBadge) countBadge.innerText = `${leads.length} 条线索`;
+
+            if (!leads.some(l => l.id === activeLeadId)) {
+                activeLeadId = leads[0].id;
+            }
+
+            listContainer.innerHTML = leads.map(lead => {
+                const status = getLeadStatus(lead.id);
+                const logoHtml = getBrandLogoHtml(lead.competitor);
+                const isSelected = (lead.id === activeLeadId);
+
+                const itemClass = isSelected
+                    ? 'p-3 bg-zinc-100/90 border-l-4 border-l-zinc-900 transition-all cursor-pointer'
+                    : 'p-3 hover:bg-zinc-50 transition-all cursor-pointer border-l-4 border-l-transparent';
+
+                const scoreBadge = lead.intent_score >= 85
+                    ? `<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分</span>`
+                    : `<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">${lead.intent_score}分</span>`;
+
+                return `
+                <div class="${itemClass}" onclick="selectSplitLead('${lead.id}')">
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                        <div class="flex items-center gap-1.5 truncate">
+                            <span class="inline-flex items-center gap-1 font-semibold text-zinc-900 text-xs">
+                                ${logoHtml}
+                                <span>${escapeHtml(lead.competitor)}</span>
+                            </span>
+                            <span class="text-[10px] text-zinc-400 font-mono">#${lead.idx}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            ${scoreBadge}
+                            <span class="text-[10px] text-zinc-500 bg-zinc-100 px-1 py-0.2 rounded border border-zinc-200">${status}</span>
+                        </div>
+                    </div>
+                    <div class="text-xs font-semibold text-zinc-800 line-clamp-2 leading-snug mb-1">
+                        ${escapeHtml(lead.title)}
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                        <span>${escapeHtml(lead.source)}</span>
+                        <span>•</span>
+                        <span class="text-zinc-600 truncate">${escapeHtml(lead.buyer_persona)}</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            if (activeLeadId) {
+                populateSplitBattlecard(activeLeadId);
+            }
+        }
+
+        function selectSplitLead(id) {
+            activeLeadId = id;
+            renderSplitView();
+            renderTable();
+            renderCards();
+        }
+
+        function populateSplitBattlecard(id) {
+            const lead = LEADS_DATA.find(x => x.id === id);
+            if (!lead) return;
+
+            const placeholder = document.getElementById('splitDockedPlaceholder');
+            const container = document.getElementById('splitDockedContainer');
+            if (placeholder) placeholder.classList.add('hidden');
+            if (container) container.classList.remove('hidden');
+
+            const logoHtml = getBrandLogoHtml(lead.competitor);
+
+            document.getElementById('splitTitle').innerText = lead.title;
+            document.getElementById('splitCompetitorBadge').innerHTML = `${logoHtml} <span>标的：${escapeHtml(lead.competitor)}</span>`;
+            document.getElementById('splitScoreBadge').innerHTML = `<span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分 · ${escapeHtml(lead.intent_level.split('·')[0])}</span>`;
+            document.getElementById('splitAuthor').innerText = '发帖人：' + lead.author;
+            document.getElementById('splitTimestamp').innerText = lead.timestamp;
+            document.getElementById('splitEngagement').innerText = lead.engagement || '';
+            document.getElementById('splitContent').innerText = '“' + lead.content + '”';
+            document.getElementById('splitSourceLink').href = sanitizeUrl(lead.url);
+
+            document.getElementById('splitChurnBadges').innerHTML = lead.churn_drivers.map(d =>
+                `<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${escapeHtml(d)}</span>`
+            ).join(' ');
+
+            document.getElementById('splitExecutiveSummary').innerText = lead.executive_summary;
+            document.getElementById('splitTactics').innerText = lead.tactical_action_plan;
+
+            const objectionWrap = document.getElementById('splitObjectionWrapper');
+            const objectionEl = document.getElementById('splitObjection');
+            if (objectionWrap && objectionEl) {
+                if (lead.objection_handling) {
+                    objectionEl.innerText = lead.objection_handling;
+                    objectionWrap.classList.remove('hidden');
+                } else {
+                    objectionWrap.classList.add('hidden');
+                }
+            }
+
+            switchSplitPitchTab(currentSplitPitchTab || 'exec');
+            updateSplitStatusUI(getLeadStatus(id));
+        }
+
+        function switchSplitPitchTab(tab) {
+            currentSplitPitchTab = tab;
+            const btnExec = document.getElementById('btnSplitPitchExec');
+            const btnDev = document.getElementById('btnSplitPitchDev');
+            const btnReply = document.getElementById('btnSplitPitchReply');
+            const pitchEl = document.getElementById('splitPitch');
+
+            const activeCls = 'flex-1 py-1 px-2 rounded-md font-semibold text-zinc-900 bg-white shadow-2xs transition-all flex items-center justify-center gap-1';
+            const inactiveCls = 'flex-1 py-1 px-2 rounded-md font-medium text-zinc-500 hover:text-zinc-800 transition-all flex items-center justify-center gap-1';
+
+            if (btnExec) btnExec.className = (tab === 'exec') ? activeCls : inactiveCls;
+            if (btnDev) btnDev.className = (tab === 'dev') ? activeCls : inactiveCls;
+            if (btnReply) btnReply.className = (tab === 'reply') ? activeCls : inactiveCls;
+
+            if (activeLeadId) {
+                const lead = LEADS_DATA.find(x => x.id === activeLeadId);
+                if (lead && pitchEl) {
+                    pitchEl.innerText = getEffectivePitch(lead, tab);
+                }
+            }
+        }
+
+        function copySplitPitch(btn) {
+            const pitch = document.getElementById('splitPitch').innerText;
+            const labelMap = { 'exec': '决策人ROI方案', 'dev': '开发者极简破冰', 'reply': '社区原帖引流神评' };
+            const label = labelMap[currentSplitPitchTab] || '商业ROI方案';
+            copyToClipboard(pitch, `已复制【${label}】话术到剪贴板！`, btn);
+        }
+
+        function updateSplitStatusUI(status) {
+            const map = {
+                '待跟进': 'btnSplitStatusWait',
+                '跟进中': 'btnSplitStatusProgress',
+                '已转化': 'btnSplitStatusDone'
+            };
+
+            ['btnSplitStatusWait', 'btnSplitStatusProgress', 'btnSplitStatusDone'].forEach(btnId => {
+                const el = document.getElementById(btnId);
+                if (el) el.className = 'px-2.5 py-0.5 rounded font-medium transition-colors text-zinc-600 hover:text-zinc-900';
+            });
+
+            const activeBtn = document.getElementById(map[status]);
+            if (activeBtn) {
+                activeBtn.className = 'px-2.5 py-0.5 rounded font-bold bg-zinc-900 text-white shadow-xs';
+            }
+        }
+
+        function setSplitStatus(newStatus) {
+            if (activeLeadId) {
+                setLeadStatus(activeLeadId, newStatus);
+            }
+        }
+
+        function applyRender() {
+            renderTable();
+            renderCards();
+            renderSplitView();
+        }
+
+        function updateCategoryBadges() {
+            const total = LEADS_DATA.length;
+            const highIntent = LEADS_DATA.filter(i => i.intent_score >= 80).length;
+            const pricing = LEADS_DATA.filter(i => i.churn_drivers.some(c => /价格|成本|费用|涨价|贵/.test(c)) || /价格|成本|费用|涨价|贵/.test(i.title)).length;
+            const privacy = LEADS_DATA.filter(i => i.churn_drivers.some(c => /隐私|开源|自托管|合规|数据/.test(c)) || /开源|自托管|隐私/.test(i.title)).length;
+
+            const desktopBadges = document.querySelectorAll('.nav-btn span.font-mono');
+            if (desktopBadges.length >= 4) {
+                desktopBadges[0].innerText = total;
+                desktopBadges[1].innerText = highIntent;
+                desktopBadges[2].innerText = pricing;
+                desktopBadges[3].innerText = privacy;
+            }
+
+            const mobileBtns = document.querySelectorAll('.mobile-nav-btn');
+            if (mobileBtns.length >= 4) {
+                mobileBtns[0].innerText = `全部商机 (${total})`;
+                mobileBtns[1].innerText = `极高潜客 (${highIntent})`;
+                mobileBtns[2].innerText = `价格涨价 (${pricing})`;
+                mobileBtns[3].innerText = `数据合规 (${privacy})`;
+            }
+        }
+
+        function resetAllFilters() {
+            clearSearch();
+            currentCategory = 'all';
+            currentCompetitor = 'ALL';
+            currentSortField = 'default';
+            currentSortDir = 'desc';
+            updateSortIndicators();
+
+            // Reset competitor pills
+            document.querySelectorAll('.comp-pill').forEach((b, idx) => {
+                if (idx === 0) {
+                    b.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
+                    b.classList.remove('bg-white', 'text-zinc-700', 'border-zinc-200');
+                } else {
+                    b.classList.remove('bg-zinc-900', 'text-white', 'font-semibold');
+                    b.classList.add('bg-white', 'text-zinc-700', 'border-zinc-200');
+                }
+            });
+
+            // Reset desktop sidebar buttons
+            document.querySelectorAll('.nav-btn').forEach((b, idx) => {
+                if (idx === 0) {
+                    b.classList.add('bg-zinc-800', 'text-white', 'font-semibold');
+                    b.classList.remove('text-zinc-400', 'font-medium');
+                } else {
+                    b.classList.remove('bg-zinc-800', 'text-white', 'font-semibold');
+                    b.classList.add('text-zinc-400', 'font-medium');
+                }
+            });
+
+            // Reset mobile buttons
+            document.querySelectorAll('.mobile-nav-btn').forEach((b, idx) => {
+                if (idx === 0) {
+                    b.classList.add('bg-zinc-800', 'text-white');
+                    b.classList.remove('text-zinc-400');
+                } else {
+                    b.classList.remove('bg-zinc-800', 'text-white');
+                    b.classList.add('text-zinc-400');
+                }
+            });
+
+            applyRender();
+        }
+
+        // Smart Export Helper: Avoids the "1-row export trap" when a user clicked a single competitor pill
+        function getLeadsForExport() {
+            const filtered = getFilteredAndSortedLeads();
+            // If user only clicked a single competitor pill (resulting in <=1 row) and has no search text, export all leads or filtered with notice
+            const searchVal = (document.getElementById('searchInput')?.value || '').trim();
+            if (filtered.length <= 1 && currentCompetitor !== 'ALL' && !searchVal) {
+                return {
+                    leads: LEADS_DATA,
+                    autoExpanded: true,
+                    prevCompetitor: currentCompetitor
+                };
+            }
+            return {
+                leads: filtered.length > 0 ? filtered : LEADS_DATA,
+                autoExpanded: filtered.length === 0,
+                prevCompetitor: currentCompetitor
+            };
+        }
+
+        // Export to Formatted WPS / Microsoft Excel (.xls with column widths & auto-wrap)
+        function exportToExcel() {
+            const { leads, autoExpanded, prevCompetitor } = getLeadsForExport();
+            if (!leads || leads.length === 0) {
+                showToast('当前没有可导出的商机数据', true);
+                return;
+            }
+
+            const headers = [
+                '序号', '意向评分', '标的竞品', '所属赛道', '买家痛点标题',
+                '发帖人/账号', '买家角色画像', '社区来源', '互动热度', '核心流失诱因',
+                '商业情报摘要', '攻防对阵策略', '决策人商业ROI话术', '开发者极简破冰话术',
+                '社区原帖引流神评', '异议攻防反制方案', '跟进状态', '原帖链接'
+            ];
+
+            const colWidths = [55, 80, 100, 140, 260, 120, 150, 110, 130, 160, 280, 280, 320, 300, 280, 280, 85, 240];
+            const colGroupHtml = colWidths.map(w => `<col width="${w}" style="width:${w}px;" />`).join('');
+
+            const thHtml = headers.map(h =>
+                `<th style="background-color:#18181b; color:#ffffff; font-weight:bold; font-size:12px; padding:10px 8px; border:1px solid #3f3f46; text-align:left; vertical-align:middle;">${escapeHtml(h)}</th>`
+            ).join('');
+
+            const rowsHtml = leads.map((l, idx) => {
+                const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                const scoreBg = l.intent_score >= 85 ? '#ecfdf5' : '#eff6ff';
+                const scoreColor = l.intent_score >= 85 ? '#047857' : '#1d4ed8';
+                const cells = [
+                    `<td style="background:${bg}; text-align:center; font-family:monospace; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${l.idx}</td>`,
+                    `<td style="background:${scoreBg}; color:${scoreColor}; font-weight:bold; text-align:center; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${l.intent_score}分</td>`,
+                    `<td style="background:${bg}; font-weight:bold; color:#0f172a; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${escapeHtml(l.competitor)}</td>`,
+                    `<td style="background:${bg}; color:#334155; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.category)}</td>`,
+                    `<td style="background:${bg}; font-weight:bold; color:#0f172a; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.title)}</td>`,
+                    `<td style="background:${bg}; color:#334155; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${escapeHtml(l.author)}</td>`,
+                    `<td style="background:${bg}; color:#334155; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.buyer_persona)}</td>`,
+                    `<td style="background:${bg}; color:#475569; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${escapeHtml(l.source)}</td>`,
+                    `<td style="background:${bg}; color:#b45309; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${escapeHtml(l.engagement || '⚡ 活跃求助')}</td>`,
+                    `<td style="background:${bg}; color:#be123c; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml((l.churn_drivers || []).join('；'))}</td>`,
+                    `<td style="background:${bg}; color:#1e293b; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.executive_summary || '')}</td>`,
+                    `<td style="background:${bg}; color:#1e293b; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.tactical_action_plan || '')}</td>`,
+                    `<td style="background:#f0fdf4; color:#065f46; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(getEffectivePitch(l, 'exec'))}</td>`,
+                    `<td style="background:${bg}; color:#0f172a; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(getEffectivePitch(l, 'dev'))}</td>`,
+                    `<td style="background:${bg}; color:#0f172a; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(getEffectivePitch(l, 'reply'))}</td>`,
+                    `<td style="background:${bg}; color:#475569; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.objection_handling || '')}</td>`,
+                    `<td style="background:${bg}; text-align:center; font-weight:bold; border:1px solid #e2e8f0; padding:8px; vertical-align:top;">${escapeHtml(getLeadStatus(l.id))}</td>`,
+                    `<td style="background:${bg}; color:#2563eb; border:1px solid #e2e8f0; padding:8px; vertical-align:top; white-space:normal; word-wrap:break-word;">${escapeHtml(l.url)}</td>`
+                ];
+                return `<tr>${cells.join('')}</tr>`;
+            }).join('');
+
+            const excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>IntentRadar高意向商机战报</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+<style>
+  table { border-collapse: collapse; table-layout: fixed; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 12px; }
+  td, th { mso-data-placement: same-cell; word-wrap: break-word; white-space: normal; }
+</style>
+</head>
+<body>
+<table>
+  <colgroup>${colGroupHtml}</colgroup>
+  <thead><tr>${thHtml}</tr></thead>
+  <tbody>${rowsHtml}</tbody>
+</table>
+</body>
+</html>`;
+
+            const blob = new Blob(['\uFEFF' + excelHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `IntentRadar_精排商机战报_${new Date().toISOString().slice(0, 10)}.xls`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            if (autoExpanded) {
+                showToast(`已自动为您解除单竞品限制，完整导出全部 ${leads.length} 条精排 Excel 战报（含自适应列宽与自动换行）！`);
+            } else {
+                showToast(`已成功导出 ${leads.length} 条精排 Excel 战报（WPS/Excel 打开自带列宽与自动换行）！`);
+            }
+        }
+
+        // Export to CSV (RFC 4180 strict escaping with UTF-8 BOM + Full 18 Columns)
+        function exportToCSV() {
+            const { leads, autoExpanded } = getLeadsForExport();
+            if (!leads || leads.length === 0) {
+                showToast('当前没有可导出的商机数据', true);
+                return;
+            }
+
+            const cleanCsvCell = (val) => {
+                if (val === null || val === undefined) return '""';
+                return `"${String(val).replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`;
+            };
+
+            const headers = [
+                '序号', '意向评分', '标的竞品', '所属赛道', '买家痛点标题',
+                '发帖人', '买家角色画像', '社区来源', '互动热度', '核心流失诱因',
+                '商业情报摘要', '攻防对阵策略', '决策人商业ROI话术', '开发者极简破冰话术',
+                '社区原帖引流神评', '异议攻防反制方案', '跟进状态', '原帖链接'
+            ];
+            const rows = leads.map(l => [
+                l.idx,
+                l.intent_score,
+                cleanCsvCell(l.competitor),
+                cleanCsvCell(l.category),
+                cleanCsvCell(l.title),
+                cleanCsvCell(l.author),
+                cleanCsvCell(l.buyer_persona),
+                cleanCsvCell(l.source),
+                cleanCsvCell(l.engagement || '⚡ 活跃求助'),
+                cleanCsvCell((l.churn_drivers || []).join('; ')),
+                cleanCsvCell(l.executive_summary || ''),
+                cleanCsvCell(l.tactical_action_plan || ''),
+                cleanCsvCell(getEffectivePitch(l, 'exec')),
+                cleanCsvCell(getEffectivePitch(l, 'dev')),
+                cleanCsvCell(getEffectivePitch(l, 'reply')),
+                cleanCsvCell(l.objection_handling || ''),
+                cleanCsvCell(getLeadStatus(l.id)),
+                cleanCsvCell(l.url)
+            ]);
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `IntentRadar_Leads_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            if (autoExpanded) {
+                showToast(`已自动为您导出全库 ${leads.length} 条完整 CSV 商机数据（避免单竞品仅导出1条）！`);
+            } else {
+                showToast(`已成功导出 ${leads.length} 条商机数据为 CSV 表格！`);
+            }
+        }
+
+        function copyAllPitches(btn) {
+            const { leads } = getLeadsForExport();
+            if (!leads || leads.length === 0) {
+                showToast('当前筛选条件下没有可复制的话术', true);
+                return;
+            }
+            const fullText = leads.map(l => `【${l.competitor} 潜客：${l.author} (${l.buyer_persona})】\n原帖：${l.title} (${l.url})\n【💼 决策人ROI方案】：${getEffectivePitch(l, 'exec')}\n【💻 开发者极简破冰】：${getEffectivePitch(l, 'dev')}\n【💬 社区原帖引流神评】：${getEffectivePitch(l, 'reply')}`).join('\n\n-------------------\n\n');
+            copyToClipboard(fullText, `已批量复制 ${leads.length} 条商机三轨破冰与神评话术！`, btn);
+        }
+
+        // Global Keyboard Shortcuts (Escape to close drawer, / or Ctrl+K to search, Up/Down for split view)
+        document.addEventListener('keydown', (e) => {
+            const howItWorks = document.getElementById('howItWorksMask');
+            if (e.key === 'Escape') {
+                if (howItWorks && !howItWorks.classList.contains('hidden')) {
+                    closeHowItWorksModal();
+                } else if (activeLeadId && !document.getElementById('detailDrawer').classList.contains('translate-x-full')) {
+                    closeDrawer();
+                } else if (document.getElementById('searchInput') && document.getElementById('searchInput').value) {
+                    clearSearch();
+                }
+            } else if ((e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) && document.activeElement !== document.getElementById('searchInput')) {
+                if (['INPUT', 'TEXTAREA'].indexOf(document.activeElement.tagName) === -1) {
+                    e.preventDefault();
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                }
+            } else if (currentViewMode === 'split' && ['INPUT', 'TEXTAREA'].indexOf(document.activeElement.tagName) === -1) {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const leads = getFilteredAndSortedLeads();
+                    if (leads.length > 0) {
+                        const curIdx = leads.findIndex(l => l.id === activeLeadId);
+                        let nextIdx = 0;
+                        if (e.key === 'ArrowDown') {
+                            nextIdx = curIdx < leads.length - 1 ? curIdx + 1 : 0;
+                        } else {
+                            nextIdx = curIdx > 0 ? curIdx - 1 : leads.length - 1;
+                        }
+                        selectSplitLead(leads[nextIdx].id);
+                    }
+                }
+            }
+        });
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCategoryBadges();
+            renderBrandPresets();
+            renderGrowthHub();
+            applyRender();
+        });
+    </script>
+</body>
+</html>
