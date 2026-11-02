@@ -80,19 +80,19 @@
             <button onclick="setFilterCategory('all', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-white bg-zinc-800 rounded-lg group text-left transition-all">
                 <svg class="w-4 h-4 mr-2.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                 全部商机线索
-                <span class="ml-auto bg-zinc-700 text-zinc-300 py-0.5 px-2 rounded-full text-[10px] font-mono">10</span>
+                <span class="ml-auto bg-zinc-700 text-zinc-300 py-0.5 px-2 rounded-full text-[10px] font-mono">9</span>
             </button>
 
             <button onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
                 <svg class="w-4 h-4 mr-2.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 极高采购意向 (≥80分)
-                <span class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">10</span>
+                <span class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">7</span>
             </button>
 
             <button onclick="setFilterCategory('pricing', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
                 <svg class="w-4 h-4 mr-2.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 价格涨价 / 寻求平替
-                <span class="ml-auto bg-rose-500/20 text-rose-300 py-0.5 px-2 rounded-full text-[10px] font-mono">6</span>
+                <span class="ml-auto bg-rose-500/20 text-rose-300 py-0.5 px-2 rounded-full text-[10px] font-mono">4</span>
             </button>
 
             <button onclick="setFilterCategory('privacy', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg group text-left transition-all">
@@ -182,6 +182,14 @@
             </div>
         </header>
 
+        <!-- Mobile Category Nav (< lg) -->
+        <div class="lg:hidden flex items-center gap-1.5 overflow-x-auto px-4 py-2 bg-zinc-950 border-b border-zinc-800 text-xs flex-shrink-0">
+            <button onclick="setFilterCategory('all', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-white bg-zinc-800 flex-shrink-0">全部商机 (9)</button>
+            <button onclick="setFilterCategory('high-intent', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-zinc-400 flex-shrink-0">极高潜客 (7)</button>
+            <button onclick="setFilterCategory('pricing', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-zinc-400 flex-shrink-0">价格涨价 (4)</button>
+            <button onclick="setFilterCategory('privacy', this)" class="mobile-nav-btn px-2.5 py-1 rounded-md font-medium text-zinc-400 flex-shrink-0">数据合规 (5)</button>
+        </div>
+
         <!-- Subheader: Official Brand Logo Pills -->
         <div class="bg-white border-b border-zinc-200/80 px-6 py-3 flex-shrink-0">
             <div class="flex items-center justify-between mb-2">
@@ -189,19 +197,25 @@
                     <span class="text-xs font-bold text-zinc-900 uppercase tracking-wider">🎯 标的竞品快速过滤</span>
                     <span class="text-[11px] text-zinc-400">点击徽章即时锁定流失客户群</span>
                 </div>
-                <div class="text-[11px] text-zinc-400 font-mono">共捕获 10 条高意向商机</div>
+                <div class="text-[11px] text-zinc-400 font-mono">共捕获 9 条高意向商机</div>
             </div>
             <!-- Horizontal Competitor Pills with SimpleIcons -->
             <div class="flex items-center gap-2 overflow-x-auto pb-1" id="competitorPillContainer">
                 
         <button onclick="filterByCompetitor('ALL', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-white transition-all shadow-xs flex-shrink-0">
             <span>全部竞品</span>
-            <span class="bg-zinc-700 text-zinc-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">10</span>
+            <span class="bg-zinc-700 text-zinc-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">9</span>
         </button>
         
             <button onclick="filterByCompetitor('Jira', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
                 <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Jira" loading="lazy" />
                 <span>Jira</span>
+                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
+            </button>
+            
+            <button onclick="filterByCompetitor('Salesforce', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Salesforce" loading="lazy" />
+                <span>Salesforce</span>
                 <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
@@ -217,27 +231,15 @@
                 <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Salesforce', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
-                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="Salesforce" loading="lazy" />
-                <span>Salesforce</span>
+            <button onclick="filterByCompetitor('阿里云', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+                <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>阿里云</span>
                 <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
             <button onclick="filterByCompetitor('DocuSign', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
                 <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg" class="w-3.5 h-3.5 object-contain flex-shrink-0" alt="DocuSign" loading="lazy" />
                 <span>DocuSign</span>
-                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
-            </button>
-            
-            <button onclick="filterByCompetitor('Tableau', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
-                <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                <span>Tableau</span>
-                <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
-            </button>
-            
-            <button onclick="filterByCompetitor('阿里云', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
-                <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                <span>阿里云</span>
                 <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
@@ -253,9 +255,9 @@
                 <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
-            <button onclick="filterByCompetitor('Claude Managed Agents', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
+            <button onclick="filterByCompetitor('Discord', this)" class="comp-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200 transition-all shadow-xs flex-shrink-0">
                 <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                <span>Claude Managed Agents</span>
+                <span>Discord</span>
                 <span class="text-zinc-400 text-[11px] font-mono">(1)</span>
             </button>
             
@@ -399,13 +401,33 @@
 
     <!-- Data Injection & Interactive Controller -->
     <script>
-        const LEADS_DATA = [{"idx": 1, "id": "62b39928a591c9cdbdc308b5fe2b0176", "title": "Looking for an alternative to Jira that doesn't cost an arm and a leg", "url": "https://news.ycombinator.com/item?id=39821455", "source": "Hacker News", "content": "Our team just crossed 25 people and Atlassian's per-seat pricing skyrocketed. The UI is sluggish and our engineers hate it. Any lightweight alternatives for sprint tracking?", "author": "tech_founder_99", "timestamp": "2026-11-02 08:12:00", "engagement": "🔥 142 关注 · 💬 84 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Jira", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "category": "研发项目协同", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["按席位定价过高", "界面响应缓慢", "工程师团队抵触使用"], "core_issue": "团队规模突破25人后，Atlassian按席位收费导致成本激增，同时Jira界面卡顿引发工程师不满，促使团队寻求轻量级替代方案。", "executive_summary": "该信号表明一个25人研发团队因Jira的按席位定价过高和性能问题正积极寻找替代方案，购买意图强烈。竞品可重点强调透明定价、轻量体验和工程师友好设计，以抢占这一高转化机会。", "tactical_action_plan": "强调按团队固定定价或更灵活的席位模式，直接对比Jira的按人收费，突出成本可预测性。\n演示轻量级界面和流畅的 sprint 跟踪体验，邀请其工程师参与试用，以实际性能打消顾虑。", "suggested_pitch": "您好，看到您团队正在寻找Jira的替代方案。我们理解25人团队面临按席位收费的压力，以及Jira界面卡顿带来的效率损耗。我们的轻量级 sprint 跟踪工具采用透明定价，无隐藏成本，且专为工程师设计，响应迅速。是否方便花15分钟为您演示一下，看看是否能契合您的需求？"}, {"idx": 2, "id": "e25022a16c07aec76d4d520da695816c", "title": "有没有好用的国内代替 Notion 的知识库？企微协同需求", "url": "https://www.v2ex.com/t/1089234", "source": "V2EX", "content": "公司网络访问 Notion 经常加载慢，团队协作还要翻墙很不方便。希望找一个支持私有化部署或者国内云端稳定、能无缝对接企业微信的文档工具，付费也可以接受。", "author": "code_artisan", "timestamp": "2026-11-02 09:20:00", "engagement": "💬 32 条回帖", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Notion", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/notion.svg", "category": "企业协同知识库", "buyer_persona": "企业IT决策人", "churn_drivers": ["国内访问加载慢", "团队协作需翻墙", "缺乏企业微信集成", "数据合规与私有化部署需求"], "core_issue": "公司网络访问Notion经常加载慢，团队协作需翻墙，且无法无缝对接企业微信，导致协作效率低下并存在合规风险。", "executive_summary": "该V2EX用户代表了一个典型的企业IT决策场景：因Notion在国内的访问性能与合规问题，主动寻求支持私有化部署或国内云端稳定、并能无缝集成企业微信的替代方案，且明确表示付费意愿。这反映了国内企业对协同知识库工具在性能、集成与合规方面的迫切需求，是高转化潜力的销售线索。", "tactical_action_plan": "强调国内云端稳定性和私有化部署选项，直接解决访问慢和翻墙痛点，并提供性能对比数据。\n突出与企业微信的无缝集成能力，展示单点登录、消息通知、文档同步等具体场景，并引用同行业客户案例增强信任。", "suggested_pitch": "您好，看到您在V2EX上提到寻找Notion的国内替代方案，我们正好有一款专为企业协同设计的知识库工具，支持私有化部署和国内云端稳定访问，并且能无缝对接企业微信，解决加载慢和协作不便的问题。许多类似规模的企业已在使用，付费方案灵活。如果您有兴趣，我可以发送详细资料或安排演示，供您评估。"}, {"idx": 3, "id": "59ceeb8b74abb1a2d94d8d9b517a8358", "title": "Migrating away from Datadog to an open-source observability stack", "url": "https://dev.to/observability_fan/migrating-away-from-datadog-cost-breakdown-199", "source": "Dev.to", "content": "Our monthly Datadog bill reached $8,500 for custom metrics and APM. Looking for a modern SigNoz or Prometheus alternative that our DevOps team can self-host.", "author": "cloud_architect_dan", "timestamp": "2026-11-02 04:30:00", "engagement": "💬 28 讨论 · 👍 65 赞同", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Datadog", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/datadog.svg", "category": "可观测性平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["自定义指标与APM成本过高", "缺乏自托管选项", "开源替代方案需求强烈"], "core_issue": "Datadog月度账单高达8500美元，主要来自自定义指标和APM，促使团队寻求可自托管的开源替代方案。", "executive_summary": "该信号表明企业因Datadog按量计费模式导致成本失控，正积极评估SigNoz或Prometheus等开源可观测性方案。这反映了可观测性市场中对成本透明和自托管能力的强烈需求，为竞品提供了切入机会。", "tactical_action_plan": "强调自托管方案的总拥有成本优势，提供详细的成本对比计算器，展示三年内可节省的金额。\n突出开源方案的灵活性和数据主权，提供迁移支持服务，降低切换风险。", "suggested_pitch": "您好，看到您提到Datadog账单压力，我们提供可自托管的开源可观测性方案，能帮您将成本降低60%以上，同时保持全功能APM和自定义指标。是否需要我发送一份针对您场景的成本对比报告？"}, {"idx": 4, "id": "549acdfe4e1d11408d18f323267635ef", "title": "Switching from Salesforce to something modern for a 15-person sales team?", "url": "https://reddit.com/r/SaaS/comments/1gx891a", "source": "Reddit r/SaaS", "content": "Salesforce implementation has been a nightmare for 6 months. Spent $15k and nobody is logging calls. We need a simple, intuitive CRM with good email sync. Budget is around $30-50/user/mo.", "author": "b2b_growth_lead", "timestamp": "2026-11-02 07:45:10", "engagement": "🔥 96 赞同 · 💬 45 条建议", "intent_score": 92, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Salesforce", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "category": "客户关系管理（CRM）软件", "buyer_persona": "SaaS销售主管 / 销售运营负责人", "churn_drivers": ["实施周期长且交付效果差", "总体拥有成本高（已投入约1.5万美元）", "销售团队实际采用率极低（无人记录通话）", "操作复杂、不够直观易用", "邮件同步体验不佳"], "core_issue": "Salesforce实施折腾6个月、花费约1.5万美元却无人使用，团队急需一款简单直观、邮件同步好且单价在30-50美元/用户/月区间的现代CRM。", "executive_summary": "该信号来自一个15人销售团队，属于典型的中小企业CRM替换场景：高实施成本与低实际采用率形成强烈反差，已构成明确的流失与迁移意图。其预算区间（30-50美元/用户/月）与易用性、邮件同步诉求，直接指向HubSpot、Pipedrive等轻量现代CRM的替代窗口。", "tactical_action_plan": "以“6个月实施失败+1.5万美元沉没成本”为切入点，强调可在一周内完成迁移上线、无需专职管理员，直接对比Salesforce的重实施模式。\n围绕“销售真正愿意用”做演示：现场展示邮件自动同步、通话记录一键归档与移动端体验，并给出15人团队按30-50美元/用户/月的透明报价与迁移陪跑方案。", "suggested_pitch": "您好，看到您提到Salesforce实施半年、投入约1.5万美元但团队几乎不记录通话——这种情况在15人左右的销售团队里非常常见，问题往往不在团队，而在工具太重。我们可以帮您把现有联系人、邮件和通话记录一次性迁移过来，通常一周内上线，销售当天就能用邮件自动同步和通话记录，不需要专职管理员。按您30-50美元/用户/月的预算，我可以先给15人团队做一份透明报价和迁移方案，您方便约20分钟看看是否匹配吗？"}, {"idx": 5, "id": "4d6fa2f26a0b762626f6bdb7efdf287a", "title": "New Alternative: OpenSign - The open source alternative to DocuSign and PandaDoc", "url": "https://github.com/OpenSignLabs/OpenSign", "source": "GitHub", "content": "Stars: 4200 | Language: TypeScript | DocuSign recently increased API pricing by 40%. OpenSign provides a self-hosted, tamper-proof electronic signature platform.", "author": "OpenSignLabs", "timestamp": "2026-11-02 05:10:00", "engagement": "⭐ 4.2k Stars · 🍴 310 Forks", "intent_score": 90, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "DocuSign", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg", "category": "电子签名与文档管理", "buyer_persona": "企业IT决策人 / 采购负责人", "churn_drivers": ["API定价上涨40%", "按席位/用量计费成本过高", "数据主权与合规顾虑", "缺乏自托管选项"], "core_issue": "DocuSign API 涨价 40% 直接推高集成成本，促使企业寻找可自托管、防篡改的开源电子签名替代方案。", "executive_summary": "DocuSign 近期 API 提价 40% 已引发开发者社区强烈反弹，OpenSign 作为开源自托管替代方案获得 4200 星关注，显示价格敏感型与技术自主型买家正在加速评估迁移。该信号表明电子签名市场的价格战与数据主权需求正在重塑采购决策，竞品应抓住窗口期以成本可控与合规自托管为核心卖点切入。", "tactical_action_plan": "以 TCO 对比为切入点：量化 DocuSign API 涨价后的年度集成成本，突出自托管方案在规模化调用下的成本优势与无锁定风险。\n针对合规与数据主权需求：强调私有化部署、防篡改审计日志与数据不出境能力，提供 POC 迁移评估与 API 兼容层方案降低切换门槛。", "suggested_pitch": "您好，注意到 DocuSign 近期 API 涨价 40% 可能对您的集成成本带来压力。我们提供可自托管、防篡改的电子签名方案，支持平滑迁移与 API 兼容，帮助您在控制成本的同时满足数据合规要求。方便的话，我可以为您做一份针对现有用量的成本对比评估？"}, {"idx": 6, "id": "e7c80607774a2d461b6b7a1ed72f7f8b", "title": "New Alternative: dataease/dataease - 🔥 人人可用的开源 BI 工具，数据可视化神器。An open-source BI tool alternative to Tableau.", "url": "https://github.com/dataease/dataease", "source": "GitHub", "content": "Stars: 24666 | Forks: 4257 | Language: Java | Description: 🔥 人人可用的开源 BI 工具，数据可视化神器。An open-source BI tool alternative to Tableau.", "author": "dataease", "timestamp": "2026-11-02T09:43:01Z", "engagement": "⭐ 24666 Stars · 🍴 4257 Forks", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Tableau", "competitor_logo": "", "category": "商业智能与数据可视化平台", "buyer_persona": "企业IT决策人 / 数据分析负责人", "churn_drivers": ["Tableau按席位订阅成本过高", "开源替代方案可降低总体拥有成本", "需要本地化部署与数据合规可控", "希望避免供应商锁定并支持二次开发"], "core_issue": "用户因Tableau高昂的许可费用和封闭生态，主动寻找可自主部署、成本可控的开源BI替代方案。", "executive_summary": "DataEase作为Tableau的开源替代品在GitHub获得高关注，反映出企业级BI市场对成本敏感和自主可控的强烈需求。这一信号表明Tableau在中小型及成本敏感型企业中的客户流失风险正在上升，开源方案正成为有力的替代选择。", "tactical_action_plan": "强调DataEase的开源免费与本地部署优势，直接对比Tableau的席位订阅总成本，提供TCO测算工具帮助客户量化节省。\n针对数据合规与二次开发需求，展示DataEase的插件生态和API扩展能力，并安排POC验证与现有数据栈的集成可行性。", "suggested_pitch": "您好，注意到您在关注DataEase这类开源BI工具。很多团队从Tableau迁移，主要是为了降低按席位订阅的成本并实现本地化部署。我们可以帮您评估现有Tableau报表的迁移路径，并提供一份TCO对比，看看开源方案能为您节省多少预算，同时不影响可视化分析能力。方便约15分钟聊聊您的具体场景吗？"}, {"idx": 7, "id": "b6fe919b87c5f410c4edb82c394874e3", "title": "求推荐云服务器资源", "url": "https://www.v2ex.com/t/1253878", "source": "V2EX", "content": "国内大厂的收费太贵了，有没老哥推荐便宜可靠的云服务器厂商资源，谢谢啦", "author": "JacksonTam", "timestamp": "2026-11-02 17:05:06", "engagement": "💬 2 条回帖", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "阿里云", "competitor_logo": "", "category": "云服务器（IaaS）", "buyer_persona": "中小企业技术负责人 / 个人开发者", "churn_drivers": ["国内大厂云服务器价格过高", "成本敏感型用户寻求性价比替代", "对便宜可靠云厂商的资源信息缺乏"], "core_issue": "用户因国内头部云厂商收费过高而主动寻求更便宜可靠的云服务器替代方案。", "executive_summary": "该信号显示价格敏感型客户对阿里云等国内大厂云服务器存在明确成本不满，正在主动寻找替代供应商。这是典型的竞品替换购买意向，销售应聚焦成本对比与可靠性证明进行拦截。", "tactical_action_plan": "提供与阿里云同规格实例的详细价格对比表，突出长期使用成本节省比例，并附上SLA与可用性承诺。\n针对用户‘便宜可靠’的诉求，展示真实客户案例与性能基准测试数据，强调迁移零停机支持。", "suggested_pitch": "您好，看到您在V2EX上寻找高性价比云服务器。我们提供与阿里云同配置但价格低30%-50%的方案，且承诺99.95% SLA，支持无缝迁移。方便私信发您一份对比清单参考吗？"}, {"idx": 8, "id": "dbbf3032199eb70ab49b324703a12fb9", "title": "Show HN: People you know, an end-to-end encrypted private Instagram replacement", "url": "https://peopleyouk.now/", "source": "Hacker News", "content": "I built an alternative to popular social networks because I was sick of the unending enshittification of instagram. Every UX change in recent years intended to make their app more addictive to teenagers has made me want to use it less, but I don&#x27;t want to lose contact with the actual people that are close to me. First it was stories to make it your job to open the app every day, and then &quot;everything is a reel&quot; to try to get you to scroll infinitely.<p>This app is a more minimalist", "author": "jsbg", "timestamp": "2026-11-02T00:15:38Z", "engagement": "🔥 3 关注", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Instagram", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg", "category": "社交媒体应用", "buyer_persona": "个人用户 / 隐私敏感型消费者", "churn_drivers": ["算法驱动成瘾性设计", "强制每日打开的故事功能", "无限滚动短视频化", "隐私担忧与数据滥用", "用户体验持续恶化"], "core_issue": "用户因Instagram不断推出成瘾性设计（如故事、无限滚动Reels）而体验恶化，且担忧隐私，从而寻求端到端加密的私密社交替代品。", "executive_summary": "该信号显示用户对主流社交媒体平台Instagram的成瘾性设计和隐私问题强烈不满，主动寻找端到端加密的替代方案。这反映了隐私优先社交工具的市场需求正在增长，为竞品提供了明确的切入机会。", "tactical_action_plan": "强调端到端加密和隐私保护，直接对比Instagram的数据收集行为。\n突出极简、无成瘾性设计的用户体验，吸引厌倦算法推荐的用户。", "suggested_pitch": "您好，注意到您对Instagram的成瘾性设计和隐私问题感到不满。我们的端到端加密社交应用提供极简、无干扰的体验，让您只与亲密朋友保持联系，同时确保数据完全私密。欢迎了解我们如何帮助您摆脱算法操控。"}, {"idx": 9, "id": "b1d4ffb438f4cb86bc5641b9dbb0d970", "title": "Cra Browser: open-source Arc replacement for macOS", "url": "https://github.com/VictorKildahl/cra", "source": "Hacker News", "content": "Cra Browser: open-source Arc replacement for macOS", "author": "nateb2022", "timestamp": "2026-11-02T03:53:24Z", "engagement": "🔥 1 关注", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Arc Browser", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "category": "桌面浏览器与生产力工具", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["闭源产品缺乏透明度与可审计性", "对macOS平台依赖性强且无开源替代", "数据隐私与厂商锁定顾虑", "定制化与扩展能力受限"], "core_issue": "用户因Arc浏览器闭源、平台锁定及隐私顾虑，主动寻找开源可替代方案以降低技术依赖风险。", "executive_summary": "Hacker News社区出现针对Arc浏览器的开源替代需求，表明技术决策者对其闭源模式和平台锁定存在明确不满。该信号显示开发者工具市场对开源、可审计、可定制的桌面浏览器存在真实购买意向，竞品可借此切入技术型用户群体。", "tactical_action_plan": "强调开源架构与代码可审计性，直接回应Arc闭源带来的隐私与合规顾虑，提供自托管或本地化部署选项。\n针对macOS技术团队展示迁移成本低、扩展性强、无厂商锁定的优势，并提供从Arc一键导入书签与配置的迁移工具。", "suggested_pitch": "您好，注意到您在Hacker News上关注Arc浏览器的开源替代方案。我们提供一款完全开源、可审计的macOS浏览器，支持无缝迁移Arc数据，并允许团队自定义扩展与隐私策略。如果您正在评估替代方案，我可以为您安排一次15分钟的技术演示，看看是否契合您的需求。"}, {"idx": 10, "id": "c350ce9ffa2cc369ba25e61e2ac45e76", "title": "New Alternative: openma-ai/open-managed-agents - OpenMA handles sessions, execution and recovery, so you can build and run agents with any model, any harness, any sandbox, on any cloud. An open-source, self-hostable alternative to Claude Managed Agents and OpenAI Agents API.", "url": "https://github.com/openma-ai/open-managed-agents", "source": "GitHub", "content": "Stars: 346 | Forks: 52 | Language: TypeScript | Description: OpenMA handles sessions, execution and recovery, so you can build and run agents with any model, any harness, any sandbox, on any cloud. An open-source, self-hostable alternative to Claude Managed Agents and OpenAI Agents API.", "author": "openma-ai", "timestamp": "2026-11-02T09:43:18Z", "engagement": "⭐ 346 Stars · 🍴 52 Forks", "intent_score": 82, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Claude Managed Agents", "competitor_logo": "", "category": "AI Agent 编排与运行时平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["厂商锁定风险（绑定单一模型供应商）", "数据合规与私有化部署顾虑", "跨云与多沙箱环境缺乏灵活性", "托管服务成本不可控", "对执行会话与故障恢复缺乏自主可控"], "core_issue": "团队希望摆脱对 Claude Managed Agents 等闭源托管服务的模型与云厂商绑定，寻求可自托管、跨模型跨云的 Agent 运行时方案。", "executive_summary": "该开源项目以 346 星、52 分支的早期热度，明确对标 Claude Managed Agents 与 OpenAI Agents API，反映出市场对 Agent 基础设施“去厂商锁定”的真实需求正在形成。目标客户集中在需要私有化部署与多模型灵活性的研发型团队，属于高意向的替代型采购信号。", "tactical_action_plan": "以“模型与云中立、可自托管”为核心卖点，量化对比托管方案的锁定成本与合规风险，提供迁移路径与 POC 支持。\n针对会话管理、执行与故障恢复等关键能力做技术对标演示，突出跨沙箱、跨云的一致性运维体验，降低架构师的评估门槛。", "suggested_pitch": "您好，注意到你们在关注 OpenMA 这类可自托管的 Agent 运行时方案。很多团队正因模型与云厂商绑定、数据合规和托管成本而寻求替代。如果你们正在评估从 Claude Managed Agents 迁移，我们可以提供一份跨模型、可私有化部署的架构对比与 POC 方案，帮你们在不牺牲会话与故障恢复能力的前提下降低锁定风险，方便约 20 分钟聊聊吗？"}];
+        const LEADS_DATA = [{"idx": 1, "id": "62b39928a591c9cdbdc308b5fe2b0176", "title": "Looking for an alternative to Jira that doesn't cost an arm and a leg", "url": "https://news.ycombinator.com/item?id=39821455", "source": "Hacker News", "content": "Our team just crossed 25 people and Atlassian's per-seat pricing skyrocketed. The UI is sluggish and our engineers hate it. Any lightweight alternatives for sprint tracking?", "author": "tech_founder_99", "timestamp": "2026-11-02 08:12:00", "engagement": "🔥 142 关注 · 💬 84 条讨论", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Jira", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "category": "研发项目协同", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["按席位定价过高", "访问响应慢", "工程师用户体验差"], "core_issue": "团队规模扩大至25人后，Atlassian按席位定价导致成本激增，同时Jira界面卡顿引发工程师不满，促使团队寻求轻量级替代方案。", "executive_summary": "该信号表明，一个25人研发团队因Jira的按席位定价模式导致成本飙升，且UI性能问题引发工程师抵触，正积极寻找轻量级替代品。这反映了中型研发团队对成本敏感且重视开发者体验的趋势，是竞品切入的绝佳机会。", "tactical_action_plan": "强调按活跃用户或固定费率定价，避免按席位收费，直接对比Jira的25人成本，展示可节省的金额。\n突出轻量级、高性能的界面和开发者友好的体验，提供免费迁移支持和试用，降低切换门槛。", "suggested_pitch": "您好，看到您团队正为Jira的按席位定价和性能问题困扰。我们提供轻量级项目协同工具，采用固定费率或按活跃用户计费，25人团队成本仅为Jira的一小部分，且界面流畅，工程师上手快。可为您安排免费演示和迁移支持，欢迎了解。"}, {"idx": 2, "id": "549acdfe4e1d11408d18f323267635ef", "title": "Switching from Salesforce to something modern for a 15-person sales team?", "url": "https://reddit.com/r/SaaS/comments/1gx891a", "source": "Reddit r/SaaS", "content": "Salesforce implementation has been a nightmare for 6 months. Spent $15k and nobody is logging calls. We need a simple, intuitive CRM with good email sync. Budget is around $30-50/user/mo.", "author": "b2b_growth_lead", "timestamp": "2026-11-02 07:45:10", "engagement": "🔥 96 赞同 · 💬 45 条建议", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Salesforce", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "category": "客户关系管理(CRM)软件", "buyer_persona": "SaaS销售主管 / 销售运营负责人", "churn_drivers": ["实施复杂且周期长", "总体拥有成本高（已花费$15k）", "用户采用率低（无人记录通话）", "缺乏简单直观的界面", "邮件同步体验不佳"], "core_issue": "Salesforce实施6个月后失败，团队无人使用且已投入$15k，急需简单直观、邮件同步良好的替代CRM。", "executive_summary": "该信号显示一个15人销售团队因Salesforce实施复杂、成本高且用户采用率极低而积极寻求替代方案，预算为$30-50/用户/月。这是高转化意向的换购机会，买家重视简单性、易用性和邮件同步功能。", "tactical_action_plan": "强调快速部署和开箱即用的邮件同步功能，对比Salesforce漫长的实施周期和高昂成本。\n提供针对15人团队的精简版演示，突出直观界面和低培训成本，并给出透明的按用户定价。", "suggested_pitch": "您好，看到您提到Salesforce实施遇到困难，团队使用率低。我们专注于为中小销售团队提供简单直观的CRM，内置双向邮件同步，通常1天内即可上线。许多从Salesforce迁移的客户反馈，团队采用率大幅提升。如果您愿意，我可以为您安排一个15分钟的演示，看看是否适合您的团队。"}, {"idx": 3, "id": "e25022a16c07aec76d4d520da695816c", "title": "有没有好用的国内代替 Notion 的知识库？企微协同需求", "url": "https://www.v2ex.com/t/1089234", "source": "V2EX", "content": "公司网络访问 Notion 经常加载慢，团队协作还要翻墙很不方便。希望找一个支持私有化部署或者国内云端稳定、能无缝对接企业微信的文档工具，付费也可以接受。", "author": "code_artisan", "timestamp": "2026-11-02 09:20:00", "engagement": "💬 32 条回帖", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Notion", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/notion.svg", "category": "企业协同知识库", "buyer_persona": "企业IT决策人", "churn_drivers": ["国内访问加载慢", "团队协作需翻墙", "缺乏企业微信集成", "数据合规与私有化部署需求"], "core_issue": "公司网络访问Notion经常加载慢，团队协作需翻墙且无法无缝对接企业微信，导致效率低下并存在合规风险。", "executive_summary": "该V2EX用户代表了一个典型的企业级替换场景：因Notion在国内的访问性能与合规问题，主动寻求支持私有化部署或国内云端稳定、并能无缝集成企业微信的知识库工具，且明确表示付费意愿。这显示了高购买意向和明确的决策驱动因素，是竞品替换的优质销售线索。", "tactical_action_plan": "强调国内云端稳定性和私有化部署选项，直接对比Notion的访问延迟和翻墙风险，提供性能测试数据或客户案例。\n突出与企业微信的无缝集成能力，展示单点登录、消息通知、文档同步等具体功能，并提及数据合规认证（如等保）以消除安全顾虑。", "suggested_pitch": "您好，看到您在V2EX上提到寻找Notion的国内替代方案，我们正好有一款专为企业协同设计的知识库工具，支持私有化部署和国内云端稳定访问，并且深度集成企业微信，无需翻墙即可流畅协作。许多从Notion迁移过来的客户反馈访问速度提升明显，且数据合规性有保障。如果您有兴趣，我可以为您安排一个简短的演示，看看是否满足您的需求。"}, {"idx": 4, "id": "59ceeb8b74abb1a2d94d8d9b517a8358", "title": "Migrating away from Datadog to an open-source observability stack", "url": "https://dev.to/observability_fan/migrating-away-from-datadog-cost-breakdown-199", "source": "Dev.to", "content": "Our monthly Datadog bill reached $8,500 for custom metrics and APM. Looking for a modern SigNoz or Prometheus alternative that our DevOps team can self-host.", "author": "cloud_architect_dan", "timestamp": "2026-11-02 04:30:00", "engagement": "💬 28 讨论 · 👍 65 赞同", "intent_score": 95, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Datadog", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/datadog.svg", "category": "云可观测性平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["自定义指标与APM费用过高", "按主机/指标计费模式导致成本不可控", "希望自托管以降低长期成本"], "core_issue": "Datadog月度账单因自定义指标和APM费用飙升至8500美元，触发团队寻求可自托管的开源替代方案。", "executive_summary": "该信号表明中大型企业因Datadog按量计费模式导致成本失控，正积极评估SigNoz、Prometheus等开源可观测性方案。这反映了云原生监控领域对成本透明度和自托管能力的强烈需求，是竞品切入的关键窗口。", "tactical_action_plan": "强调自托管方案的总拥有成本优势，提供与Datadog账单对比的TCO测算工具，突出长期成本节省。\n展示开源方案在自定义指标和APM上的无缝迁移能力，提供迁移支持服务和技术验证POC，降低切换风险。", "suggested_pitch": "您好，看到您提到Datadog账单因自定义指标和APM达到8500美元，我们理解成本压力。我们的自托管可观测性方案能帮助您将相关成本降低60%以上，同时保持全功能APM和自定义指标支持。是否方便安排一次15分钟的技术交流，为您演示迁移路径和成本对比？"}, {"idx": 5, "id": "b6fe919b87c5f410c4edb82c394874e3", "title": "求推荐云服务器资源", "url": "https://www.v2ex.com/t/1253878", "source": "V2EX", "content": "国内大厂的收费太贵了，有没老哥推荐便宜可靠的云服务器厂商资源，谢谢啦", "author": "JacksonTam", "timestamp": "2026-11-02 17:05:06", "engagement": "💬 2 条回帖", "intent_score": 88, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "阿里云", "competitor_logo": "", "category": "云服务器 / 云计算基础设施", "buyer_persona": "中小企业技术负责人 / 独立开发者", "churn_drivers": ["国内大厂定价过高", "成本敏感", "寻求高性价比替代方案", "对可靠性的顾虑"], "core_issue": "用户认为国内头部云厂商（如阿里云、腾讯云）收费过高，主动寻求更便宜且可靠的云服务器替代资源。", "executive_summary": "该信号来自V2EX技术社区，属于典型的价格驱动型迁移意向，用户已明确表达对国内大厂云服务器成本的不满并主动征集替代方案。此类用户决策周期短、比价意愿强，是云厂商与中小云服务商争夺的高转化客群。", "tactical_action_plan": "以同规格实例的三年总拥有成本（TCO）对比表切入，突出价格优势并附上SLA与可用性承诺，直接回应“便宜且可靠”的双重诉求。\n提供免费试用额度或迁移补贴，并强调备案支持、工单响应速度与数据迁移协助，降低用户从大厂切换的决策风险。", "suggested_pitch": "看到您在V2EX上提到国内大厂云服务器费用偏高，我们在同等配置下价格通常能省30%-50%，同时提供99.9% SLA和7×24小时工单支持。如果您方便，我可以按您当前的实例规格做一份费用对比，并附上免费试用额度，您先实测再决定是否迁移。"}, {"idx": 6, "id": "4d6fa2f26a0b762626f6bdb7efdf287a", "title": "New Alternative: OpenSign - The open source alternative to DocuSign and PandaDoc", "url": "https://github.com/OpenSignLabs/OpenSign", "source": "GitHub", "content": "Stars: 4200 | Language: TypeScript | DocuSign recently increased API pricing by 40%. OpenSign provides a self-hosted, tamper-proof electronic signature platform.", "author": "OpenSignLabs", "timestamp": "2026-11-02 05:10:00", "engagement": "⭐ 4.2k Stars · 🍴 310 Forks", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "DocuSign", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg", "category": "电子签名与文档管理", "buyer_persona": "企业IT决策人 / 采购与法务负责人", "churn_drivers": ["API定价上涨40%", "按席位/用量计费成本过高", "数据主权与合规顾虑", "缺乏自托管选项"], "core_issue": "DocuSign API 涨价 40% 直接触发企业寻求可自托管、成本可控的电子签名替代方案。", "executive_summary": "DocuSign 近期 API 提价 40% 正在加速开源替代品的社区关注度，OpenSign 以 4200 星和 TypeScript 技术栈成为高潜力挑战者。企业买家对电子签名成本敏感度上升，自托管与防篡改能力成为差异化采购要素。", "tactical_action_plan": "以 TCO 对比切入：量化 DocuSign 涨价后的年度 API 成本，突出 OpenSign 自托管无按量计费的优势。\n针对合规敏感行业强调数据主权与防篡改审计能力，提供私有化部署与迁移支持方案。", "suggested_pitch": "您好，注意到 DocuSign 近期 API 涨价 40% 可能影响您的电子签名成本结构。我们提供可自托管、防篡改的电子签名方案，支持平滑迁移且无按量计费，是否方便用 15 分钟帮您做一份成本对比评估？"}, {"idx": 7, "id": "dbbf3032199eb70ab49b324703a12fb9", "title": "Show HN: People you know, an end-to-end encrypted private Instagram replacement", "url": "https://peopleyouk.now/", "source": "Hacker News", "content": "I built an alternative to popular social networks because I was sick of the unending enshittification of instagram. Every UX change in recent years intended to make their app more addictive to teenagers has made me want to use it less, but I don&#x27;t want to lose contact with the actual people that are close to me. First it was stories to make it your job to open the app every day, and then &quot;everything is a reel&quot; to try to get you to scroll infinitely.\u003cp\u003eThis app is a more minimalist", "author": "jsbg", "timestamp": "2026-11-02T00:15:38Z", "engagement": "🔥 3 关注", "intent_score": 85, "intent_level": "🔥 极高价值 · 明确采购/替换意图", "competitor": "Instagram", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg", "category": "端到端加密社交应用", "buyer_persona": "隐私意识强的个人用户 / 小型私密社群组织者", "churn_drivers": ["算法驱动成瘾性设计", "强制每日打开的故事功能", "无限滚动短视频流", "隐私泄露与数据滥用担忧", "UX过度商业化"], "core_issue": "用户因Instagram不断推出成瘾性UX变更和隐私问题，希望寻找一个极简、端到端加密的替代品来与亲密联系人保持联系。", "executive_summary": "该信号显示用户对主流社交平台Instagram的成瘾性设计和隐私实践产生强烈不满，主动寻求端到端加密的极简替代方案。这反映了隐私优先社交工具的市场需求正在增长，尤其吸引注重数据主权的个人用户和小型私密社群。", "tactical_action_plan": "强调端到端加密和极简设计，直接对比Instagram的算法干扰和隐私风险，突出‘无成瘾性’和‘数据自主’价值。\n针对用户对‘失去亲密联系’的担忧，展示如何通过私密群组和简洁交互维护真实关系，并提供迁移工具或邀请机制降低切换成本。", "suggested_pitch": "您好，看到您对Instagram的成瘾性设计和隐私问题感到困扰。我们的端到端加密社交应用专为注重隐私和真实连接的用户设计，无算法推荐、无无限滚动，只提供极简的私密分享空间。欢迎体验如何在不被干扰的情况下与亲密好友保持联系。"}, {"idx": 8, "id": "b1d4ffb438f4cb86bc5641b9dbb0d970", "title": "Cra Browser: open-source Arc replacement for macOS", "url": "https://github.com/VictorKildahl/cra", "source": "Hacker News", "content": "Cra Browser: open-source Arc replacement for macOS", "author": "nateb2022", "timestamp": "2026-11-02T03:53:24Z", "engagement": "🔥 1 关注", "intent_score": 75, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Arc Browser", "competitor_logo": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "category": "桌面浏览器 / 生产力工具", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["闭源产品缺乏透明度", "对数据隐私和厂商锁定的担忧", "希望获得可定制和可审计的浏览器替代方案"], "core_issue": "用户因对 Arc 浏览器闭源性质及潜在数据控制问题的不满，主动寻找开源替代方案以保障自主可控。", "executive_summary": "Hacker News 上出现针对 Arc 浏览器的开源替代项目 Cra Browser，表明技术社区对闭源浏览器产品的信任度下降，开源可控成为关键购买驱动力。该信号显示 macOS 开发者群体中存在从 Arc 迁移至开源方案的真实需求，为竞品提供了切入机会。", "tactical_action_plan": "强调开源代码可审计、数据本地化存储，直接回应 Arc 闭源带来的隐私与锁定顾虑。\n提供一键迁移工具和配置导入功能，降低从 Arc 切换的技术门槛，并展示社区活跃度与长期维护承诺。", "suggested_pitch": "您好，注意到您在关注 Arc 的开源替代方案。我们的浏览器同样开源可审计，支持数据完全本地化，并提供从 Arc 一键迁移配置的工具。如果您希望获得更透明、可定制的浏览体验，欢迎了解我们的方案，我可以为您安排演示或提供迁移指南。"}, {"idx": 9, "id": "974cf2c0b014a62a3bb8f39eefe95f6c", "title": "New Alternative: Paul-Carouge/mellow - A calm, self-hostable alternative to Discord, written in Rust.", "url": "https://github.com/Paul-Carouge/mellow", "source": "GitHub", "content": "Stars: 0 | Forks: 0 | Language: Rust | Description: A calm, self-hostable alternative to Discord, written in Rust.", "author": "Paul-Carouge", "timestamp": "2026-11-02T09:46:53Z", "engagement": "⭐ 0 Stars · 🍴 0 Forks", "intent_score": 75, "intent_level": "⚡ 优质商机 · 正在调研评估方案", "competitor": "Discord", "competitor_logo": "", "category": "团队即时通讯与社区协作平台", "buyer_persona": "研发架构师 / 技术主管", "churn_drivers": ["Discord 数据隐私与合规顾虑", "希望自托管以掌控数据主权", "对 Discord 商业化与功能膨胀不满", "寻求更轻量、低干扰的沟通体验", "偏好 Rust 技术栈带来的性能与安全"], "core_issue": "用户因对 Discord 的数据隐私、商业化及干扰性不满，主动寻找可自托管、更轻量的 Rust 替代方案。", "executive_summary": "GitHub 上出现一个自托管 Discord 替代品项目，虽星标为零，但明确指向 Discord 在隐私、自托管和轻量体验方面的市场缺口。该信号表明技术型买家对数据主权和低干扰协作工具存在真实需求，是竞品替代的早期机会。", "tactical_action_plan": "强调自托管与数据主权：对比 Discord 的云端数据存储，突出本地部署、数据完全可控、符合企业合规要求。\n定位轻量与低干扰：针对 Discord 功能臃肿和通知干扰，展示简洁界面、可定制通知和专注模式，吸引追求效率的研发团队。", "suggested_pitch": "您好，注意到您在探索 Discord 的自托管替代方案。我们提供类似 Rust 技术栈的轻量团队通讯工具，支持完全自托管、数据主权和低干扰体验，或许能匹配您的需求。方便聊聊您的具体场景吗？"}];
         const BRAND_ICONS = {"jira": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "atlassian jira": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jira.svg", "salesforce": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "salesforce crm": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg", "notion": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/notion.svg", "datadog": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/datadog.svg", "docusign": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docusign.svg", "instagram": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg", "arc": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "arc browser": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arc.svg", "github": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/github.svg", "slack": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/slack.svg", "docker": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docker.svg", "figma": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/figma.svg", "hubspot": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/hubspot.svg", "google": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/google.svg", "trello": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/trello.svg", "firebase": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/firebase.svg"};
 
         let currentCategory = 'all';
         let currentCompetitor = 'ALL';
         let currentViewMode = 'table';
         let activeLeadId = null;
+
+        // Security: Universal HTML & URL sanitization
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function sanitizeUrl(url) {
+            if (!url) return '#';
+            const trimmed = String(url).trim();
+            if (/^https?:\/\//i.test(trimmed)) {
+                return trimmed;
+            }
+            return '#';
+        }
 
         // CRM Status config (shadcn neutral palette)
         const STATUS_CLASSES = {
@@ -417,7 +439,7 @@
         function getBrandLogoHtml(name, size = 'w-3.5 h-3.5') {
             const key = (name || '').toLowerCase().trim();
             if (BRAND_ICONS[key]) {
-                return `<img src="${BRAND_ICONS[key]}" class="${size} inline-block object-contain flex-shrink-0" alt="${name}" loading="lazy" />`;
+                return `<img src="${BRAND_ICONS[key]}" class="${size} inline-block object-contain flex-shrink-0" alt="${escapeHtml(name)}" loading="lazy" />`;
             }
             return `<svg class="${size} text-zinc-400 inline-block flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`;
         }
@@ -503,6 +525,12 @@
                 const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES['待跟进'];
                 const logoHtml = getBrandLogoHtml(lead.competitor);
 
+                const cleanTitle = escapeHtml(lead.title);
+                const cleanComp = escapeHtml(lead.competitor);
+                const cleanPersona = escapeHtml(lead.buyer_persona);
+                const cleanSource = escapeHtml(lead.source);
+                const cleanEngagement = escapeHtml(lead.engagement || '⚡ 活跃求助');
+
                 // Fixed badge with whitespace-nowrap and dot indicator
                 const scoreBadge = lead.intent_score >= 85
                     ? `<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>${lead.intent_score}分 · 极高潜客</span>`
@@ -510,7 +538,7 @@
 
                 // Subtle badges for churn drivers instead of long harsh red text
                 const churnTagsHtml = lead.churn_drivers.slice(0, 2).map(d =>
-                    `<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/60">${d}</span>`
+                    `<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200/60">${escapeHtml(d)}</span>`
                 ).join(' ');
 
                 return `
@@ -520,22 +548,22 @@
                     <td class="py-3 px-4 whitespace-nowrap">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
                             ${logoHtml}
-                            <span>${lead.competitor}</span>
+                            <span>${cleanComp}</span>
                         </span>
                     </td>
                     <td class="py-3 px-4 min-w-[340px]">
                         <div class="font-semibold text-zinc-900 group-hover:text-emerald-700 transition-colors line-clamp-1 mb-1 leading-snug">
-                            ${lead.title}
+                            ${cleanTitle}
                         </div>
                         <div class="flex items-center gap-2 text-[11px] text-zinc-500">
                             ${churnTagsHtml}
                             <span class="text-zinc-300">•</span>
-                            <span class="text-zinc-500 truncate">${lead.buyer_persona}</span>
+                            <span class="text-zinc-500 truncate">${cleanPersona}</span>
                         </div>
                     </td>
                     <td class="py-3 px-4 whitespace-nowrap">
-                        <div class="text-[11px] font-medium text-zinc-800">${lead.engagement || '⚡ 活跃求助'}</div>
-                        <div class="text-[10px] text-zinc-400 font-mono">${lead.source}</div>
+                        <div class="text-[11px] font-medium text-zinc-800">${cleanEngagement}</div>
+                        <div class="text-[10px] text-zinc-400 font-mono">${cleanSource}</div>
                     </td>
                     <td class="py-3 px-4 whitespace-nowrap" onclick="event.stopPropagation()">
                         <button onclick="cycleStatus('${lead.id}')" class="px-2.5 py-1 rounded-md text-xs font-semibold border transition-all ${statusClass} shadow-2xs">
@@ -570,8 +598,17 @@
                 const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES['待跟进'];
                 const logoHtml = getBrandLogoHtml(lead.competitor);
 
+                const cleanTitle = escapeHtml(lead.title);
+                const cleanComp = escapeHtml(lead.competitor);
+                const cleanCategory = escapeHtml(lead.category);
+                const cleanAuthor = escapeHtml(lead.author);
+                const cleanPersona = escapeHtml(lead.buyer_persona);
+                const cleanSource = escapeHtml(lead.source);
+                const cleanEngagement = escapeHtml(lead.engagement || '⚡ 活跃求助');
+                const cleanUrl = sanitizeUrl(lead.url);
+
                 const churnBadges = lead.churn_drivers.map(d =>
-                    `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${d}</span>`
+                    `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${escapeHtml(d)}</span>`
                 ).join(' ');
 
                 return `
@@ -580,10 +617,10 @@
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
                                 ${logoHtml}
-                                <span>${lead.competitor}</span>
+                                <span>${cleanComp}</span>
                             </span>
-                            <span class="text-xs text-zinc-500 font-medium">${lead.category}</span>
-                            <span class="text-[11px] font-mono bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded">${lead.source}</span>
+                            <span class="text-xs text-zinc-500 font-medium">${cleanCategory}</span>
+                            <span class="text-[11px] font-mono bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded">${cleanSource}</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">${lead.intent_score}分</span>
@@ -594,13 +631,13 @@
                     </div>
 
                     <h3 class="text-base font-bold text-zinc-900 mb-2 leading-snug cursor-pointer hover:text-emerald-700 transition-colors" onclick="openDrawer('${lead.id}')">
-                        ${lead.title}
+                        ${cleanTitle}
                     </h3>
 
                     <div class="flex flex-wrap items-center gap-3 text-xs text-zinc-500 mb-3">
-                        <span>发帖人：<strong class="text-zinc-700">${lead.author}</strong></span>
-                        <span>角色：<strong class="text-zinc-700">${lead.buyer_persona}</strong></span>
-                        <span class="text-amber-700 font-medium">${lead.engagement || '⚡ 活跃求助'}</span>
+                        <span>发帖人：<strong class="text-zinc-700">${cleanAuthor}</strong></span>
+                        <span>角色：<strong class="text-zinc-700">${cleanPersona}</strong></span>
+                        <span class="text-amber-700 font-medium">${cleanEngagement}</span>
                     </div>
 
                     <div class="flex flex-wrap gap-1.5 mb-3">
@@ -608,7 +645,7 @@
                     </div>
 
                     <div class="flex items-center justify-between pt-3 border-t border-zinc-100 text-xs">
-                        <a href="${lead.url}" target="_blank" rel="noopener" class="text-blue-600 hover:underline font-medium inline-flex items-center gap-1">
+                        <a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium inline-flex items-center gap-1">
                             查看社区原帖
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </a>
@@ -628,7 +665,7 @@
             setLeadStatus(id, nextStatus);
         }
 
-        // Drawer Operations
+        // Drawer Operations with strict XSS escaping
         function openDrawer(id) {
             const lead = LEADS_DATA.find(x => x.id === id);
             if (!lead) return;
@@ -637,20 +674,20 @@
             const logoHtml = getBrandLogoHtml(lead.competitor);
 
             document.getElementById('drawerTitle').innerText = lead.title;
-            document.getElementById('drawerCompetitorBadge').innerHTML = `${logoHtml} <span>标的：${lead.competitor}</span>`;
-            document.getElementById('drawerScoreBadge').innerHTML = `<span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分 · ${lead.intent_level.split('·')[0]}</span>`;
+            document.getElementById('drawerCompetitorBadge').innerHTML = `${logoHtml} <span>标的：${escapeHtml(lead.competitor)}</span>`;
+            document.getElementById('drawerScoreBadge').innerHTML = `<span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${lead.intent_score}分 · ${escapeHtml(lead.intent_level.split('·')[0])}</span>`;
             document.getElementById('drawerAuthor').innerText = '发帖人：' + lead.author;
             document.getElementById('drawerTimestamp').innerText = lead.timestamp;
             document.getElementById('drawerEngagement').innerText = lead.engagement || '';
             document.getElementById('drawerContent').innerText = '“' + lead.content + '”';
-            document.getElementById('drawerSourceLink').href = lead.url;
+            document.getElementById('drawerSourceLink').href = sanitizeUrl(lead.url);
 
             document.getElementById('drawerChurnBadges').innerHTML = lead.churn_drivers.map(d =>
-                `<span class="px-2.5 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${d}</span>`
+                `<span class="px-2.5 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">${escapeHtml(d)}</span>`
             ).join(' ');
 
             document.getElementById('drawerExecutiveSummary').innerText = lead.executive_summary;
-            document.getElementById('drawerTactics').innerHTML = lead.tactical_action_plan.replace(/\n/g, '<br>');
+            document.getElementById('drawerTactics').innerText = lead.tactical_action_plan;
             document.getElementById('drawerPitch').innerText = lead.suggested_pitch;
 
             updateDrawerStatusUI(getLeadStatus(id));
@@ -696,15 +733,27 @@
             });
         }
 
-        // Nav & Category Filter
+        // Nav & Category Filter (Synchronized Desktop & Mobile)
         function setFilterCategory(cat, btn) {
             currentCategory = cat;
             document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('bg-zinc-800', 'text-white', 'font-semibold');
                 b.classList.add('text-zinc-400', 'font-medium');
             });
-            btn.classList.add('bg-zinc-800', 'text-white', 'font-semibold');
-            btn.classList.remove('text-zinc-400', 'font-medium');
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => {
+                b.classList.remove('bg-zinc-800', 'text-white');
+                b.classList.add('text-zinc-400');
+            });
+
+            if (btn) {
+                if (btn.classList.contains('nav-btn')) {
+                    btn.classList.add('bg-zinc-800', 'text-white', 'font-semibold');
+                    btn.classList.remove('text-zinc-400', 'font-medium');
+                } else if (btn.classList.contains('mobile-nav-btn')) {
+                    btn.classList.add('bg-zinc-800', 'text-white');
+                    btn.classList.remove('text-zinc-400');
+                }
+            }
 
             applyRender();
         }
@@ -755,6 +804,8 @@
             document.getElementById('searchInput').value = '';
             currentCategory = 'all';
             currentCompetitor = 'ALL';
+
+            // Reset competitor pills
             document.querySelectorAll('.comp-pill').forEach((b, idx) => {
                 if (idx === 0) {
                     b.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
@@ -764,10 +815,33 @@
                     b.classList.add('bg-white', 'text-zinc-700');
                 }
             });
+
+            // Reset desktop sidebar buttons
+            document.querySelectorAll('.nav-btn').forEach((b, idx) => {
+                if (idx === 0) {
+                    b.classList.add('bg-zinc-800', 'text-white', 'font-semibold');
+                    b.classList.remove('text-zinc-400', 'font-medium');
+                } else {
+                    b.classList.remove('bg-zinc-800', 'text-white', 'font-semibold');
+                    b.classList.add('text-zinc-400', 'font-medium');
+                }
+            });
+
+            // Reset mobile buttons
+            document.querySelectorAll('.mobile-nav-btn').forEach((b, idx) => {
+                if (idx === 0) {
+                    b.classList.add('bg-zinc-800', 'text-white');
+                    b.classList.remove('text-zinc-400');
+                } else {
+                    b.classList.remove('bg-zinc-800', 'text-white');
+                    b.classList.add('text-zinc-400');
+                }
+            });
+
             applyRender();
         }
 
-        // Export to CSV
+        // Export to CSV (RFC 4180 strict escaping with UTF-8 BOM)
         function exportToCSV() {
             const leads = getFilteredLeads();
             if (leads.length === 0) {
@@ -775,22 +849,27 @@
                 return;
             }
 
+            const cleanCsvCell = (val) => {
+                if (val === null || val === undefined) return '""';
+                return `"${String(val).replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`;
+            };
+
             const headers = ['序号', '意向评分', '标的竞品', '赛道', '标题', '发帖人', '社区来源', '流失诱因', '跟进状态', '链接地址', '破冰话术'];
             const rows = leads.map(l => [
                 l.idx,
                 l.intent_score,
-                `"${l.competitor.replace(/"/g, '""')}"`,
-                `"${l.category.replace(/"/g, '""')}"`,
-                `"${l.title.replace(/"/g, '""')}"`,
-                `"${l.author.replace(/"/g, '""')}"`,
-                `"${l.source.replace(/"/g, '""')}"`,
-                `"${l.churn_drivers.join(';')}"`,
-                getLeadStatus(l.id),
-                `"${l.url}"`,
-                `"${l.suggested_pitch.replace(/"/g, '""').replace(/\n/g, ' ')}"`
+                cleanCsvCell(l.competitor),
+                cleanCsvCell(l.category),
+                cleanCsvCell(l.title),
+                cleanCsvCell(l.author),
+                cleanCsvCell(l.source),
+                cleanCsvCell(l.churn_drivers.join('; ')),
+                cleanCsvCell(getLeadStatus(l.id)),
+                cleanCsvCell(l.url),
+                cleanCsvCell(l.suggested_pitch)
             ]);
 
-            const csvContent = '﻿' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
