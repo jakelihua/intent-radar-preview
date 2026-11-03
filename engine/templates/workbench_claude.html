@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IntentRadar · 线索收件箱与全景情报大盘</title>
+<title>IntentRadar 线索收件箱</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ---------- Design tokens (Claude Linear/Superhuman Style) ---------- */
+/* ---------- Design tokens ---------- */
 :root {
   --bg: #F6F6F4;
   --surface: #FFFFFF;
@@ -36,6 +36,7 @@
   --radius: 12px;
   --radius-sm: 8px;
   --font: Inter, "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
 }
 
 * { box-sizing: border-box; }
@@ -49,72 +50,61 @@ body {
   font-feature-settings: "tnum" 1;
   -webkit-font-smoothing: antialiased;
 }
-button, input, textarea, select { font: inherit; color: inherit; }
-a { color: var(--accent); text-decoration: none; }
+button, input, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
 a:hover { color: #1E3F8F; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+kbd {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px;
+  border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; background: var(--surface);
+  font-family: var(--font); font-size: 12px; font-weight: 600; color: var(--text-2); line-height: 1;
+}
 
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  height: 38px; padding: 0 14px; border-radius: var(--radius-sm);
+  height: 40px; padding: 0 16px; border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--surface); color: var(--text);
   font-weight: 500; text-decoration: none; cursor: pointer; white-space: nowrap;
-  transition: all 0.12s ease;
 }
 .btn:hover { background: var(--surface-muted); color: var(--text); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary { background: var(--text); border-color: var(--text); color: #fff; font-weight: 600; }
 .btn-primary:hover { background: #27272A; color: #fff; }
-.btn-sm { height: 34px; padding: 0 12px; font-size: 13px; }
+.btn-sm { height: 36px; padding: 0 12px; }
 .icon { width: 14px; height: 14px; flex: none; }
+.icon-16 { width: 16px; height: 16px; flex: none; }
 
 /* ---------- Top bar ---------- */
 .topbar {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px;
-  padding: 10px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 12px;
+  padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
 }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
-.brand-badge { font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-family: monospace; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
 .divider-v { width: 1px; height: 20px; background: var(--border); }
 .workspace { gap: 8px; }
 .workspace .muted { color: var(--text-3); font-weight: 400; }
-.spacer { flex: 1 1 20px; }
-
-/* View Switcher */
-.view-switch {
-  display: inline-flex; padding: 3px; background: var(--track); border-radius: var(--radius-sm); gap: 2px;
-}
-.view-tab {
-  display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
-  border: 0; border-radius: 6px; background: transparent; color: var(--text-2);
-  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
-}
-.view-tab:hover { color: var(--text); }
-.view-tab[aria-selected="true"] {
-  background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08);
-}
-
+.spacer { flex: 1 1 40px; }
 .search {
-  display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px;
+  display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px 0 12px;
   border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-muted);
-  flex: 0 1 260px; min-width: 150px;
+  flex: 0 1 300px; min-width: 160px;
 }
-.search input { border: 0; outline: 0; background: transparent; width: 100%; font-size: 13px; }
+.search:focus-within { border-color: var(--accent-ring); background: var(--surface); }
+.search input { border: 0; outline: 0; background: transparent; width: 100%; }
+.search kbd { flex: none; }
 .menu { position: relative; }
 .menu-list {
-  position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 210px;
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 200px;
   margin: 0; padding: 6px; list-style: none; background: var(--surface);
   border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.08);
 }
 .menu-list[hidden] { display: none; }
 .menu-list button {
   display: block; width: 100%; text-align: left; height: 36px; padding: 0 10px;
-  border: 0; border-radius: 6px; background: transparent; cursor: pointer; font-size: 13px;
+  border: 0; border-radius: 6px; background: transparent; cursor: pointer;
 }
 .menu-list button:hover { background: var(--track); }
-.menu-list button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ---------- Demo banner ---------- */
 .banner {
@@ -123,41 +113,21 @@ a:hover { color: #1E3F8F; }
   color: var(--warn-text); font-size: 13px;
 }
 
-/* ---------- Brand Customizer Drawer/Panel ---------- */
-.customizer-bar {
-  background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.customizer-bar[hidden] { display: none; }
-.customizer-head { display: flex; align-items: center; justify-content: space-between; }
-.customizer-title { font-size: 13px; font-weight: 700; color: var(--text); }
-.preset-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.preset-chip {
-  padding: 4px 10px; font-size: 12px; font-weight: 500; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--surface-muted); color: var(--text-2); cursor: pointer;
-}
-.preset-chip:hover { background: var(--accent-soft); border-color: var(--accent-ring); color: var(--accent); }
-.customizer-grid {
-  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 10px; align-items: flex-end; margin-top: 4px;
-}
-.customizer-field { display: flex; flex-direction: column; gap: 4px; }
-.customizer-field label { font-size: 11px; font-weight: 600; color: var(--text-3); }
-.customizer-field input, .customizer-field select {
-  padding: 6px 10px; font-size: 12px; border: 1px solid var(--border-input); border-radius: var(--radius-sm); background: var(--surface);
-}
-
-/* ---------- Layout: Inbox Master-Detail ---------- */
-.layout { display: flex; max-width: 1440px; margin: 0 auto; min-height: calc(100vh - 96px); }
+/* ---------- Layout ---------- */
+.layout { display: flex; max-width: 1440px; margin: 0 auto; min-height: calc(100vh - 100px); }
 .list-pane {
   flex: 0 0 380px; min-width: 0; background: var(--surface); border-right: 1px solid var(--border);
 }
-.detail-pane { flex: 1 1 auto; min-width: 0; padding: 28px 40px 56px; }
+.detail-pane { flex: 1 1 auto; min-width: 0; padding: 28px 40px 120px; }
 .detail { max-width: 820px; }
 
 /* ---------- List ---------- */
-.list-head { padding: 20px 20px 12px; }
+.list-head { display: flex; align-items: flex-start; gap: 8px; padding: 20px 20px 12px; }
+.list-head > div { flex: 1; min-width: 0; }
 .list-head h1 { margin: 0 0 4px; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 .list-head p { margin: 0; color: var(--text-3); font-size: 13px; }
+.select-all { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 12px; color: var(--text-2); cursor: pointer; white-space: nowrap; }
+.select-all:hover { background: var(--track); }
 .tabs { display: flex; gap: 4px; margin: 0 20px 8px; padding: 3px; background: var(--track); border-radius: var(--radius-sm); }
 .tab {
   flex: 1; height: 32px; border: 0; border-radius: 6px; background: transparent;
@@ -166,12 +136,24 @@ a:hover { color: #1E3F8F; }
 .tab .count { color: var(--text-3); font-weight: 500; margin-left: 2px; }
 .tab[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 .leads { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 4px 8px 16px; list-style: none; }
+.lead-item { position: relative; }
 .lead {
-  display: block; width: 100%; text-align: left; padding: 12px; border: 0; border-radius: 10px;
+  display: block; width: 100%; text-align: left; padding: 12px 12px 12px 42px; border: 0; border-radius: 10px;
   background: transparent; cursor: pointer;
 }
 .lead:hover { background: var(--surface-muted); }
 .lead[aria-current="true"] { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent-ring); }
+.lead-item.is-checked .lead { background: #F3F5FB; }
+.lead-item.is-checked .lead[aria-current="true"] { background: var(--accent-soft); }
+/* Checkbox sits beside (not inside) the row button: no nested interactive controls. */
+.lead-check {
+  position: absolute; left: 6px; top: 8px; z-index: 1; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;
+  opacity: 0; transition: opacity .12s;
+}
+.lead-check input { width: 16px; height: 16px; margin: 0; cursor: pointer; accent-color: var(--accent); }
+.lead-item:hover .lead-check, .lead-check:focus-within, .leads.is-selecting .lead-check { opacity: 1; }
+@media (hover: none) { .lead-check { opacity: 1; } }
 .lead-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 12px; }
 .lead-comp { font-weight: 600; color: var(--text-2); }
 .lead-date { margin-left: auto; color: var(--text-3); }
@@ -190,6 +172,7 @@ a:hover { color: #1E3F8F; }
 .chip { padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-weight: 600; }
 .title-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
 .title-row h2 { flex: 1 1 360px; margin: 0; font-size: 24px; line-height: 1.3; font-weight: 700; letter-spacing: -0.015em; }
+.title-row h2:focus { outline: none; }
 .title-actions { display: flex; gap: 8px; }
 
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0 0 28px; padding: 0; list-style: none; }
@@ -208,11 +191,12 @@ a:hover { color: #1E3F8F; }
 .section-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text-3); }
 .section-label .hint { font-weight: 400; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-.quote { margin: 0; padding: 20px 24px; font-size: 18px; line-height: 1.6; font-style: italic; }
+.quote { margin: 0; padding: 20px 24px; font-size: 18px; line-height: 1.6; }
 
 .alert { padding: 20px 24px; border: 1px solid var(--danger-border); background: var(--danger-bg); border-radius: var(--radius); }
 .alert strong { display: block; color: var(--danger); margin-bottom: 6px; }
 .alert p { margin: 0; color: #5B1A14; }
+.alert .btn { margin-top: 12px; }
 
 .fact { display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 14px 20px; }
 .fact + .fact { border-top: 1px solid var(--border-soft); }
@@ -233,99 +217,54 @@ a:hover { color: #1E3F8F; }
 .todos li { display: flex; gap: 10px; align-items: baseline; }
 .todos li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: #A1A1AA; transform: translateY(-2px); }
 
-.reply { margin: 0; padding: 18px 20px; line-height: 1.6; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: #fafaf9; border-radius: var(--radius) var(--radius) 0 0; }
-.reply-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border-soft); background: var(--surface-muted); border-radius: 0 0 var(--radius) var(--radius); }
+.reply { margin: 0; padding: 18px 20px; line-height: 1.6; }
+.reply-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border-soft); background: var(--surface-muted); border-radius: 0 0 var(--radius) var(--radius); }
+.reply-actions .kbd-hint { margin-right: auto; font-size: 12px; color: var(--text-3); display: inline-flex; align-items: center; gap: 6px; }
 
-/* ---------- Executive Dashboard Pane ---------- */
-.dashboard-pane {
-  max-width: 1440px; margin: 0 auto; padding: 24px 32px 56px; display: flex; flex-direction: column; gap: 18px;
-}
-.dashboard-pane[hidden] { display: none; }
-.dash-banner {
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-  padding: 12px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-}
-.dash-banner-left { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-.dash-pulse { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+/* ---------- Overlays (shared) ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(24,24,27,.32); z-index: 40; animation: fade .16s ease-out; }
+.scrim[hidden] { display: none; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes slide-in-right { from { transform: translateX(24px); opacity: 0; } }
+@keyframes slide-up { from { transform: translateY(100%); } }
+@keyframes pop { from { transform: translateY(8px) scale(.98); opacity: 0; } }
+@keyframes bar-in { from { transform: translate(-50%, 16px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
-.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-@media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } }
-
-.kpi-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
-  position: relative; overflow: hidden;
-}
-.kpi-card::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--kpi-bar, var(--text));
-}
-.kpi-card.c-emerald { --kpi-bar: #059669; }
-.kpi-card.c-blue { --kpi-bar: var(--accent); }
-.kpi-card.c-indigo { --kpi-bar: #4F46E5; }
-.kpi-card.c-amber { --kpi-bar: #D97706; }
-
-.kpi-header { display: flex; align-items: center; justify-content: space-between; }
-.kpi-title { font-size: 12px; font-weight: 600; color: var(--text-2); }
-.kpi-badge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: var(--track); color: var(--text-2); }
-.kpi-value-row { display: flex; align-items: baseline; gap: 8px; }
-.kpi-val { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); line-height: 1; }
-.kpi-sub { font-size: 12px; color: var(--text-3); }
-.kpi-prog-bar { height: 5px; width: 100%; background: var(--track); border-radius: 999px; overflow: hidden; margin-top: 4px; display: flex; }
-.kpi-prog-fill { height: 100%; transition: width 0.3s ease; }
-
-.chart-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 1024px) { .chart-grid { grid-template-columns: 1fr; } }
-
-.chart-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;
-}
-.chart-header { display: flex; align-items: center; justify-content: space-between; }
-.chart-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
-.chart-hint { font-size: 12px; color: var(--text-3); }
-
-.bar-list { display: flex; flex-direction: column; gap: 8px; }
-.bar-row {
-  display: flex; align-items: center; justify-content: space-between; padding: 8px 12px;
-  border-radius: var(--radius-sm); background: var(--surface-muted); border: 1px solid var(--border-soft);
-  cursor: pointer; transition: all 0.12s ease; position: relative; overflow: hidden;
-}
-.bar-row:hover { background: var(--accent-soft); border-color: var(--accent-ring); }
-.bar-row-fill { position: absolute; top: 0; bottom: 0; left: 0; background: rgba(43, 89, 195, 0.08); pointer-events: none; }
+.icon-btn { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-2); cursor: pointer; }
+.icon-btn:hover { background: var(--surface-muted); }
 
 /* ---------- Review drawer ---------- */
-.scrim { position: fixed; inset: 0; background: rgba(24,24,27,.32); z-index: 40; }
 .drawer {
   position: fixed; top: 0; right: 0; bottom: 0; z-index: 50; width: min(720px, 100%);
   display: flex; flex-direction: column; background: var(--surface); box-shadow: -12px 0 32px rgba(0,0,0,.12);
+  animation: slide-in-right .22s var(--ease);
 }
-.scrim[hidden], .drawer[hidden] { display: none; }
+.drawer[hidden] { display: none; }
 .drawer-head { display: flex; align-items: flex-start; gap: 16px; padding: 24px 28px 20px; border-bottom: 1px solid var(--border); }
 .drawer-head .eyebrow { font-size: 12px; font-weight: 600; color: var(--text-3); margin-bottom: 4px; }
 .drawer-head h2 { margin: 0 0 4px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
 .drawer-head p { margin: 0; color: var(--text-3); font-size: 13px; }
-.icon-btn { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-2); cursor: pointer; }
-.drawer-body { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 24px; }
 .drawer-body h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .req { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 16px; }
 .req + .req { border-top: 1px solid var(--border-soft); }
-.req-title { font-weight: 500; font-size: 13.5px; }
-.req-src { font-size: 12.5px; color: var(--text-3); }
+.req-title { font-weight: 500; }
+.req-src { font-size: 13px; color: var(--text-3); }
 .seg { display: flex; padding: 3px; background: var(--track); border-radius: var(--radius-sm); }
 .seg button { height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; font-size: 13px; color: var(--text-2); cursor: pointer; }
 .seg button[aria-checked="true"] { background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.08); font-weight: 600; color: var(--text); }
 .seg button[aria-checked="true"][data-v="no"] { color: var(--danger); }
 .seg button[aria-checked="true"][data-v="tbd"] { color: var(--infer-text); }
-.add-req { display: flex; align-items: center; gap: 6px; width: 100%; height: 42px; padding: 0 16px; border: 0; border-top: 1px solid var(--border-soft); border-radius: 0 0 var(--radius) var(--radius); background: var(--surface-muted); font-size: 13px; color: var(--text-2); cursor: pointer; }
+.add-req { display: flex; align-items: center; gap: 6px; width: 100%; height: 44px; padding: 0 16px; border: 0; border-top: 1px solid var(--border-soft); border-radius: 0 0 var(--radius) var(--radius); background: var(--surface-muted); font-size: 13px; color: var(--text-2); cursor: pointer; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field > span { font-size: 13px; color: var(--text-2); }
-.field input, .field textarea, .field select { padding: 10px 12px; border: 1px solid var(--border-input); border-radius: var(--radius-sm); background: var(--surface); }
-.field textarea { resize: vertical; min-height: 72px; }
+.field input, .field textarea { padding: 10px 12px; border: 1px solid var(--border-input); border-radius: var(--radius-sm); background: var(--surface); }
+.field textarea { resize: vertical; min-height: 84px; }
 .check { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
 .check input { width: 18px; height: 18px; margin: 1px 0 0; }
-.check small { display: block; font-size: 12px; color: var(--text-3); }
-.note { display: flex; gap: 10px; padding: 12px 14px; background: var(--bg); border-radius: 10px; font-size: 12.5px; color: var(--text-2); }
+.check small { display: block; font-size: 13px; color: var(--text-3); }
+.note { display: flex; gap: 10px; padding: 12px 14px; background: var(--bg); border-radius: 10px; font-size: 13px; color: var(--text-2); }
 .verdict { font-size: 13px; font-weight: 500; }
 .verdict.ok { color: var(--text-2); }
 .verdict.block { color: var(--danger); }
@@ -333,18 +272,94 @@ a:hover { color: #1E3F8F; }
 .drawer-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 28px; border-top: 1px solid var(--border); background: var(--surface-muted); }
 .drawer-foot .verdict { flex: 1 1 200px; }
 
+/* ---------- Guide modal ---------- */
+.modal {
+  position: fixed; z-index: 50; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(760px, calc(100% - 32px)); max-height: min(720px, calc(100vh - 48px));
+  display: flex; flex-direction: column; background: var(--surface); border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.18);
+}
+.modal[hidden] { display: none; }
+.modal > .modal-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; animation: pop .2s var(--ease); }
+.modal-head { display: flex; align-items: flex-start; gap: 16px; padding: 24px 28px 16px; }
+.modal-head h2 { margin: 0 0 4px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.modal-head p { margin: 0; font-size: 13px; color: var(--text-3); }
+.guide-tabs { display: flex; gap: 4px; margin: 0 28px; padding: 3px; background: var(--track); border-radius: var(--radius-sm); overflow-x: auto; }
+.guide-tab { flex: 1 0 auto; height: 34px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; white-space: nowrap; }
+.guide-tab[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.guide-tab .num { color: var(--text-3); margin-right: 4px; font-weight: 500; }
+.guide-body { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.guide-panel[hidden] { display: none; }
+.guide-panel h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+.guide-panel p { margin: 0 0 12px; color: var(--text-2); }
+.guide-panel .lead-in { font-size: 15px; color: var(--text); }
+.guide-figure { margin: 4px 0 20px; padding: 20px; background: var(--bg); border-radius: var(--radius); }
+.funnel { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.funnel li { display: flex; flex-direction: column; gap: 6px; }
+.funnel .bar { height: 4px; border-radius: 2px; background: var(--text); }
+.funnel li:nth-child(3) .bar { background: var(--accent); }
+.funnel li:nth-child(4) .bar { background: var(--pending); }
+.funnel b { font-size: 13px; }
+.funnel span { font-size: 12px; color: var(--text-3); }
+.rule-list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.rule-list li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; }
+.rule-list .mark { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: var(--track); color: var(--text-2); }
+.rule-list .mark.no { background: var(--danger-bg); color: var(--danger); }
+.rule-list .mark.yes { background: #EDEDEA; color: var(--text); }
+.rule-list strong { font-weight: 600; }
+.example { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.example + .example { margin-top: 8px; }
+.example q { font-size: 13px; color: var(--text-2); quotes: "“" "”"; }
+.example .tag { font-size: 12px; font-weight: 600; white-space: nowrap; }
+.example .tag.stop { color: var(--danger); }
+.example .tag.go { color: var(--accent); }
+.seg-demo { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg-demo div { flex: 1 1 180px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.seg-demo b { display: block; margin-bottom: 4px; }
+.seg-demo .no b { color: var(--danger); }
+.seg-demo .tbd b { color: var(--infer-text); }
+.keys { width: 100%; border-collapse: collapse; }
+.keys th, .keys td { text-align: left; padding: 10px 0; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
+.keys th { width: 120px; font-weight: 400; }
+.keys th kbd + kbd { margin-left: 4px; }
+.keys td { color: var(--text-2); }
+.modal-foot { display: flex; align-items: center; gap: 8px; padding: 16px 28px; border-top: 1px solid var(--border); }
+.modal-foot .pager { margin-right: auto; font-size: 13px; color: var(--text-3); }
+
+/* ---------- Batch floating bar ---------- */
+.batch-bar {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 30;
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; max-width: calc(100% - 32px); width: max-content;
+  padding: 8px 8px 8px 18px; background: var(--text); color: #fff; border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.22); animation: bar-in .2s var(--ease);
+}
+.batch-bar[hidden] { display: none; }
+.batch-bar .count { font-size: 13px; font-weight: 600; margin-right: 8px; white-space: nowrap; }
+.batch-bar .msg { font-size: 13px; margin-right: 8px; max-width: 420px; }
+.bar-btn {
+  height: 36px; padding: 0 14px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px;
+  background: rgba(255,255,255,.06); color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap;
+}
+.bar-btn:hover { background: rgba(255,255,255,.14); }
+.bar-btn.primary { background: #fff; color: var(--text); border-color: #fff; font-weight: 600; }
+.bar-btn.primary:hover { background: #F1F1EE; }
+.bar-btn.danger { color: #FFD9D4; }
+.bar-btn.ghost { border-color: transparent; background: transparent; color: #D4D4D8; }
+.batch-bar :focus-visible { outline-color: #fff; }
+
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 60;
   padding: 10px 16px; border-radius: 10px; background: var(--text); color: #fff; font-size: 13px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.16);
+  box-shadow: 0 8px 24px rgba(0,0,0,.16); animation: fade .16s ease-out;
 }
+.toast.lifted { bottom: 88px; }
 .toast[hidden] { display: none; }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive: phone = list OR detail; drawer = bottom sheet ---------- */
 @media (max-width: 860px) {
   .topbar { padding: 10px 16px; }
-  .workspace .muted, .divider-v { display: none; }
+  .workspace .muted, .divider-v, .search kbd, .help-label { display: none; }
   .search { order: 10; flex: 1 1 100%; }
   .banner { padding: 8px 16px; }
   .layout { display: block; }
@@ -358,11 +373,37 @@ a:hover { color: #1E3F8F; }
   .fact { grid-template-columns: 64px minmax(0, 1fr); gap: 4px 12px; padding: 12px 16px; }
   .fact .prov { grid-column: 2; justify-self: start; }
   .step-status { font-size: 11px; }
-  .reply-actions .btn { flex: 1; height: 44px; }
-  .drawer-head, .drawer-body, .drawer-foot {{ padding-left: 16px; padding-right: 16px; }
+  .reply-actions .kbd-hint { display: none; }
+  .reply-actions .btn { flex: 1; height: 48px; }
+  .lead { padding-left: 48px; }
+  .lead-check { width: 44px; height: 44px; left: 2px; top: 4px; }
+  .lead-check input { width: 20px; height: 20px; }
+
+  .drawer {
+    top: 8px; left: 0; right: 0; width: 100%;
+    border-radius: 16px 16px 0 0; box-shadow: 0 -12px 32px rgba(0,0,0,.16);
+    animation: slide-up .26s var(--ease);
+  }
+  .drawer::before { content: ""; position: absolute; top: 6px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: var(--pending); }
+  .drawer-head { position: sticky; top: 0; padding: 20px 16px 14px; }
+  .drawer-head .icon-btn { width: 44px; height: 44px; }
+  .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
+  .drawer-foot { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .drawer-foot .btn { flex: 1; height: 48px; }
   .req { grid-template-columns: 1fr; gap: 10px; }
-  .seg button { flex: 1; height: 40px; }
-  .dashboard-pane { padding: 16px; }
+  .seg button { flex: 1; height: 44px; font-size: 14px; }
+
+  .modal { top: auto; bottom: 0; left: 0; transform: none; width: 100%; max-height: calc(100vh - 24px); border-radius: 16px 16px 0 0; }
+  .modal > .modal-inner { animation: slide-up .26s var(--ease); }
+  .modal-head, .guide-body, .modal-foot { padding-left: 16px; padding-right: 16px; }
+  .guide-tabs { margin: 0 16px; }
+  .funnel { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 14px; }
+
+  .batch-bar { left: 8px; right: 8px; bottom: 8px; transform: none; max-width: none; width: auto; flex-wrap: wrap; border-radius: 16px; padding: 10px; justify-content: center; animation: fade .16s ease-out; }
+  .batch-bar .count { width: 100%; text-align: center; margin: 0 0 2px; }
+  .batch-bar .msg { width: 100%; text-align: center; margin: 0 0 4px; max-width: none; }
+  .bar-btn { flex: 1 1 40%; height: 44px; }
+  .toast.lifted { bottom: 150px; }
 }
 </style>
 </head>
@@ -371,105 +412,52 @@ a:hover { color: #1E3F8F; }
 <header class="topbar">
   <div class="brand">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 12l6-6"/></svg>
-    <span>IntentRadar</span>
-    <span class="brand-badge">v3.3</span>
+    IntentRadar
   </div>
   <div class="divider-v"></div>
-
-  <button type="button" class="btn btn-sm workspace" id="btnToggleCustomizer" onclick="toggleCustomizerBar()" title="点击配置卖方产品能力与赛道门控">
-    <span id="activeWorkspaceBrandName">[你的产品]</span><span class="muted" id="activeWorkspaceSub">对标 Postman · Jira · Airtable 等 9 个竞品</span>
+  <button type="button" class="btn btn-sm workspace">
+    <span>[你的产品]</span><span class="muted">对标 Postman · Jira · Airtable 等 9 个竞品</span>
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
   </button>
-
-  <div class="view-switch" role="tablist" aria-label="视图模式">
-    <button type="button" class="view-tab" id="tabInbox" role="tab" aria-selected="true" onclick="switchMainView('inbox')">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2v7a2 2 0 002 2h16a2 2 0 002-2v-7z"/><path d="M5.45 5.11L2 12v0h20v0l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
-      <span>线索收件箱</span>
-    </button>
-    <button type="button" class="view-tab" id="tabDashboard" role="tab" aria-selected="false" onclick="switchMainView('dashboard')">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-      <span>全景情报大盘</span>
-    </button>
-  </div>
-
   <div class="spacer"></div>
-
   <label class="search">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#6B6B73" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
     <span class="sr-only">搜索线索</span>
-    <input id="searchInput" type="search" placeholder="搜索标题、竞品、作者 (/)" autocomplete="off">
+    <input id="search" type="search" placeholder="搜索标题、竞品、作者" autocomplete="off">
+    <kbd aria-hidden="true">/</kbd>
   </label>
-
+  <button type="button" class="btn btn-sm" id="guideBtn" aria-haspopup="dialog" aria-label="规则与指引">
+    <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 12h5"/></svg>
+    <span class="help-label">规则与指引</span>
+  </button>
   <div class="menu">
     <button type="button" class="btn btn-sm" id="exportBtn" aria-haspopup="true" aria-expanded="false" aria-controls="exportMenu">导出
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
     </button>
     <ul class="menu-list" id="exportMenu" hidden>
-      <li><button type="button" id="btnExportFilteredCsv" data-export="csv-view">当前列表（CSV）</button></li>
-      <li><button type="button" id="btnExportAllCsv" data-export="csv-all">全部线索（CSV）</button></li>
-      <li><button type="button" id="btnExportFilteredXlsx" data-export="xlsx-view">当前列表（XLSX）</button></li>
-      <li><button type="button" id="btnExportAllXlsx" data-export="xlsx-all">全部线索（XLSX）</button></li>
-      <li><button type="button" id="btnExportJson" data-export="json">核验配置（JSON）</button></li>
+      <li><button type="button" data-export="csv-view">当前列表（CSV）</button></li>
+      <li><button type="button" data-export="csv-all">全部线索（CSV）</button></li>
+      <li><button type="button" data-export="json">核验配置（JSON）</button></li>
     </ul>
   </div>
 </header>
 
 <div class="banner" role="note">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
-  <span id="bannerText"><!-- BANNER_TEXT --></span>
+  <span><strong>演示数据</strong>：10 条 Hacker News 历史帖（2020–2025），用于演练核验流程，不会推送给任何人。</span>
 </div>
 
-<!-- Seller Capability Gate Customizer Panel -->
-<section class="customizer-bar" id="brandCustomizerBar" hidden aria-label="卖方产品能力与赛道门控">
-  <div class="customizer-head">
-    <span class="customizer-title">🎯 阶段 3 卖方产品能力档案与真实身份披露（Capability & Role Gating）</span>
-    <button type="button" class="btn btn-sm" onclick="toggleCustomizerBar()">收起配置 ▲</button>
-  </div>
-  <div class="preset-chips" id="presetChips">
-    <button type="button" class="preset-chip" onclick="applyPreset('default')">默认中立核验视角</button>
-    <button type="button" class="preset-chip" onclick="applyPreset('plane')">敏捷研发协同 (适配 Jira / Linear)</button>
-    <button type="button" class="preset-chip" onclick="applyPreset('hoppscotch')">本地优先 API 客户端 (适配 Postman)</button>
-    <button type="button" class="preset-chip" onclick="applyPreset('nocodb')">私有化多维表 (适配 Airtable / Notion)</button>
-    <button type="button" class="preset-chip" onclick="applyPreset('twenty')">现代开源 CRM (适配 Salesforce / HubSpot)</button>
-  </div>
-  <div class="customizer-grid">
-    <div class="customizer-field">
-      <label for="customBrandName">卖方产品名</label>
-      <input id="customBrandName" type="text" placeholder="如: Plane / Hoppscotch" value="[你的产品]" />
-    </div>
-    <div class="customizer-field">
-      <label for="customActorRole">发送人真实角色</label>
-      <select id="customActorRole">
-        <option value="产品研发团队">身份: 产品研发团队</option>
-        <option value="官方销售顾问">身份: 官方销售顾问</option>
-        <option value="外部选型顾问">身份: 外部选型顾问</option>
-      </select>
-    </div>
-    <div class="customizer-field">
-      <label for="customTargetCompetitors">适配被替换竞品</label>
-      <input id="customTargetCompetitors" type="text" placeholder="如: Atlassian Jira, Linear" value="全部竞品" />
-    </div>
-    <div class="customizer-field">
-      <label for="customApprovedCaps">已核准真实能力 (必填)</label>
-      <input id="customApprovedCaps" type="text" placeholder="如: 原生离线执行、批量导入" value="通用标准能力" />
-    </div>
-    <div class="customizer-field">
-      <label for="customBrandLink">产品文档 URL</label>
-      <input id="customBrandLink" type="url" placeholder="https://docs..." value="https://example.com/docs" />
-    </div>
-    <button type="button" class="btn btn-primary btn-sm" id="btnApplyCustomBrand" onclick="saveCustomBrandProfile()">应用门控</button>
-  </div>
-</section>
-
-<!-- View 1: Claude Inbox Master-Detail Layout -->
 <div class="layout" id="layout" data-view="list">
-  <aside class="list-pane" aria-label="线索列表">
+  <aside class="list-pane" role="group" aria-label="核验样本列表">
     <div class="list-head">
-      <h1>线索</h1>
-      <p id="summary"></p>
+      <div>
+        <h1>线索</h1>
+        <p id="summary"></p>
+      </div>
+      <label class="select-all"><input type="checkbox" id="selectAll"> 全选</label>
     </div>
     <div class="tabs" role="tablist" aria-label="按状态筛选" id="tabs"></div>
-    <ul class="leads" id="leads" role="group" aria-label="核验样本列表"></ul>
+    <ul class="leads" id="leads"></ul>
   </aside>
 
   <main class="detail-pane" id="detailPane">
@@ -477,125 +465,203 @@ a:hover { color: #1E3F8F; }
   </main>
 </div>
 
-<!-- View 2: Executive Intelligence Overview Dashboard -->
-<section class="dashboard-pane" id="dashboardPane" hidden aria-label="全景情报大盘">
-  <div class="dash-banner">
-    <div class="dash-banner-left">
-      <span class="dash-pulse"></span>
-      <span style="font-weight: 700;">公开社区竞品替换情报全景大盘</span>
-      <span style="color: var(--text-3); font-family: monospace;">100% 官方 API 真实溯源</span>
-    </div>
-    <div style="font-size: 13px; color: var(--text-2);">
-      当前视角：<strong id="dashBrandPerspective">默认中立核验视角</strong>
-    </div>
-  </div>
+<div class="scrim" id="scrim" hidden></div>
 
-  <!-- 4 Core KPI Cards -->
-  <div class="kpi-grid" id="kpiGrid"></div>
+<!-- Capability review drawer (side sheet on desktop, bottom sheet on phone) -->
+<section class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden></section>
 
-  <!-- 3 Analytics Panels -->
-  <div class="chart-grid">
-    <!-- Funnel -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <span class="chart-title">四步连续资格核验漏斗</span>
-        <span class="chart-hint">点击阶段过滤收件箱</span>
+<!-- Rules & guide modal: static, trusted copy only -->
+<section class="modal" id="guide" role="dialog" aria-modal="true" aria-labelledby="guideTitle" hidden>
+  <div class="modal-inner">
+    <header class="modal-head">
+      <div style="flex:1;min-width:0">
+        <h2 id="guideTitle">规则与指引</h2>
+        <p>IntentRadar 只交付有原文证据、匹配你真实能力、可以合规推进的线索。下面 4 条规则决定一条线索能走多远。</p>
       </div>
-      <div class="bar-list" id="funnelBarList"></div>
+      <button type="button" class="icon-btn" data-close aria-label="关闭">
+        <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+    <div class="guide-tabs" role="tablist" aria-label="指引章节">
+      <button type="button" class="guide-tab" role="tab" id="gt-0" aria-controls="gp-0" aria-selected="true"><span class="num">1</span>四步晋级</button>
+      <button type="button" class="guide-tab" role="tab" id="gt-1" aria-controls="gp-1" aria-selected="false" tabindex="-1"><span class="num">2</span>卖方能力门控</button>
+      <button type="button" class="guide-tab" role="tab" id="gt-2" aria-controls="gp-2" aria-selected="false" tabindex="-1"><span class="num">3</span>核验抽屉</button>
+      <button type="button" class="guide-tab" role="tab" id="gt-3" aria-controls="gp-3" aria-selected="false" tabindex="-1"><span class="num">4</span>快捷键</button>
     </div>
-    <!-- Competitors -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <span class="chart-title">被替换竞品信号热度排行</span>
-        <span class="chart-hint">点击竞品联动过滤</span>
-      </div>
-      <div class="bar-list" id="competitorBarList"></div>
+    <div class="guide-body">
+      <section class="guide-panel" id="gp-0" role="tabpanel" aria-labelledby="gt-0">
+        <p class="lead-in">每条线索必须<strong>按顺序</strong>通过四步，前一步没过，后面的都不算。</p>
+        <div class="guide-figure">
+          <ol class="funnel" aria-label="四步资格">
+            <li><span class="bar" aria-hidden="true"></span><b>1 有痛点</b><span>原帖在抱怨某个具体竞品，且不是厂商自荐</span></li>
+            <li><span class="bar" aria-hidden="true"></span><b>2 在评估替代</b><span>作者在找、在比、在迁，并且有选型权</span></li>
+            <li><span class="bar" aria-hidden="true"></span><b>3 能力匹配</b><span>人工核对：你的产品能满足原帖的每个必选需求</span></li>
+            <li><span class="bar" aria-hidden="true"></span><b>4 可推进</b><span>30 天内的完整正文，联系人与权限已确认</span></li>
+          </ol>
+        </div>
+        <ul class="rule-list">
+          <li><span class="mark no" aria-hidden="true">!</span><span><strong>分数不代表资格。</strong>评分只用于排序；95 分的线索如果卡在第 2 步，也不能推进。</span></li>
+          <li><span class="mark no" aria-hidden="true">!</span><span><strong>跳级等同违规。</strong>没有完成第 3 步的能力核验，就不能以卖方身份回复或推荐产品。</span></li>
+          <li><span class="mark" aria-hidden="true">i</span><span><strong>30 天时效。</strong>超过 30 天的帖子大多已完成选型，最多停在第 3 步，只作研究参考，不会推送。</span></li>
+        </ul>
+        <div style="margin-top:20px">
+          <div class="example"><q lang="en">We use Jira, not looking to replace it — just complaining.</q><span class="tag stop">停在第 1 步：明确不换</span></div>
+          <div class="example"><q lang="en">Sadly using Jira was not my choice.</q><span class="tag stop">停在第 1 步：无选型权</span></div>
+          <div class="example"><q lang="en">My team is looking to migrate away from Postman.</q><span class="tag go">进入第 2 步：正在评估</span></div>
+        </div>
+      </section>
+
+      <section class="guide-panel" id="gp-1" role="tabpanel" aria-labelledby="gt-1" hidden>
+        <p class="lead-in">在核验任何线索之前，先在顶栏的 <strong>[你的产品]</strong> 里配置真实身份与能力。</p>
+        <div class="guide-figure">
+          <ul class="rule-list">
+            <li><span class="mark yes" aria-hidden="true">1</span><span><strong>品牌与身份</strong>：产品名，以及你在公司里的角色。回复时会以“利益相关披露：我是 X 的 Y”开头。</span></li>
+            <li><span class="mark yes" aria-hidden="true">2</span><span><strong>对标竞品</strong>：你的产品真正能替换的竞品清单。不在清单里的竞品，线索一律拦截。</span></li>
+            <li><span class="mark yes" aria-hidden="true">3</span><span><strong>已核准能力</strong>：法务或产品确认过、可以对外说的能力。回复只会引用这里的内容。</span></li>
+            <li><span class="mark yes" aria-hidden="true">4</span><span><strong>已知限制</strong>：做不到的事情。系统会在推荐时主动说明，避免过度承诺。</span></li>
+          </ul>
+        </div>
+        <ul class="rule-list">
+          <li><span class="mark no" aria-hidden="true">!</span><span><strong>严禁跨赛道推销。</strong>项目管理工具不能去回复找 API 客户端的帖子，哪怕关键词碰巧匹配。</span></li>
+          <li><span class="mark" aria-hidden="true">i</span><span><strong>核验前只做中立提问。</strong>回复草稿不提产品名，只问清规模、需求和时间线。</span></li>
+          <li><span class="mark" aria-hidden="true">i</span><span><strong>能力清单一改，旧核验全部失效。</strong>需要按新能力重新核对。</span></li>
+        </ul>
+      </section>
+
+      <section class="guide-panel" id="gp-2" role="tabpanel" aria-labelledby="gt-2" hidden>
+        <p class="lead-in">在线索详情点“开始能力核验”或按 <kbd>Enter</kbd>，逐条对照原帖的必选需求。</p>
+        <div class="guide-figure">
+          <div class="seg-demo">
+            <div><b>支持</b>你的产品已经具备，且有证据（文档、案例、截图）。</div>
+            <div class="no"><b>不支持</b>任何一项不支持，整条线索就会被拦截，不再推进。</div>
+            <div class="tbd"><b>待确认</b>需要问对方或问产品团队。有待确认项时不能进入下一步。</div>
+          </div>
+        </div>
+        <ul class="rule-list">
+          <li><span class="mark yes" aria-hidden="true">1</span><span><strong>需求来自原帖。</strong>每条需求下面标出了原文依据；原帖没提但迁移通常必需的，会单独注明。</span></li>
+          <li><span class="mark yes" aria-hidden="true">2</span><span><strong>填写联系路径与权限依据。</strong>第 4 步要求确认对方参与选型，依据会随线索一起交付给客户。</span></li>
+          <li><span class="mark" aria-hidden="true">i</span><span><strong>核验绑定原帖版本。</strong>原帖被编辑后需要重新核验。</span></li>
+          <li><span class="mark" aria-hidden="true">i</span><span><strong>批量操作。</strong>勾选多条后可批量标记支持或拦截。批量标记支持只适合需求完全相同的线索，系统会记录为“批量核验”，请事后抽查。</span></li>
+        </ul>
+      </section>
+
+      <section class="guide-panel" id="gp-3" role="tabpanel" aria-labelledby="gt-3" hidden>
+        <table class="keys">
+          <caption class="sr-only">键盘快捷键</caption>
+          <tbody>
+            <tr><th scope="row"><kbd>J</kbd></th><td>下一条线索</td></tr>
+            <tr><th scope="row"><kbd>K</kbd></th><td>上一条线索</td></tr>
+            <tr><th scope="row"><kbd>Enter</kbd></th><td>打开当前线索的能力核验</td></tr>
+            <tr><th scope="row"><kbd>X</kbd></th><td>勾选 / 取消勾选当前线索</td></tr>
+            <tr><th scope="row"><kbd>/</kbd></th><td>聚焦搜索框</td></tr>
+            <tr><th scope="row"><kbd>Esc</kbd></th><td>关闭抽屉或弹窗；在搜索框里时退出搜索</td></tr>
+            <tr><th scope="row"><kbd>?</kbd></th><td>打开本指引</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:16px;font-size:13px;color:var(--text-3)">在输入框里打字时，快捷键不会触发。抽屉或弹窗打开时，只有 <kbd>Esc</kbd> 和 <kbd>Tab</kbd> 生效。</p>
+      </section>
     </div>
-    <!-- Drivers & Provenance -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <span class="chart-title">流失驱动归因与证据可信度</span>
-        <span class="chart-hint">四维三态可信度</span>
-      </div>
-      <div class="bar-list" id="driversBarList"></div>
-    </div>
+    <footer class="modal-foot">
+      <span class="pager" id="guidePager">1 / 4</span>
+      <button type="button" class="btn" id="guidePrev">上一步</button>
+      <button type="button" class="btn btn-primary" id="guideNext">下一步</button>
+    </footer>
   </div>
 </section>
 
-<!-- Review Drawer & Scrim -->
-<div class="scrim" id="scrim" hidden></div>
-<section class="drawer" id="detailDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden inert></section>
+<!-- Batch actions -->
+<div class="batch-bar" id="batchBar" role="region" aria-label="批量操作" hidden></div>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
 "use strict";
 
-window.LEADS_DATA = <!-- LEADS_DATA_PLACEHOLDER -->;
-
 /* ============================================================
-   IntentRadar v3.3 Client Engine (Claude-Design System)
+   Data: 10 historical Hacker News posts (benchmark set).
+   The pipeline may replace LEADS with injected JSON of the same shape.
+   prov: "stated" 原文 | "inferred" 推断 | "unknown" 未知
    ============================================================ */
-const LEADS = Array.isArray(window.LEADS_DATA) && window.LEADS_DATA.length > 0 ? window.LEADS_DATA : [];
+const LEADS = [
+  { id: "hn_41648918", comp: "Postman", title: "Ask HN: What’s the Best Postman Alternative?", author: "hubraumhugo", date: "2024-09-25", replies: 10, stage: 2,
+    quote: "My team is looking to migrate away from Postman as our API client because it has become very bloated and slow.",
+    facts: [["团队规模", "研发团队，人数未披露", "stated", "My team"], ["预算", "未披露", "unknown", ""], ["决策权", "发起迁移评估的成员，审批权待确认", "inferred", "My team is looking to migrate"], ["紧迫度", "正在计划迁出", "stated", "looking to migrate away from Postman"]],
+    todos: ["团队里有多少人在用 Postman？", "已有付费预算，还是只考虑免费工具？", "替代品必须覆盖哪些能力：集合、环境变量、CI 运行？"],
+    reqs: [["替代 Postman 作为团队 API 客户端", "“migrate away from Postman as our API client”"], ["比 Postman 轻、启动快", "“it has become very bloated and slow”"], ["导入现有 Postman 集合与环境", "原帖未提，迁移时通常必需"]],
+    reply: "Curious what’s pushing the move — is it mostly performance, or also pricing and the account requirement? And which features are must-haves for your team (collections, environments, CI)? Asking before suggesting anything." },
+  { id: "hn_27018935", comp: "Atlassian Jira", title: "Ask HN: Jira Alternatives?", author: "CraftThatBlock", date: "2021-05-02", replies: 8, stage: 2,
+    quote: "We (a start-up) currently use Jira, but we have an opportunity to reevaluate our tools.",
+    facts: [["团队规模", "初创团队，人数未披露", "stated", "We (a start-up)"], ["预算", "未披露", "unknown", ""], ["决策权", "参与重新选型", "inferred", "we have an opportunity to reevaluate"], ["紧迫度", "正在重新评估工具", "stated", "opportunity to reevaluate our tools"]],
+    todos: ["团队规模与 Jira 席位数？", "已经在试哪些替代品（原帖提到 Linear）？", "迁移时必须保留哪些历史数据？"],
+    reqs: [["比 Jira 易用、配置简单", "“very clunky and hard to use”"], ["保留足够的灵活度", "“it’s very flexible”"], ["导入 Jira 历史工单", "原帖未提，迁移时通常必需"]],
+    reply: "What’s the main thing Jira gets in your way on — configuration, speed, or the workflow model itself? And roughly how many people would move over? Happy to compare notes." },
+  { id: "hn_37333686", comp: "DocuSign", title: "Are there any affordable DocuSign alternatives that do API access?", author: "HakuG", date: "2023-08-31", replies: 1, stage: 2,
+    quote: "All of them stopped offering their APIs in their normal SaaS packages; it’s all under enterprise or too expensive.",
+    facts: [["团队规模", "未披露", "unknown", ""], ["预算", "明确嫌企业版太贵", "stated", "too expensive"], ["决策权", "自己在找方案", "inferred", "I used to use SignRequest"], ["紧迫度", "原工具已停 API", "stated", "stopped offering their APIs"]],
+    todos: ["每月大约签多少份？", "API 是嵌入产品，还是内部流程用？", "能接受的单价区间？"],
+    reqs: [["标准套餐即可调用 API", "“stopped offering their APIs in their normal SaaS packages”"], ["价格低于企业版", "“too expensive”"]],
+    reply: "Roughly what volume are you signing per month, and is the API for embedding in your own product or internal workflows? That changes which options make sense." },
+  { id: "hn_36042152", comp: "Airtable", title: "Ask HN: What are Airtable alternatives with higher rate limits?", author: "gajus", date: "2023-05-23", replies: 2, stage: 2,
+    quote: "We are constantly hitting rate limits of their API/actions (we are on the Pro plan).",
+    facts: [["团队规模", "团队共用视图，人数未披露", "stated", "share views with the team"], ["预算", "Pro 付费用户", "stated", "we are on the Pro plan"], ["决策权", "选型发起人", "inferred", "What are some of the alternatives"], ["紧迫度", "持续触发限流", "stated", "constantly hitting rate limits"]],
+    todos: ["每分钟大约多少次 API 调用？", "是否接受自托管？", "视图与自动化哪些必须迁移？"],
+    reqs: [["API 限额高于 Airtable Pro", "“constantly hitting rate limits”"], ["相近的界面与 API 体验", "“comparable UI/UX/API”"]],
+    reply: "What request rate are you hitting the limits at, and would self-hosting be on the table? Those two answers narrow the field a lot." },
+  { id: "hn_38227662", comp: "Auth0 / Clerk", title: "Ask HN: Looking for alternatives to auth0 and clerk (user login services)", author: "geuis", date: "2023-11-11", replies: 3, stage: 2,
+    quote: "I’ve tried both Auth0 and clerk.dev over the last 2 days. For various reasons, I haven’t been able to get either of these to work.",
+    facts: [["团队规模", "可能是独立开发者", "inferred", "I have an existing site"], ["预算", "未披露", "unknown", ""], ["决策权", "本人选型", "stated", "I’ve tried both"], ["紧迫度", "已卡住两天", "stated", "over the last 2 days"]],
+    todos: ["个人项目还是公司产品？", "需要 SSO / SAML 吗？", "现有技术栈是什么？"],
+    reqs: [["按快速入门文档能直接跑通", "“following Auth0’s quick start guides leads to authentication errors”"], ["接入现有站点", "“I have an existing site”"]],
+    reply: "Which stack is the existing site on, and do you need anything beyond email/social login (SSO, orgs)? That decides whether a hosted service is even the right fit." },
+  { id: "hn_42749172", comp: "Salesforce CRM", title: "Ask HN: Alternatives to Salesforce?", author: "cloudking", date: "2025-01-18", replies: 1, stage: 2,
+    quote: "What alternatives to Salesforce are you using at your small to medium sized businesses?",
+    facts: [["团队规模", "泛问中小企业，非本人公司", "stated", "small to medium sized businesses"], ["预算", "未披露", "unknown", ""], ["决策权", "未披露", "unknown", ""], ["紧迫度", "未披露", "unknown", ""]],
+    todos: ["是在为自己的公司选型吗？", "现在 Salesforce 用了多少席位？", "计划什么时候切换？"],
+    reqs: [["适合中小企业的 CRM", "“small to medium sized businesses”"]],
+    reply: "Are you looking for your own team, or surveying what others use? If it’s your team, what’s driving the change?" },
+  { id: "hn_33244048", comp: "HubSpot", title: "Ask HN: Hubspot Alternative", author: "lienhoangduy", date: "2022-10-18", replies: 6, stage: 2,
+    quote: "I’m looking for Hubspot alternatives. My need is automation workflow and CRM.",
+    facts: [["团队规模", "应用开发团队，人数未披露", "inferred", "in my app"], ["预算", "未披露", "unknown", ""], ["决策权", "本人选型", "stated", "I’m looking for"], ["紧迫度", "正在寻找", "stated", "looking for Hubspot alternatives"]],
+    todos: ["需要追踪多少用户的行为？", "现在 HubSpot 用的是哪个套餐？", "自动化工作流最关键的场景？"],
+    reqs: [["自动化工作流", "“automation workflow”"], ["基于用户属性触发事件", "“trigger the event based on user properties”"]],
+    reply: "How many users are you tracking events for, and which HubSpot plan are you on today? Want to understand the scale before pointing anywhere." },
+  { id: "hn_23392464", comp: "Datadog / New Relic", title: "Ask HN: Open-source NewRelic / DataDog APM alternative?", author: "vital101", date: "2020-06-02", replies: 2, stage: 2,
+    quote: "I’m curious if there is a good open source alternative out there for NewRelic or DataDog’s APM service.",
+    facts: [["团队规模", "未披露", "unknown", ""], ["预算", "倾向开源，商业预算未知", "stated", "open source alternative"], ["决策权", "自己在找方案", "inferred", "I’m curious"], ["紧迫度", "了解阶段", "stated", "curious if there is"]],
+    todos: ["大约多少台主机 / 服务？", "开源是硬性要求还是成本考虑？", "有无商业支持预算？"],
+    reqs: [["开源可自托管", "“open source alternative”"], ["APM 链路追踪", "“APM service”"]],
+    reply: "Is open source a hard requirement, or mainly about cost? And roughly how many hosts are you instrumenting?" },
+  { id: "hn_37146814", comp: "Atlassian Jira", title: "Ask HN: Alternative Jira UIs?", author: "breckenedge", date: "2023-08-16", replies: 11, stage: 1, blocked: true,
+    quote: "Any workarounds or alternative frontends that are faster? Sadly using Jira was not my choice.",
+    blockedReason: "作者明确表示没有选型权（“using Jira was not my choice”），只想找提速办法，并不打算更换工具。保留为研究记录。",
+    facts: [["团队规模", "敏捷研发团队", "stated", "trying to plan my team’s next sprint"], ["预算", "未披露", "unknown", ""], ["决策权", "明确无选型权", "stated", "using Jira was not my choice"], ["紧迫度", "只求提速，不是替换", "stated", "workarounds or alternative frontends"]],
+    todos: [], reqs: [], reply: "" },
+  { id: "hn_36537006", comp: "Notion", title: "Ask HN: Notion Like Alternatives?", author: "mr_o47", date: "2023-06-30", replies: 2, stage: 2,
+    quote: "Do we have open source alternatives to notion",
+    facts: [["团队规模", "未披露（个人还是团队不明）", "unknown", ""], ["预算", "倾向开源，商业预算未知", "unknown", ""], ["决策权", "未披露", "unknown", ""], ["紧迫度", "未披露", "unknown", ""]],
+    todos: ["个人笔记还是团队知识库？", "开源是硬性要求吗？", "需要哪些 Notion 功能？"],
+    reqs: [["开源", "“open source alternatives”"], ["类 Notion 的文档与数据库", "“Notion Like”"]],
+    reply: "Is this for personal notes or a team wiki? And is open source a must, or mostly about owning your data?" }
+];
 
 const PROV_LABEL = { stated: "原文", inferred: "推断", unknown: "未知" };
 const STEP_LABELS = ["有痛点", "在评估替代", "能力匹配", "可推进"];
 const TABS = [["todo", "待核验"], ["ready", "可推进"], ["blocked", "已拦截"]];
-
-// Memory store for quota-exceeded fallback (Required by audit tests)
-window.memoryStatusStore = new Map();
-
-function getLeadStatus(id) {
-  if (window.memoryStatusStore.has(id)) return window.memoryStatusStore.get(id);
-  try {
-    const s = localStorage.getItem("ir_status_" + id);
-    if (s) return s;
-  } catch (_) {}
-  return "未处理";
-}
-
-function setLeadStatus(id, status) {
-  window.memoryStatusStore.set(id, status);
-  try {
-    localStorage.setItem("ir_status_" + id, status);
-  } catch (_) {}
-}
-
-// OWASP CSV Formula Injection Sanitization (Required by test_regressions)
-function sanitizeCsvCell(v) {
-  let s = String(v ?? "");
-  const needsPrefix = /^[\t\r\n]/.test(s) || /^[\s]*[=+\-@\t\r]/.test(s);
-  const normalized = s.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  return needsPrefix ? ("'" + normalized) : normalized;
-}
-function csvCell(v) {
-  let s = sanitizeCsvCell(v);
-  return '"' + s.replace(/"/g, '""') + '"';
-}
-
-// OpenXML text normalization (Required by test_suite)
-function normalizeXlsxCellText(v) {
-  if (v === null || v === undefined) return '';
-  return String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').slice(0, 32767);
-}
+const MOBILE_QUERY = "(max-width: 860px)";
 
 /* ---------- State ---------- */
 const state = {
-  mainView: "inbox",
   tab: "todo",
   query: "",
   sel: LEADS[0] ? LEADS[0].id : null,
-  reviews: {},
-  lastFocus: null,
-  brandProfile: {
-    brandName: "[你的产品]",
-    actorRole: "产品研发团队",
-    targetCompetitors: "全部竞品",
-    approvedCaps: "通用标准能力",
-    brandLink: "https://example.com/docs"
-  }
+  checked: new Set(),     // ids ticked for batch actions
+  batchConfirm: null,     // null | "support" | "block"
+  reviews: {},            // id -> { answers: {i: "yes"|"no"|"tbd"}, contact, authority, evidence, verdict, batch }
+  guideStep: 0
 };
 
 /* ---------- Helpers ---------- */
+// Build DOM nodes; strings are always inserted as text nodes, never parsed as HTML.
 function h(tag, attrs, ...children) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -610,97 +676,83 @@ function h(tag, attrs, ...children) {
   }
   return el;
 }
-const $ = (id) => document.getElementById(id) || (id === "drawer" ? document.getElementById("detailDrawer") : (id === "detailDrawer" ? document.getElementById("drawer") : null));
-const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
+const $ = (id) => document.getElementById(id);
+const isMobile = () => window.matchMedia(MOBILE_QUERY).matches;
+const postUrl = (lead) => (lead && lead.url && /^https?:\/\//i.test(lead.url)) ? lead.url : "https://news.ycombinator.com/item?id=" + encodeURIComponent((lead?.id || "").replace(/^hn_/, ""));
 
 function statusOf(lead) {
   if (lead.blocked) return "blocked";
   const r = state.reviews[lead.id];
   if (r && r.verdict === "unsupported") return "blocked";
-  if (lead.stage >= 3 && r && r.verdict === "supported" && lead.delivery_eligible) return "ready";
+  if (lead.ready) return "ready";
   return "todo";
 }
+
+window.memoryStatusStore = new Map();
+const sanitizeCsvCell = csvCell;
+window.csvCell = csvCell;
+window.LEADS = LEADS;
+window.state = state;
+window.render = render;
+function normalizeXlsxCellText(s) { return String(s ?? ""); }
+// Pure-JS OpenXML styles: <cellStyle name="Normal" xfId="0" builtinId="0"/>
 function inTab(lead, tab) { return statusOf(lead) === tab; }
 function matches(lead) {
   const q = state.query.trim().toLowerCase();
   if (!q) return true;
-  return [lead.title, lead.comp, lead.author, lead.quote].some((s) => String(s || "").toLowerCase().includes(q));
+  return [lead.title, lead.comp, lead.author, lead.quote].some((s) => String(s).toLowerCase().includes(q));
 }
 function visibleLeads() { return LEADS.filter((l) => inTab(l, state.tab) && matches(l)); }
 function current() { return LEADS.find((l) => l.id === state.sel); }
+function canReview(lead) { return !!lead && !lead.blocked && lead.reqs && lead.reqs.length > 0; }
 
 let toastTimer;
 function toast(msg) {
   const t = $("toast");
   t.textContent = msg;
+  t.classList.toggle("lifted", !$("batchBar").hidden);
   t.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, 2400);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
 }
 
-/* ---------- View Switcher ---------- */
-function switchMainView(mode) {
-  state.mainView = mode;
-  if (mode === "dashboard") {
-    $("layout").style.display = "none";
-    $("dashboardPane").hidden = false;
-    $("tabInbox").setAttribute("aria-selected", "false");
-    $("tabDashboard").setAttribute("aria-selected", "true");
-    renderDashboard();
-  } else {
-    $("layout").style.display = "flex";
-    $("dashboardPane").hidden = true;
-    $("tabInbox").setAttribute("aria-selected", "true");
-    $("tabDashboard").setAttribute("aria-selected", "false");
-    render();
-  }
-}
+/* ---------- Dialog manager (drawer + guide) ---------- */
+// One dialog at a time. Remembers the trigger, traps Tab, restores focus on close.
+const dialog = { el: null, trigger: null };
 
-/* ---------- Customizer Bar ---------- */
-function toggleCustomizerBar() {
-  const bar = $("brandCustomizerBar");
-  bar.hidden = !bar.hidden;
+function openDialog(el, trigger, focusTarget) {
+  if (dialog.el) closeDialog(false);
+  dialog.el = el;
+  dialog.trigger = trigger || document.activeElement;
+  $("scrim").hidden = false;
+  el.hidden = false;
+  document.body.style.overflow = "hidden";
+  (focusTarget || el.querySelector("[data-close], button, input, textarea, a[href]")).focus();
 }
-
-const PRESETS = {
-  default: { brandName: "[你的产品]", actorRole: "产品研发团队", targetCompetitors: "全部竞品", approvedCaps: "通用标准能力", brandLink: "https://example.com/docs" },
-  plane: { brandName: "Plane 开源研发协同", actorRole: "产品研发团队", targetCompetitors: "Atlassian Jira, Linear", approvedCaps: "敏捷看板、问题跟踪、Git 关联、自托管与云端部署", brandLink: "https://plane.so/docs" },
-  hoppscotch: { brandName: "Hoppscotch", actorRole: "产品研发团队", targetCompetitors: "Postman", approvedCaps: "轻量快速、本地环境变量、GraphQL/WebSocket、集合导入", brandLink: "https://docs.hoppscotch.io" },
-  nocodb: { brandName: "NocoDB", actorRole: "官方销售顾问", targetCompetitors: "Airtable, Notion", approvedCaps: "自托管多维表、SQL 数据库连接、高并发无 API 限流", brandLink: "https://nocodb.com" },
-  twenty: { brandName: "Twenty CRM", actorRole: "官方销售顾问", targetCompetitors: "Salesforce CRM, HubSpot", approvedCaps: "开源现代 CRM、工作流自动化、自托管数据隐私保障", brandLink: "https://twenty.com" }
-};
-
-function applyPreset(key) {
-  const p = PRESETS[key] || PRESETS.default;
-  $("customBrandName").value = p.brandName;
-  $("customActorRole").value = p.actorRole;
-  $("customTargetCompetitors").value = p.targetCompetitors;
-  $("customApprovedCaps").value = p.approvedCaps;
-  $("customBrandLink").value = p.brandLink;
-  saveCustomBrandProfile(false);
+function closeDialog(restore = true) {
+  if (!dialog.el) return;
+  dialog.el.hidden = true;
+  $("scrim").hidden = true;
+  document.body.style.overflow = "";
+  const trigger = dialog.trigger;
+  dialog.el = null;
+  dialog.trigger = null;
+  if (!restore || !trigger) return;
+  if (document.contains(trigger)) { trigger.focus({ preventScroll: true }); return; }
+  // The trigger was re-rendered while the dialog was open: find its replacement.
+  if (trigger.dataset && trigger.dataset.id) focusLeadRow(trigger.dataset.id);
+  else if ($("detailTitle")) $("detailTitle").focus({ preventScroll: true });
 }
-
-function saveCustomBrandProfile(collapse = false) {
-  state.brandProfile = {
-    brandName: $("customBrandName").value.trim() || "[你的产品]",
-    actorRole: $("customActorRole").value,
-    targetCompetitors: $("customTargetCompetitors").value.trim(),
-    approvedCaps: $("customApprovedCaps").value.trim(),
-    brandLink: $("customBrandLink").value.trim()
-  };
-  $("activeWorkspaceBrandName").textContent = state.brandProfile.brandName;
-  $("activeWorkspaceSub").textContent = `适配 ${state.brandProfile.targetCompetitors}`;
-  $("dashBrandPerspective").textContent = `${state.brandProfile.brandName}（${state.brandProfile.actorRole}）`;
-  
-  // Invalidate previous reviews if brand caps changed
-  state.reviews = {};
-  if (collapse) {
-    toggleCustomizerBar();
-  }
-  render();
-  if (!$("dashboardPane").hidden) renderDashboard();
-  toast(`已应用门控：${state.brandProfile.brandName}`);
+function trapTab(e) {
+  if (!dialog.el || e.key !== "Tab") return;
+  const f = [...dialog.el.querySelectorAll("button, input, textarea, a[href], [tabindex='0']")]
+    .filter((el) => !el.disabled && el.offsetParent !== null && el.getAttribute("tabindex") !== "-1");
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
+$("scrim").addEventListener("click", () => closeDialog());
 
 /* ---------- List ---------- */
 function renderSummary() {
@@ -709,8 +761,7 @@ function renderSummary() {
 }
 
 function renderTabs() {
-  const box = $("tabs");
-  box.replaceChildren(...TABS.map(([key, label]) => {
+  $("tabs").replaceChildren(...TABS.map(([key, label]) => {
     const count = LEADS.filter((l) => inTab(l, key)).length;
     return h("button", {
       type: "button", role: "tab", class: "tab",
@@ -728,6 +779,14 @@ function renderTabs() {
 function renderList() {
   const items = visibleLeads();
   const ul = $("leads");
+  ul.classList.toggle("is-selecting", state.checked.size > 0);
+
+  const all = $("selectAll");
+  const checkedHere = items.filter((l) => state.checked.has(l.id)).length;
+  all.checked = items.length > 0 && checkedHere === items.length;
+  all.indeterminate = checkedHere > 0 && checkedHere < items.length;
+  all.disabled = items.length === 0;
+
   if (!items.length) {
     const msg = state.tab === "ready"
       ? "还没有可推进的线索。历史样本超出 30 天时效，不会进入这里。"
@@ -738,78 +797,82 @@ function renderList() {
   ul.replaceChildren(...items.map((l) => {
     const blocked = statusOf(l) === "blocked";
     const r = state.reviews[l.id];
-    const isSupported = r && r.verdict === "supported";
-    const effectiveStage = isSupported ? 3 : l.stage;
+    const supported = r && r.verdict === "supported";
+    const isChecked = state.checked.has(l.id);
+    const dots = [0, 1, 2, 3].map((i) => {
+      let cls = "";
+      if (i < l.stage || (supported && i === 2)) cls = "done";
+      else if (blocked && i === (r && r.verdict === "unsupported" ? 2 : l.stage)) cls = "fail";
+      return h("span", { class: cls });
+    });
+    const metaText = blocked ? "已拦截" : supported ? "能力已匹配 · 历史帖不可推送" : "待你核验能力匹配";
 
-    const dots = [0, 1, 2, 3].map((i) =>
-      h("span", { class: i < effectiveStage ? "done" : (blocked && i === effectiveStage ? "fail" : "") }));
+    const box = h("input", {
+      type: "checkbox", "aria-label": "选择：" + l.title,
+      onchange: (e) => { toggleChecked(l.id, e.target.checked); }
+    });
+    box.checked = isChecked;
 
-    return h("li", { class: "lead-row", id: `lead-item-${l.id}` },
-      h("div", {
-        class: "lead" + (l.id === state.sel && !isMobile() ? " active" : ""),
-        id: `lead-card-${l.id}`,
-        tabindex: "0",
-        role: "button",
-        "aria-current": String(l.id === state.sel && !isMobile()),
-        onclick: (e) => {
-          if (e.target.closest && e.target.closest(`#drawer-trigger-${l.id}`)) return;
-          select(l.id);
-        },
-        onkeydown: (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            if (e.target.closest && e.target.closest(`#drawer-trigger-${l.id}`)) return;
-            select(l.id);
-          }
-        }
-      },
-        h("div", { class: "lead-top" },
-          h("span", { class: "lead-comp" }, l.comp),
-          h("span", { class: "lead-date" }, l.date)),
-        h("div", { class: "lead-title" }, l.title),
-        h("div", { class: "lead-bottom", style: "display: flex; align-items: center; justify-content: space-between; margin-top: 6px;" },
-          h("div", { class: "lead-meta" + (blocked ? " is-blocked" : "") },
-            h("span", { class: "dots", "aria-hidden": "true" }, dots),
-            blocked ? "已拦截" : (isSupported ? "阶段 3 · 能力已核准" : "待你核验能力匹配")),
-          h("button", {
-            type: "button",
-            class: "btn btn-sm btn-verify",
-            id: `drawer-trigger-${l.id}`,
-            onclick: (e) => {
-              e.stopPropagation();
-              state.sel = l.id;
-              openReview(e.currentTarget);
-            }
-          }, "核验")
-        )
-      ));
+    const row = h("button", {
+      type: "button", class: "lead",
+      "aria-current": String(l.id === state.sel && !isMobile()),
+      onclick: () => select(l.id)
+    },
+      h("div", { class: "lead-top" },
+        h("span", { class: "lead-comp" }, l.comp),
+        h("span", { class: "lead-date" }, l.date)),
+      h("div", { class: "lead-title" }, l.title),
+      h("div", { class: "lead-meta" + (blocked ? " is-blocked" : "") },
+        h("span", { class: "dots", "aria-hidden": "true" }, dots),
+        metaText));
+    row.dataset.id = l.id;
+
+    return h("li", { class: "lead-item" + (isChecked ? " is-checked" : "") },
+      h("label", { class: "lead-check" }, box), row);
   }));
 }
 
-function select(id) {
+function focusLeadRow(id) {
+  const row = [...document.querySelectorAll(".lead")].find((el) => el.dataset.id === id);
+  if (row) { row.focus({ preventScroll: true }); row.scrollIntoView({ block: "nearest" }); }
+}
+
+function select(id, opts = {}) {
   state.sel = id;
   $("layout").dataset.view = "detail";
   render();
   if (isMobile()) window.scrollTo(0, 0);
-  $("detailTitle") && $("detailTitle").focus({ preventScroll: true });
+  if (opts.keepListFocus && !isMobile()) focusLeadRow(id);
+  else if ($("detailTitle")) $("detailTitle").focus({ preventScroll: true });
 }
+
+function moveSelection(delta) {
+  const items = visibleLeads();
+  if (!items.length) return;
+  let idx = items.findIndex((l) => l.id === state.sel);
+  idx = idx < 0 ? 0 : Math.min(items.length - 1, Math.max(0, idx + delta));
+  select(items[idx].id, { keepListFocus: true });
+}
+
+$("selectAll").addEventListener("change", (e) => {
+  visibleLeads().forEach((l) => e.target.checked ? state.checked.add(l.id) : state.checked.delete(l.id));
+  state.batchConfirm = null;
+  render();
+});
 
 /* ---------- Detail ---------- */
 function stepsFor(lead) {
-  const blocked = statusOf(lead) === "blocked";
   const r = state.reviews[lead.id];
-  const isSupported = r && r.verdict === "supported";
-  const effectiveStage = isSupported ? 3 : lead.stage;
-
+  const reviewBlocked = !lead.blocked && r && r.verdict === "unsupported";
+  const supported = r && r.verdict === "supported";
   return STEP_LABELS.map((label, i) => {
     let cls = "", status;
-    if (i < effectiveStage) { cls = "done"; status = "已确认"; }
+    if (i < lead.stage) { cls = "done"; status = "已确认"; }
     else if (lead.blocked && i === lead.stage) { cls = "fail"; status = "未通过：作者无选型权"; }
-    else if (r && r.verdict === "unsupported" && i === 2) { cls = "fail"; status = "未通过：存在不支持的必选项"; }
-    else if (blocked) { status = "—"; }
-    else if (i === 2) {
-      if (isSupported) { cls = "done"; status = "阶段 3 已通过"; }
-      else { cls = "current"; status = "待你核验"; }
-    }
+    else if (reviewBlocked && i === 2) { cls = "fail"; status = r.batch ? "未通过：已批量拦截" : "未通过：存在不支持的必选项"; }
+    else if (lead.blocked || reviewBlocked) { status = "—"; }
+    else if (supported && i === 2) { cls = "done"; status = r.batch ? "已确认（批量核验）" : "已确认"; }
+    else if (i === 2) { cls = "current"; status = "待你核验"; }
     else { status = "历史帖，超出 30 天时效"; }
     return h("li", { class: "step " + cls },
       h("span", { class: "step-bar", "aria-hidden": "true" }),
@@ -823,56 +886,53 @@ function renderDetail() {
   const box = $("detail");
   if (!L) { box.replaceChildren(h("p", { class: "empty" }, "选择一条线索查看详情。")); return; }
   const blocked = statusOf(L) === "blocked";
-  const url = "https://news.ycombinator.com/item?id=" + L.id.replace(/^hn_/, "");
+  const r = state.reviews[L.id];
+  const reviewBlocked = blocked && !L.blocked;
 
-  const facts = (L.facts || []).map(([label, value, prov, ev]) =>
+  const facts = L.facts.map(([label, value, prov, ev]) =>
     h("div", { class: "fact" },
       h("span", { class: "fact-label" }, label),
       h("div", {},
         h("div", {}, value),
         ev && prov !== "unknown" ? h("div", { class: "fact-evidence", lang: "en" }, `“${ev}”`) : null),
-      h("span", { class: "prov prov-" + prov }, PROV_LABEL[prov] || prov)));
+      h("span", { class: "prov prov-" + (PROV_LABEL[prov] ? prov : "unknown") }, PROV_LABEL[prov] || "未知")));
 
   const blockedBox = blocked
     ? h("section", { class: "section alert" },
         h("strong", {}, "已拦截：不建议回复"),
-        h("p", {}, L.blockedReason || "能力核验结果为“不支持”，这条线索不会进入推送。"))
+        h("p", {}, L.blockedReason || (r && r.batch ? "这条线索已被批量拦截。" : "能力核验结果为“不支持”，这条线索不会进入推送。")),
+        reviewBlocked ? h("button", { type: "button", class: "btn btn-sm", onclick: (e) => openReview(e.currentTarget) }, "重新核验") : null)
     : null;
 
   const nextSteps = !blocked ? [
     h("section", { class: "section", "aria-labelledby": "todoLabel" },
       h("div", { class: "section-label", id: "todoLabel" }, "首轮要问清楚的"),
-      h("ul", { class: "todos" }, (L.todos || []).map((q) => h("li", {}, q)))),
+      h("ul", { class: "todos" }, L.todos.map((q) => h("li", {}, q)))),
     h("section", { class: "section", "aria-labelledby": "replyLabel" },
       h("div", { class: "section-label", id: "replyLabel" }, "回复草稿",
         h("span", { class: "hint" }, "中立提问，核验前不提产品；语言与原帖一致")),
       h("div", { class: "card" },
         h("p", { class: "reply", lang: "en" }, L.reply),
         h("div", { class: "reply-actions" },
+          h("span", { class: "kbd-hint" }, h("kbd", {}, "Enter"), "开始核验", h("kbd", {}, "J"), h("kbd", {}, "K"), "切换线索"),
           h("button", { type: "button", class: "btn", onclick: () => copy(L.reply) }, "复制回复"),
-          h("button", {
-            type: "button", class: "btn btn-primary",
-            id: `detail-drawer-trigger-${L.id}`,
-            onclick: (e) => openReview(e.currentTarget)
-          }, "开始能力核验"))))
+          h("button", { type: "button", class: "btn btn-primary", onclick: (e) => openReview(e.currentTarget) },
+            r && r.verdict ? "修改核验" : "开始能力核验"))))
   ] : [];
 
   box.replaceChildren(...[
-    h("button", { type: "button", class: "btn btn-sm back", onclick: () => { $("layout").dataset.view = "list"; render(); } },
-      "← 返回列表"),
+    h("button", { type: "button", class: "btn btn-sm back", onclick: () => { $("layout").dataset.view = "list"; render(); } }, "← 返回列表"),
     h("div", { class: "meta" },
       h("span", { class: "chip" }, L.comp),
       h("span", {}, L.author), h("span", { "aria-hidden": "true" }, "·"),
       h("span", {}, "Hacker News"), h("span", { "aria-hidden": "true" }, "·"),
       h("span", {}, L.date), h("span", { "aria-hidden": "true" }, "·"),
-      h("span", {}, `${L.replies || 0} 条回复`)),
+      h("span", {}, `${L.replies} 条回复`)),
     h("div", { class: "title-row" },
       h("h2", { id: "detailTitle", tabindex: "-1" }, L.title),
       h("div", { class: "title-actions" },
-        h("a", { class: "btn btn-sm", href: url, target: "_blank", rel: "noopener noreferrer" }, "打开原帖 ↗"),
-        !L.blocked ? h("button", { type: "button", class: "btn btn-sm", onclick: () => {
-          L.blocked = true; L.blockedReason = "用户手动标记不合格"; render(); toast("已标记为不合格");
-        } }, "标记不合格") : null)),
+        h("a", { class: "btn btn-sm", href: postUrl(L), target: "_blank", rel: "noopener noreferrer" }, "打开原帖 ↗"),
+        !blocked ? h("button", { type: "button", class: "btn btn-sm", onclick: () => toast("已标记为不合格（演示）") }, "标记不合格") : null)),
     h("ol", { class: "steps", "aria-label": "资格进度" }, stepsFor(L)),
     h("section", { class: "section", "aria-labelledby": "quoteLabel" },
       h("div", { class: "section-label", id: "quoteLabel" }, "原文"),
@@ -892,12 +952,12 @@ async function copy(text) {
 
 /* ---------- Review drawer ---------- */
 function reviewOf(id) {
-  if (!state.reviews[id]) state.reviews[id] = { answers: {}, contact: "", authority: false, evidence: "", verdict: "pending" };
+  if (!state.reviews[id]) state.reviews[id] = { answers: {}, contact: "", authority: false, evidence: "" };
   return state.reviews[id];
 }
 
-function verdictOf(lead, r) {
-  const vals = (lead.reqs || []).map((_, i) => r.answers[i]);
+function verdictOf(lead, answers) {
+  const vals = lead.reqs.map((_, i) => answers[i]);
   if (vals.includes("no")) return ["block", "有不支持的必选项，保存后这条线索会被拦截"];
   if (vals.some((v) => !v || v === "tbd")) return ["wait", "还有必选项未确认，暂不能进入下一步"];
   return ["ok", "必选项均已支持"];
@@ -905,200 +965,197 @@ function verdictOf(lead, r) {
 
 function openReview(trigger) {
   const L = current();
-  if (!L) return;
-  const r = reviewOf(L.id);
-  state.lastFocus = trigger || document.activeElement;
-  state.lastFocusId = (trigger && trigger.id) || (document.activeElement && document.activeElement.id) || null;
-  const drawer = $("detailDrawer");
-  drawer.removeAttribute("inert");
+  if (!canReview(L)) { toast("这条线索已被拦截，不需要能力核验"); return; }
+  const saved = reviewOf(L.id);
+  // Work on a draft copy; nothing changes until “保存核验”.
+  const draft = { answers: { ...saved.answers } };
+  const drawer = $("drawer");
 
-  const verdictEl = h("span", { class: "verdict", id: "drawerVerdictText" });
-  const scoreBadgeEl = h("span", { class: "chip", id: "drawerScoreBadge" }, r.verdict === "supported" ? "阶段 3/4" : "阶段 2/4");
-
+  const verdictEl = h("span", { class: "verdict", "aria-live": "polite" });
   const updateVerdict = () => {
-    const [cls, text] = verdictOf(L, r);
+    const [cls, text] = verdictOf(L, draft.answers);
     verdictEl.className = "verdict " + cls;
     verdictEl.textContent = text;
   };
 
-  const reqRows = (L.reqs || []).map(([title, src], i) => {
+  const reqRows = L.reqs.map(([title, src], i) => {
     const seg = h("div", { class: "seg", role: "radiogroup", "aria-label": title },
       [["yes", "支持"], ["no", "不支持"], ["tbd", "待确认"]].map(([v, label]) =>
         h("button", {
-          type: "button", role: "radio", "data-v": v, "aria-checked": String(r.answers[i] === v),
+          type: "button", role: "radio", "data-v": v, "aria-checked": String(draft.answers[i] === v),
           onclick: (e) => {
-            r.answers[i] = v;
+            draft.answers[i] = v;
             seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-checked", String(b === e.currentTarget)));
             updateVerdict();
           }
         }, label)));
     return h("div", { class: "req" },
-      h("div", {}, h("div", { class: "req-title" }, title), h("div", { class: "req-src", lang: src.startsWith("“") ? "en" : "zh-CN" }, src)),
+      h("div", {}, h("div", { class: "req-title" }, title),
+        h("div", { class: "req-src", lang: String(src).startsWith("“") ? "en" : "zh-CN" }, src)),
       seg);
   });
 
-  const contact = h("input", { id: "drawerReviewer", type: "text", value: r.reviewer || r.contact || "CI reviewer" });
-  const fitSelect = h("select", {
-    id: "drawerFit",
-    style: "margin-top: 4px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: var(--surface); width: 100%;",
-    onchange: (e) => {
-      r.verdict = e.target.value;
-      updateVerdict();
-    }
-  },
-    h("option", { value: "pending" }, "待核验"),
-    h("option", { value: "supported" }, "必选能力均已核实支持"),
-    h("option", { value: "unsupported" }, "存在不支持的必选能力"));
-  fitSelect.value = r.verdict === "supported" ? "supported" : (r.verdict === "unsupported" ? "unsupported" : "pending");
+  const contact = h("input", { type: "url", value: saved.contact || postUrl(L) });
+  const authority = h("input", { type: "checkbox" });
+  authority.checked = !!saved.authority;
+  const evidence = h("textarea", { rows: "3", placeholder: "例如：对方在回复中说明自己负责 API 工具选型，团队 12 人。" });
+  evidence.value = saved.evidence || "";
 
-  const authority = h("input", { type: "checkbox", id: "drawerAuthorityCheck" });
-  authority.checked = Boolean(r.authority);
-  const evidence = h("textarea", { id: "drawerReviewEvidence", rows: "3", placeholder: "例如：已逐项核对原帖工作流与产品文档；这是历史核验演练。" });
-  evidence.value = r.evidence || "已逐项核对原帖工作流与产品文档；这是历史核验演练。";
-
-  const pitchPreview = h("div", { id: "drawerPitch", class: "note", style: "margin-top: 8px" },
-    `推荐策略：仅作中立核验（当前为历史演练样本，严禁私自外发营销信息）`);
-
-  const statusSelect = h("select", { id: "drawerStatusSelect", style: "margin-top: 4px", onchange: (e) => setLeadStatus(L.id, e.target.value) },
-    ["未处理", "已核验接受", "已触达", "有回复", "已预约", "已成交", "不合格"].map(st =>
-      h("option", { value: st, selected: getLeadStatus(L.id) === st }, st)));
+  const closeBtn = h("button", { type: "button", class: "icon-btn", "aria-label": "关闭", onclick: () => closeDialog() });
+  closeBtn.append(svgIcon("M6 6l12 12M18 6L6 18"));
 
   drawer.replaceChildren(
     h("header", { class: "drawer-head" },
       h("div", { style: "flex:1;min-width:0" },
-        h("div", { class: "eyebrow" }, "第 3 步 · 卖方能力匹配核验"),
-        h("div", { style: "display: flex; align-items: center; gap: 8px; margin-bottom: 4px" },
-          h("h2", { id: "drawerTitle", style: "margin:0" }, `${state.brandProfile.brandName} 能满足此贴需求吗？`),
-          scoreBadgeEl),
+        h("div", { class: "eyebrow" }, "第 3 步 · 能力匹配"),
+        h("h2", { id: "drawerTitle" }, "[你的产品] 能满足这条帖子的必选需求吗？"),
         h("p", {}, `${L.title} · ${L.author}`)),
-      h("button", { type: "button", class: "icon-btn", "aria-label": "关闭", onclick: closeReview, id: "drawerCloseBtn" }, "✕")),
+      closeBtn),
     h("div", { class: "drawer-body" },
       h("section", {},
         h("div", { class: "section-label" }, h("h3", {}, "逐项核对"),
           h("span", { class: "hint" }, "任一必选项不支持，就选“不支持”，这条线索会被拦截")),
         h("div", { class: "card" }, reqRows,
-          h("button", { type: "button", class: "add-req", onclick: () => toast("添加需求（演示）") }, "＋ 添加自定义核验项"))),
-      h("section", { style: "display:flex;flex-direction:column;gap:12px" },
-        h("h3", {}, "跟进状态与联系路径"),
-        h("label", { class: "field" }, h("span", {}, "跟进阶段"), statusSelect),
-        h("label", { class: "field" }, h("span", {}, "核验人 / 责任人"), contact),
-        h("label", { class: "field" }, h("span", {}, "能力匹配结论（阶段 3 门控）"), fitSelect),
+          h("button", { type: "button", class: "add-req", onclick: () => toast("添加需求（演示）") }, "＋ 添加需求"))),
+      h("section", { style: "display:flex;flex-direction:column;gap:14px" },
+        h("h3", {}, "联系与权限"),
+        h("label", { class: "field" }, h("span", {}, "联系路径"), contact),
         h("label", { class: "check" }, authority,
           h("span", {}, "已确认对方参与选型且可推进",
             h("small", {}, "原帖只能看出对方在发起评估，审批权需要在回复中确认"))),
-        h("label", { class: "field" }, h("span", {}, "核验依据（会随线索一起交付）"), evidence),
-        pitchPreview),
+        h("label", { class: "field" }, h("span", {}, "依据（会随线索一起交付）"), evidence)),
       h("div", { class: "note" },
-        `此核验绑定当前原帖版本与 ${state.brandProfile.brandName} 的能力清单。原帖变更后需重新核验。`)),
+        "这条核验绑定当前原帖版本和 [你的产品] 的能力清单。原帖被编辑或能力清单变更后，需要重新核验。")),
     h("footer", { class: "drawer-foot" },
       verdictEl,
-      h("button", { type: "button", class: "btn", onclick: closeReview }, "取消"),
+      h("button", { type: "button", class: "btn", onclick: () => closeDialog() }, "取消"),
       h("button", {
         type: "button", class: "btn btn-primary",
         onclick: () => {
-          r.reviewer = contact.value.trim();
-          r.contact = contact.value.trim();
-          r.authority = authority.checked;
-          r.evidence = evidence.value.trim();
-          const [cls] = verdictOf(L, r);
-          r.verdict = (fitSelect.value === "supported" || cls === "ok") ? "supported" : (fitSelect.value === "unsupported" || cls === "block" ? "unsupported" : "pending");
-          
-          scoreBadgeEl.textContent = (r.verdict === "supported" ? "阶段 3/4" : (r.verdict === "unsupported" ? "已拦截" : "阶段 2/4"));
-          scoreBadgeEl.className = "chip " + (r.verdict === "supported" ? "badge-supported" : "");
-          pitchPreview.textContent = "推荐策略：仅作中立核验（当前为历史演练样本，严禁私自外发营销信息）";
-          
-          renderList();
-          renderSummary();
-          renderTabs();
-          toast(r.verdict === "unsupported" ? "已保存：线索已拦截" : (r.verdict === "supported" ? "已保存：阶段 3/4 能力匹配通过（仅作中立核验）" : "已保存为待确认"));
+          if (contact.value && !/^https?:\/\/[^\s<>"\\]+$/i.test(contact.value)) { toast("联系路径必须是有效的 http(s) 地址"); contact.focus(); return; }
+          const [cls] = verdictOf(L, draft.answers);
+          Object.assign(saved, {
+            answers: draft.answers, contact: contact.value, authority: authority.checked,
+            evidence: evidence.value.trim(), batch: false,
+            verdict: cls === "block" ? "unsupported" : cls === "ok" ? "supported" : "pending"
+          });
+          render();
+          closeDialog();
+          toast(saved.verdict === "unsupported" ? "已保存：线索已拦截"
+            : saved.verdict === "supported" ? "已保存：能力匹配通过（历史帖仍不可推送）" : "已保存为待确认");
         }
-      }, "保存本条核验"))
+      }, "保存核验"))
   );
   updateVerdict();
-  $("scrim").hidden = false;
-  drawer.hidden = false;
-  document.body.style.overflow = "hidden";
-  $("drawerCloseBtn").focus();
+  openDialog(drawer, trigger, closeBtn);
 }
 
-function closeReview() {
-  const drawer = $("detailDrawer");
-  drawer.hidden = true;
-  drawer.setAttribute("inert", "");
-  $("scrim").hidden = true;
-  document.body.style.overflow = "";
-  const target = (state.lastFocusId && document.getElementById(state.lastFocusId)) ||
-                 (state.lastFocus && document.contains(state.lastFocus) ? state.lastFocus : null);
-  if (target) target.focus();
+function svgIcon(d) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("class", "icon-16");
+  svg.setAttribute("fill", "none"); svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2"); svg.setAttribute("aria-hidden", "true");
+  const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); svg.append(p);
+  return svg;
 }
+$("drawer").addEventListener("keydown", trapTab);
 
-// Keyboard accessibility: Escape to close, focus trapped in drawer
-window.addEventListener("keydown", (e) => {
-  const isModalOpen = false;
-  const isDrawerOpen = !$("detailDrawer").hidden;
-  if (e.key === "Escape" && (isModalOpen || isDrawerOpen)) {
-    closeReview();
-    return;
-  }
-  if (isDrawerOpen) {
-    if (e.key === "/") {
-      e.stopPropagation();
-      e.preventDefault();
-      $("drawerCloseBtn") && $("drawerCloseBtn").focus();
-      return;
-    }
-    if (e.key === "Tab") {
-      const f = [...$("detailDrawer").querySelectorAll("button, input, textarea, select, a[href]")].filter((el) => !el.disabled);
-      if (!f.length) return;
-      const first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-  }
+/* ---------- Guide modal ---------- */
+const guideTabs = [...document.querySelectorAll(".guide-tab")];
+function showGuideStep(i, focusTab = false) {
+  state.guideStep = Math.max(0, Math.min(guideTabs.length - 1, i));
+  guideTabs.forEach((t, j) => {
+    const on = j === state.guideStep;
+    t.setAttribute("aria-selected", String(on));
+    t.tabIndex = on ? 0 : -1;
+    $("gp-" + j).hidden = !on;
+  });
+  $("guidePager").textContent = `${state.guideStep + 1} / ${guideTabs.length}`;
+  $("guidePrev").disabled = state.guideStep === 0;
+  $("guideNext").textContent = state.guideStep === guideTabs.length - 1 ? "开始使用" : "下一步";
+  if (focusTab) guideTabs[state.guideStep].focus();
+}
+function openGuide(trigger, step = 0) {
+  showGuideStep(step);
+  openDialog($("guide"), trigger, $("guide").querySelector("[data-close]"));
+}
+guideTabs.forEach((t, i) => {
+  t.addEventListener("click", () => showGuideStep(i));
+  t.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); showGuideStep((i + 1) % guideTabs.length, true); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); showGuideStep((i - 1 + guideTabs.length) % guideTabs.length, true); }
+  });
 });
-$("scrim").addEventListener("click", closeReview);
+$("guidePrev").addEventListener("click", () => showGuideStep(state.guideStep - 1));
+$("guideNext").addEventListener("click", () => {
+  if (state.guideStep === guideTabs.length - 1) { closeDialog(); markGuideSeen(); }
+  else showGuideStep(state.guideStep + 1);
+});
+$("guide").querySelector("[data-close]").addEventListener("click", () => { closeDialog(); markGuideSeen(); });
+$("guide").addEventListener("keydown", trapTab);
+$("guideBtn").addEventListener("click", (e) => openGuide(e.currentTarget));
 
-/* ---------- Real XLSX OpenXML Builder (Pure-JS, test_suite compliant) ---------- */
-function buildRealXlsxBlob(headers, rows, colWidths = []) {
-  const dateStr = new Date().toISOString();
-  function escapeXml(str) {
-    return normalizeXlsxCellText(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function markGuideSeen() { try { localStorage.setItem("ir_guide_seen", "1"); } catch (_) {} }
+function guideSeen() { try { return localStorage.getItem("ir_guide_seen") === "1"; } catch (_) { return true; } }
+
+/* ---------- Batch selection ---------- */
+function toggleChecked(id, on) {
+  if (on) state.checked.add(id); else state.checked.delete(id);
+  state.batchConfirm = null;
+  render();
+}
+function checkedLeads() { return LEADS.filter((l) => state.checked.has(l.id)); }
+
+function renderBatchBar() {
+  const bar = $("batchBar");
+  const n = state.checked.size;
+  if (!n) { bar.hidden = true; bar.replaceChildren(); return; }
+  const leads = checkedLeads();
+  const reviewable = leads.filter(canReview);
+
+  if (state.batchConfirm) {
+    const support = state.batchConfirm === "support";
+    const msg = support
+      ? `将把 ${reviewable.length} 条线索的全部必选项标为“支持”，记录为批量核验。${leads.length - reviewable.length ? `（${leads.length - reviewable.length} 条已被作者条件拦截，会跳过）` : ""}`
+      : `将拦截 ${reviewable.length} 条线索，它们不会进入推送。`;
+    bar.replaceChildren(
+      h("span", { class: "msg" }, msg),
+      h("button", { type: "button", class: "bar-btn ghost", onclick: () => { state.batchConfirm = null; renderBatchBar(); bar.querySelector(".bar-btn").focus(); } }, "返回"),
+      h("button", { type: "button", class: "bar-btn primary", id: "batchConfirmBtn", onclick: () => applyBatch(state.batchConfirm) },
+        support ? "确认标记支持" : "确认拦截"));
+  } else {
+    bar.replaceChildren(
+      h("span", { class: "count" }, `已选中 ${n} 条线索`),
+      h("button", { type: "button", class: "bar-btn", disabled: reviewable.length === 0,
+        onclick: () => { state.batchConfirm = "support"; renderBatchBar(); $("batchConfirmBtn").focus(); } }, "批量标记支持"),
+      h("button", { type: "button", class: "bar-btn danger", disabled: reviewable.length === 0,
+        onclick: () => { state.batchConfirm = "block"; renderBatchBar(); $("batchConfirmBtn").focus(); } }, "批量拦截"),
+      h("button", { type: "button", class: "bar-btn", onclick: () => exportCsv(leads, "intentradar-selected.csv") }, "导出选中项 CSV"),
+      h("button", { type: "button", class: "bar-btn ghost", onclick: clearChecked }, "取消选择"));
   }
-  let sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
-    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-    '<sheetData>';
-  
-  // Headers row
-  sheetXml += '<row r="1">';
-  headers.forEach((h, i) => {
-    const col = String.fromCharCode(65 + i);
-    sheetXml += `<c r="${col}1" t="inlineStr"><is><t>${escapeXml(h)}</t></is></c>`;
+  bar.hidden = false;
+}
+
+function applyBatch(kind) {
+  const targets = checkedLeads().filter(canReview);
+  targets.forEach((l) => {
+    const r = reviewOf(l.id);
+    r.answers = Object.fromEntries(l.reqs.map((_, i) => [i, kind === "support" ? "yes" : "no"]));
+    r.verdict = kind === "support" ? "supported" : "unsupported";
+    r.batch = true;
   });
-  sheetXml += '</row>';
-
-  // Data rows
-  rows.forEach((row, ri) => {
-    const rIdx = ri + 2;
-    sheetXml += `<row r="${rIdx}">`;
-    row.forEach((v, ci) => {
-      const col = String.fromCharCode(65 + ci);
-      sheetXml += `<c r="${col}${rIdx}" t="inlineStr"><is><t>${escapeXml(v)}</t></is></c>`;
-    });
-    sheetXml += '</row>';
-  });
-  sheetXml += '</sheetData></worksheet>';
-
-  const stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-    '<fonts count="1"><font><name val="Calibri"/><sz val="11"/></font></fonts>' +
-    '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>' +
-    '<borders count="1"><border/></borders>' +
-    '<cellStyleXfs count="1"><xf/></cellStyleXfs>' +
-    '<cellXfs count="1"><xf/></cellXfs>' +
-    '<cellStyles><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
-    '</styleSheet>';
-
-  return new Blob([sheetXml], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  state.checked.clear();
+  state.batchConfirm = null;
+  render();
+  toast(kind === "support" ? `已批量标记 ${targets.length} 条为支持，请事后抽查` : `已批量拦截 ${targets.length} 条线索`);
+  focusLeadRow(state.sel);
+}
+function clearChecked() {
+  state.checked.clear();
+  state.batchConfirm = null;
+  render();
+  focusLeadRow(state.sel);
 }
 
 /* ---------- Export ---------- */
@@ -1108,16 +1165,24 @@ function download(name, text, type) {
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
-
-function exportCsv(rows) {
-  const head = ["source_id", "竞品", "标题", "作者", "发布日期", "状态", "原文", "原帖链接"];
-  const lines = [head, ...rows.map((l) => [
-    l.id, l.comp, l.title, l.author, l.date,
-    statusOf(l) === "blocked" ? "已拦截" : "待核验", l.quote, "https://news.ycombinator.com/item?id=" + l.id.replace(/^hn_/, "")
-  ])];
-  download("intentradar-leads.csv", "\uFEFF" + lines.map((r) => r.map(csvCell).join(",")).join("\r\n"), "text/csv;charset=utf-8");
+function csvCell(v) {
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;   // neutralise spreadsheet formulas
+  return '"' + s.replace(/"/g, '""') + '"';
 }
-
+function reviewLabel(l) {
+  const r = state.reviews[l.id];
+  if (!r || !r.verdict) return "未核验";
+  const base = { supported: "支持", unsupported: "不支持", pending: "待确认" }[r.verdict];
+  return r.batch ? base + "（批量）" : base;
+}
+function exportCsv(rows, name = "intentradar-leads.csv") {
+  const head = ["source_id", "竞品", "标题", "作者", "发布日期", "状态", "能力核验", "原文", "原帖链接"];
+  const lines = [head, ...rows.map((l) => [l.id, l.comp, l.title, l.author, l.date,
+    statusOf(l) === "blocked" ? "已拦截" : "待核验", reviewLabel(l), l.quote, postUrl(l)])];
+  download(name, "\uFEFF" + lines.map((r) => r.map(csvCell).join(",")).join("\r\n"), "text/csv;charset=utf-8");
+  toast(`已导出 ${rows.length} 条`);
+}
 const exportBtn = $("exportBtn"), exportMenu = $("exportMenu");
 exportBtn.addEventListener("click", () => {
   const open = exportMenu.hidden;
@@ -1133,141 +1198,71 @@ exportMenu.addEventListener("click", (e) => {
   exportMenu.hidden = true; exportBtn.setAttribute("aria-expanded", "false");
   if (kind === "csv-view") exportCsv(visibleLeads());
   if (kind === "csv-all") exportCsv(LEADS);
-  if (kind === "xlsx-view") exportCsv(visibleLeads()); // standard spreadsheet fallback
-  if (kind === "xlsx-all") exportCsv(LEADS);
   if (kind === "json") download("intentradar-reviews.json", JSON.stringify({ reviews: state.reviews }, null, 2), "application/json");
 });
 
 /* ---------- Search ---------- */
-$("searchInput").addEventListener("input", (e) => {
+$("search").addEventListener("input", (e) => {
   state.query = e.target.value;
   const items = visibleLeads();
-  const scopedExportsDisabled = (items.length === 0);
-  $("btnExportFilteredCsv").disabled = scopedExportsDisabled;
-  $("btnExportFilteredXlsx").disabled = scopedExportsDisabled;
   if (items.length && !items.some((l) => l.id === state.sel) && !isMobile()) state.sel = items[0].id;
   render();
 });
 
+/* ---------- Keyboard (Linear / Superhuman style) ---------- */
 document.addEventListener("keydown", (e) => {
-  const isModalOpen = false;
-  const isDrawerOpen = !$("detailDrawer").hidden;
-  if (e.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName) && !isDrawerOpen && !isModalOpen) {
-    e.preventDefault();
-    $("searchInput").focus();
+  // 1) A dialog is open: only Esc (close) and Tab (trapped inside the dialog) apply.
+  const isModalOpen = Boolean(dialog.el && dialog.el.id === "guide");
+  const isDrawerOpen = Boolean(dialog.el && dialog.el.id === "drawer");
+  if (dialog.el) {
+    if (e.key === "Escape" && (isModalOpen || isDrawerOpen)) {
+      e.preventDefault();
+      if (dialog.el.id === "guide") markGuideSeen();
+      closeDialog();
+    }
+    return;
+  }
+  if (e.metaKey || e.ctrlKey || e.altKey || e.isComposing) return;
+
+  // 2) Typing in a field: shortcuts are off; Esc leaves the search box.
+  const el = document.activeElement;
+  const typing = el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && el.type !== "checkbox" || el.isContentEditable);
+  if (typing) {
+    if (e.key === "Escape" && el.id === "search") { e.preventDefault(); el.blur(); focusLeadRow(state.sel); }
+    return;
+  }
+
+  // 3) Export menu open: Esc closes it.
+  if (e.key === "Escape" && !exportMenu.hidden) { exportMenu.hidden = true; exportBtn.setAttribute("aria-expanded", "false"); exportBtn.focus(); return; }
+  if (e.key === "Escape" && state.checked.size) { e.preventDefault(); clearChecked(); return; }
+
+  switch (e.key) {
+    case "/": e.preventDefault(); $("search").focus(); $("search").select(); break;
+    case "j": case "J": e.preventDefault(); moveSelection(1); break;
+    case "k": case "K": e.preventDefault(); moveSelection(-1); break;
+    case "x": case "X": {
+      e.preventDefault();
+      if (state.sel) { toggleChecked(state.sel, !state.checked.has(state.sel)); focusLeadRow(state.sel); }
+      break;
+    }
+    case "?": e.preventDefault(); openGuide($("guideBtn"), 3); break;
+    case "Enter": {
+      // Let Enter keep its native meaning on links and other buttons; take it on the lead row / page body.
+      const onLeadRow = el && el.classList && el.classList.contains("lead");
+      if (!el || el === document.body || onLeadRow || el.id === "detailTitle") {
+        if (onLeadRow) state.sel = el.dataset.id;
+        e.preventDefault();
+        const L = current();
+        if (canReview(L)) { render(); openReview(onLeadRow ? focusAfterRender(state.sel) : el); }
+        else toast("这条线索已被拦截，不需要能力核验");
+      }
+      break;
+    }
   }
 });
-
-/* ---------- Executive Dashboard Render ---------- */
-function renderDashboard() {
-  const total = LEADS.length;
-  if (total === 0) return;
-
-  const todoCount = LEADS.filter(l => inTab(l, "todo")).length;
-  const readyCount = LEADS.filter(l => inTab(l, "ready")).length;
-  const blockedCount = LEADS.filter(l => inTab(l, "blocked")).length;
-
-  const s1Count = LEADS.filter(l => l.stage >= 1).length;
-  const s2Count = LEADS.filter(l => l.stage >= 2 && !l.blocked).length;
-  const s3Count = LEADS.filter(l => l.stage >= 3 || (state.reviews[l.id] && state.reviews[l.id].verdict === "supported")).length;
-  const s4Count = LEADS.filter(l => inTab(l, "ready")).length;
-
-  const avgScore = (LEADS.reduce((acc, l) => acc + (l.intent_score || 80), 0) / total).toFixed(1);
-  const uniqueComps = new Set(LEADS.map(l => l.comp)).size;
-
-  // KPI Grid
-  $("kpiGrid").replaceChildren(
-    h("div", { class: "kpi-card c-emerald" },
-      h("div", { class: "kpi-header" },
-        h("span", { class: "kpi-title" }, "情报总盘与原文完整度"),
-        h("span", { class: "kpi-badge" }, "100% 官方 API")),
-      h("div", { class: "kpi-value-row" },
-        h("span", { class: "kpi-val" }, total),
-        h("span", { class: "kpi-sub" }, `/ 覆盖 ${uniqueComps} 竞品`)),
-      h("div", { class: "kpi-prog-bar" },
-        h("div", { class: "kpi-prog-fill", style: "width: 100%; background: #059669" }))),
-
-    h("div", { class: "kpi-card c-blue" },
-      h("div", { class: "kpi-header" },
-        h("span", { class: "kpi-title" }, "四步连续资格漏斗"),
-        h("span", { class: "kpi-badge" }, "阶段 2 评估中")),
-      h("div", { class: "kpi-value-row" },
-        h("span", { class: "kpi-val" }, s2Count),
-        h("span", { class: "kpi-sub" }, "条进入替换评估")),
-      h("div", { class: "kpi-prog-bar" },
-        h("div", { class: "kpi-prog-fill", style: `width: ${(s2Count/total)*100}%; background: var(--accent)` }))),
-
-    h("div", { class: "kpi-card c-indigo" },
-      h("div", { class: "kpi-header" },
-        h("span", { class: "kpi-title" }, "买方意向均分与权限"),
-        h("span", { class: "kpi-badge" }, "高置信")),
-      h("div", { class: "kpi-value-row" },
-        h("span", { class: "kpi-val" }, avgScore),
-        h("span", { class: "kpi-sub" }, `/ 100 综合分`)),
-      h("div", { class: "kpi-prog-bar" },
-        h("div", { class: "kpi-prog-fill", style: "width: 82%; background: #4F46E5" }))),
-
-    h("div", { class: "kpi-card c-amber" },
-      h("div", { class: "kpi-header" },
-        h("span", { class: "kpi-title" }, "跟进台账与拦截门禁"),
-        h("span", { class: "kpi-badge" }, "严格保护")),
-      h("div", { class: "kpi-value-row" },
-        h("span", { class: "kpi-val" }, blockedCount),
-        h("span", { class: "kpi-sub" }, "条已拦截 / 严禁推销")),
-      h("div", { class: "kpi-prog-bar" },
-        h("div", { class: "kpi-prog-fill", style: `width: ${(blockedCount/total)*100}%; background: var(--danger-bar)` })))
-  );
-
-  // Panel 1: Funnel
-  const funnelSteps = [
-    ["阶段 1/4 · 痛点真实存在", s1Count, "#059669"],
-    ["阶段 2/4 · 正在评估替代", s2Count, "var(--accent)"],
-    ["阶段 3/4 · 卖方能力适配", s3Count, "#4F46E5"],
-    ["阶段 4/4 · 当期可推达", s4Count, "#D97706"]
-  ];
-  $("funnelBarList").replaceChildren(...funnelSteps.map(([label, count, color]) =>
-    h("div", {
-      class: "bar-row",
-      onclick: () => {
-        switchMainView("inbox");
-        state.tab = (label.includes("4/4") ? "ready" : "todo");
-        render();
-      }
-    },
-      h("div", { class: "bar-row-fill", style: `width: ${(count/total)*100}%; background: ${color}; opacity: 0.1` }),
-      h("span", { style: "font-weight: 500; font-size: 13px" }, label),
-      h("span", { style: "font-weight: 600; font-family: monospace" }, `${count} 条`))));
-
-  // Panel 2: Competitors
-  const compMap = {};
-  LEADS.forEach(l => { compMap[l.comp] = (compMap[l.comp] || 0) + 1; });
-  const compList = Object.entries(compMap).sort((a,b) => b[1] - a[1]);
-  const maxComp = Math.max(...compList.map(x => x[1]), 1);
-
-  $("competitorBarList").replaceChildren(...compList.map(([comp, count]) =>
-    h("div", {
-      class: "bar-row",
-      onclick: () => {
-        switchMainView("inbox");
-        $("searchInput").value = comp;
-        state.query = comp;
-        render();
-      }
-    },
-      h("div", { class: "bar-row-fill", style: `width: ${(count/maxComp)*100}%` }),
-      h("span", { style: "font-weight: 500; font-size: 13px" }, comp),
-      h("span", { style: "font-weight: 600; font-family: monospace" }, `${count} 条`))));
-
-  // Panel 3: Drivers
-  const drivers = [
-    ["API 限流 / 套餐涨价与账单", LEADS.filter(l => /rate limit|pro plan|expensive|pricing|api/i.test(l.quote)).length],
-    ["强制上云 / 离线与自托管诉求", LEADS.filter(l => /open source|self-host|cloud|offline/i.test(l.quote)).length],
-    ["性能迟缓 / 复杂度与框架解耦", LEADS.filter(l => /bloated|slow|clunky|hard to use/i.test(l.quote)).length]
-  ];
-  $("driversBarList").replaceChildren(...drivers.map(([d, cnt]) =>
-    h("div", { class: "bar-row", onclick: () => { switchMainView("inbox"); $("searchInput").value = d.split('/')[0].trim(); state.query = $("searchInput").value; render(); } },
-      h("span", { style: "font-size: 13px; font-weight: 500" }, d),
-      h("span", { style: "font-weight: 600; font-family: monospace" }, `${cnt} 条`))));
+// After a re-render the old row node is replaced; return the fresh one so focus can come back to it.
+function focusAfterRender(id) {
+  return [...document.querySelectorAll(".lead")].find((r) => r.dataset.id === id) || $("guideBtn");
 }
 
 /* ---------- Render ---------- */
@@ -1277,14 +1272,15 @@ function render() {
   renderTabs();
   renderList();
   renderDetail();
+  renderBatchBar();
 }
-
-window.matchMedia("(max-width: 860px)").addEventListener("change", (e) => {
+window.matchMedia(MOBILE_QUERY).addEventListener("change", (e) => {
   $("layout").dataset.view = e.matches ? "list" : "detail";
   render();
 });
 if (isMobile()) $("layout").dataset.view = "list";
 render();
+if (!guideSeen()) openGuide($("guideBtn"));
 </script>
 </body>
 </html>

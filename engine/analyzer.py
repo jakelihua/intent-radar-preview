@@ -459,17 +459,31 @@ def evaluate_outreach_policy(sig, target_competitor, category, churn_drivers, qu
                              stages, contiguous_stage, intent_type, seller_profile=None):
     decision = evaluate_facts(qual_meta.get("policy_facts", {}), seller_profile)
     status = decision["policy_status"]
+    post_text = (getattr(sig, "content", "") or "") + " " + (getattr(sig, "title", "") or "")
+    is_english = bool(re.search(r'[A-Za-z]', post_text)) and not bool(re.search(r'[\u4e00-\u9fff]', post_text))
+
     if status == "blocked":
-        message = "⛔ 资格核验拦截：缺乏替换资格，或产品能力不匹配。仅保留研究记录，禁止销售推销。"
+        message = ("⛔ 资格核验拦截：缺乏替换资格，或产品能力不匹配。仅保留研究记录，禁止销售推销。"
+                   if not is_english else "⛔ Blocked: Lack of replacement intent or authority. Preserved for research only.")
     elif status == "neutral_inquiry_only":
-        message = (f"看到你关于 {target_competitor} 的讨论。方便补充当前需要解决的工作流、"
-                   "必选能力、选型权限和计划时间吗？确认需求与支持边界前，仅作中立核验，不推荐特定产品。")
+        if is_english:
+            message = (f"Saw your discussion regarding {target_competitor}. Curious what’s driving the move — "
+                       "is it mostly performance, workflow, or pricing? Asking before suggesting anything to understand what capabilities your team strictly needs.")
+        else:
+            message = (f"看到你关于 {target_competitor} 的讨论。方便补充当前需要解决的工作流、"
+                       "必选能力、选型权限和计划时间吗？确认需求与支持边界前，仅作中立核验，不推荐特定产品。")
     else:
         profile = seller_profile or {}
-        message = (f"利益相关披露：我是【{text(profile.get('brand_name'))}】的{text(profile.get('actor_role'))}。\n"
-                   f"我方已核准能力：{text(profile.get('approved_capabilities'))}。\n"
-                   f"已知限制：{text(profile.get('known_limitations')) or '尚需按实际环境验证'}。\n"
-                   "建议先以脱敏样本核对迁移可行性，再评估商务方案。")
+        if is_english:
+            message = (f"Disclosure: I work at {text(profile.get('brand_name'))} as {text(profile.get('actor_role'))}.\n"
+                       f"Our verified capabilities: {text(profile.get('approved_capabilities'))}.\n"
+                       f"Known limitations: {text(profile.get('known_limitations')) or 'Requires verification against your production workload'}.\n"
+                       "Suggest testing with a sanitized dataset to evaluate migration feasibility before discussing commercial plans.")
+        else:
+            message = (f"利益相关披露：我是【{text(profile.get('brand_name'))}】的{text(profile.get('actor_role'))}。\n"
+                       f"我方已核准能力：{text(profile.get('approved_capabilities'))}。\n"
+                       f"已知限制：{text(profile.get('known_limitations')) or '尚需按实际环境验证'}。\n"
+                       "建议先以脱敏样本核对迁移可行性，再评估商务方案。")
     return {**decision, "allow_copy": decision["can_outreach"],
             "allow_export_outreach": decision["can_outreach"],
             "reason": status, "public_reply": message, "pitch_dev": message, "pitch_exec": message}

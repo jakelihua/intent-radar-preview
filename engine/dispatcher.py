@@ -19,7 +19,7 @@ import tempfile
 import urllib.parse
 from collections import Counter
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import requests
 from .analyzer import EnrichedSignal
 from .compiled_css import COMPILED_TAILWIND_CSS
@@ -32,7 +32,7 @@ from .growth_playbook import (
 )
 from .state_store import IntentStateStore
 from .policy import evaluate_facts, safe_contact
-from .redesign_template import convert_signals_to_claude_leads, render_claude_workbench_html
+from .redesign_template import convert_signals_to_claude_leads, render_claude_workbench_html, map_enriched_dict_to_lead
 
 logger = logging.getLogger("Dispatcher")
 
@@ -307,6 +307,11 @@ class Dispatcher:
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html_str)
         logger.info(f"Internal BD & Pilot Operations Playbook written to isolated path {output_path}")
+
+    @staticmethod
+    def map_signal_to_lead(signal_dict: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert an EnrichedSignal dictionary to the client LEADS data contract."""
+        return map_enriched_dict_to_lead(signal_dict)
 
     def generate_html_report(self, signals: List[EnrichedSignal], output_path: str):
         run_mode = self.config.get("run_mode", "historical_benchmark")

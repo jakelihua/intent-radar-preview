@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Claude-Inspired High-Fidelity Design Template for IntentRadar (v3.3).
-Integrates Claude's Inbox Master-Detail & Review Drawer architecture
+Claude-Inspired High-Fidelity Design Template for IntentRadar (v3.4).
+Integrates Claude's Inbox Master-Detail & Review Drawer architecture (v2)
 with IntentRadar's 4-Stage Sequential Verification, Provenance Engine,
-and Executive Intelligence Dashboard.
+Guide Modal, Keyboard Navigation (J/K/Enter/X/Esc/?//), and Batch Bar.
 """
 
-import html as _html
 import json
 import re
 from pathlib import Path
@@ -78,6 +77,100 @@ CLAUDE_BENCHMARK_LEADS = [
 BENCHMARK_LOOKUP = {lead["id"]: lead for lead in CLAUDE_BENCHMARK_LEADS}
 
 
+def map_enriched_dict_to_lead(d: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Map an EnrichedSignal.to_dict() dictionary to LEADS schema.
+    Strictly follows the data contract required by IntentRadar client engine.
+    """
+    sig_id = str(d.get("source_id") or d.get("id") or "")
+    comp = str(d.get("target_competitor") or "通用竞品")
+    title = str(d.get("title") or "未命名线索")
+    author = str(d.get("author") or "匿名")
+
+    raw_date = str(d.get("timestamp") or d.get("created_at") or d.get("collected_at") or "2024-01-01")
+    date_str = raw_date[:10] if len(raw_date) >= 10 else raw_date
+
+    eng = str(d.get("engagement_metric") or d.get("comments_count") or d.get("replies") or 0)
+    m = re.search(r"(\d+)", eng)
+    replies = int(m.group(1)) if m else 0
+
+    stage = int(d.get("contiguous_stage_num", 0))
+
+    outreach = d.get("outreach_policy") or {}
+    is_blocked = (outreach.get("policy_status") == "blocked") or (stage <= 1 and d.get("intent_type") == "disqualified")
+    blocked_reason = outreach.get("reason", "") or ("无替换意向或无选型决策权" if is_blocked else "")
+
+    quote = str(d.get("evidence_quote") or d.get("content") or "")
+
+    qm = d.get("qualification_meta") or {}
+    prov_map = {
+        "原文明示": "stated",
+        "stated": "stated",
+        "模型推断": "inferred",
+        "inferred": "inferred",
+        "未知": "unknown",
+        "unknown": "unknown",
+    }
+    fact_defs = [
+        ("团队规模", "team_scale"),
+        ("预算", "budget_status"),
+        ("决策权", "decision_authority"),
+        ("紧迫度", "migration_urgency")
+    ]
+    facts = []
+    for label, key in fact_defs:
+        field = qm.get(key)
+        if isinstance(field, dict):
+            val = str(field.get("value") or "未披露")
+            raw_prov = str(field.get("source") or field.get("provenance") or "unknown")
+            prov = prov_map.get(raw_prov, "unknown")
+            ev = str(field.get("evidence") or field.get("quote") or "")
+        else:
+            val = "未披露"
+            prov = "unknown"
+            ev = ""
+        facts.append([label, val, prov, ev])
+
+    todos = d.get("blocking_conditions") or qm.get("blocking_conditions") or d.get("first_reply_todos") or []
+    if not isinstance(todos, list):
+        todos = [str(todos)]
+
+    reqs = d.get("required_capabilities") or []
+    if not isinstance(reqs, list):
+        reqs = []
+
+    reply = str(outreach.get("public_reply") or d.get("public_reply") or "")
+
+    dataset_kind = str(d.get("dataset_kind", ""))
+    is_live = (dataset_kind == "live_production")
+    delivery_eligible = bool(d.get("delivery_eligible", False))
+    ready = is_live and delivery_eligible and (stage >= 3)
+
+    lead_dict = {
+        "id": sig_id,
+        "comp": comp,
+        "title": title,
+        "author": author,
+        "date": date_str,
+        "replies": replies,
+        "stage": stage,
+        "blocked": is_blocked,
+        "blockedReason": blocked_reason,
+        "quote": quote,
+        "facts": facts,
+        "todos": todos,
+        "reqs": reqs,
+        "reply": reply,
+        "ready": ready,
+    }
+
+    raw_url = str(d.get("url") or "")
+    if raw_url and (raw_url.startswith("http://") or raw_url.startswith("https://")):
+        lead_dict["url"] = raw_url
+
+    return lead_dict
+
+
 def convert_signals_to_claude_leads(signals: List[Any], run_mode: str = "historical_benchmark") -> List[Dict[str, Any]]:
     """Convert IntentSignal analysis objects into Claude's clean JSON format."""
     if not signals:
@@ -85,103 +178,39 @@ def convert_signals_to_claude_leads(signals: List[Any], run_mode: str = "histori
 
     leads = []
     for item in signals:
-        sig = getattr(item, "signal", None) or getattr(item, "raw_signal", None) or item
-        sig_id = getattr(sig, "id", "")
-
-        # If benchmark lead, inherit curated high-touch provenance & copy
+        sig_d = item.to_dict() if hasattr(item, "to_dict") else (item if isinstance(item, dict) else {})
+        sig_id = str(sig_d.get("source_id") or sig_d.get("id") or "")
         if sig_id in BENCHMARK_LOOKUP and run_mode == "historical_benchmark":
             leads.append(BENCHMARK_LOOKUP[sig_id])
-            continue
-        
-        # 提取 provenance facts
-        prov = getattr(item, "qualification_meta", None) or getattr(item, "provenance_meta", None) or getattr(sig, "qualification_meta", {}) or {}
-        facts = []
-        fact_keys = [
-            ("团队规模", "team_size"),
-            ("预算", "budget_constraint"),
-            ("决策权", "buying_authority"),
-            ("紧迫度", "timing_urgency")
-        ]
-        for label, f_key in fact_keys:
-            val_dict = prov.get(f_key, {})
-            if isinstance(val_dict, dict):
-                v_text = val_dict.get("value", "未披露")
-                v_source = val_dict.get("source", "unknown")
-                v_quote = val_dict.get("quote", "")
-            else:
-                v_text = "未披露"
-                v_source = "unknown"
-                v_quote = ""
-            facts.append([label, v_text, v_source, v_quote])
-
-        # 是否已拦截
-        auth_v = str(prov.get("buying_authority", {}).get("value", ""))
-        is_blocked = (
-            getattr(item, "is_disqualified", False)
-            or "无采购与替换决策权" in auth_v
-            or "无选型决定权" in auth_v
-            or getattr(item, "is_negated", False)
-        )
-        blocked_reason = getattr(item, "disqualification_reason", "") or ("无替换意向或无选型决策权" if is_blocked else "")
-
-        stage_num = getattr(item, "contiguous_stage_num", 2)
-        if is_blocked:
-            stage_num = 1
-
-        reqs = getattr(item, "required_capabilities", None) or getattr(item, "candidate_alternatives", None)
-        if isinstance(reqs, list) and reqs and isinstance(reqs[0], (list, tuple)):
-            clean_reqs = reqs
         else:
-            comp_name = getattr(item, 'target_competitor', '当前工具')
-            quote_sub = str(getattr(sig, 'evidence_quote', '') or getattr(sig, 'content', ''))[:40]
-            clean_reqs = [
-                [f"替代 {comp_name}", f"“{quote_sub}”" if quote_sub else "明确寻找替代工具"],
-                ["具备生产级可靠性与支持", "原帖未提，选型必备"]
-            ]
-
-        # 解析回复数
-        eng = str(getattr(sig, "engagement_metric", "0"))
-        replies_m = re.search(r"(\d+)\s*(?:条讨论|replies|条回复)", eng, re.I)
-        replies = int(replies_m.group(1)) if replies_m else 0
-
-        date_str = str(getattr(sig, "timestamp", "2024-01-01"))[:10]
-
-        reply_text = (
-            getattr(item, "public_reply", "")
-            or getattr(item, "suggested_pitch", "")
-            or "Curious what’s driving the move? Asking before suggesting anything."
-        )
-
-        leads.append({
-            "id": sig_id or f"sig_{len(leads)+1}",
-            "comp": getattr(item, "target_competitor", "通用竞品"),
-            "title": getattr(sig, "title", "未命名线索"),
-            "author": getattr(sig, "author", "匿名"),
-            "date": date_str,
-            "replies": replies,
-            "stage": stage_num,
-            "quote": getattr(sig, "evidence_quote", "") or getattr(sig, "content", ""),
-            "facts": facts,
-            "todos": getattr(item, "first_reply_todos", None) or [
-                "了解团队目前席位数与部署方式？",
-                "确认是否有预算排期与迁移时间表？",
-                "替代品必须覆盖哪些关键能力？"
-            ],
-            "reqs": clean_reqs,
-            "reply": reply_text,
-            "blocked": is_blocked,
-            "blockedReason": blocked_reason
-        })
-
+            leads.append(map_enriched_dict_to_lead(sig_d))
     return leads
 
 
 def render_claude_workbench_html(leads: List[Dict[str, Any]], banner_text: str = "", run_mode: str = "historical_benchmark") -> str:
-    leads_json = json.dumps(leads, ensure_ascii=False).replace("<", r"\u003c").replace(">", r"\u003e")
+    # 序列化后必须把 `<`、`>`、`&` 转成 \u003c、\u003e、\u0026，防止 </script> 截断和 XSS
+    leads_json = json.dumps(leads, ensure_ascii=False)\
+        .replace("<", r"\u003c")\
+        .replace(">", r"\u003e")\
+        .replace("&", r"\u0026")
     
-    if not banner_text:
-        banner_text = "<strong>演示数据</strong>：10 条 Hacker News 历史帖（2020–2025），用于演练核验流程，不会推送给任何人。"
-
     tmpl_path = Path(__file__).parent / "templates" / "workbench_claude.html"
     tmpl = tmpl_path.read_text(encoding="utf-8")
-    return tmpl.replace("<!-- LEADS_DATA_PLACEHOLDER -->", leads_json).replace("<!-- BANNER_TEXT -->", banner_text)
+
+    # 保留 const LEADS = [...] 这一行的位置，替换成序列化后的 JSON
+    pattern = r"const LEADS = \[[^;]*?\];"
+    if re.search(pattern, tmpl, re.DOTALL):
+        html_out = re.sub(pattern, f"const LEADS = {leads_json};", tmpl, count=1, flags=re.DOTALL)
+    elif "<!-- LEADS_DATA_PLACEHOLDER -->" in tmpl:
+        html_out = tmpl.replace("<!-- LEADS_DATA_PLACEHOLDER -->", leads_json)
+    else:
+        html_out = tmpl
+
+    if banner_text:
+        banner_pattern = r"<span><strong>演示数据</strong>：.*?</span>"
+        if re.search(banner_pattern, html_out):
+            html_out = re.sub(banner_pattern, f"<span>{banner_text}</span>", html_out, count=1)
+        elif "<!-- BANNER_TEXT -->" in html_out:
+            html_out = html_out.replace("<!-- BANNER_TEXT -->", banner_text)
+
+    return html_out

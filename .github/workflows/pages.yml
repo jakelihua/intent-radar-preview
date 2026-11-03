@@ -32,6 +32,7 @@ jobs:
           mkdir -p _site
           cp index.html _site/index.html
           cp report.html _site/report.html
+          cp redesign.html _site/redesign.html
           cp .nojekyll _site/.nojekyll
           # Explicitly forbid any internal playbook or state DB from ever entering public Pages artifact
           rm -f _site/internal_bd_ops.html _site/*.sqlite3
