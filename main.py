@@ -7,6 +7,7 @@ Resolves Audit Round-2 Finding #1:
 """
 
 import argparse
+import inspect
 import json
 import logging
 import os
@@ -18,7 +19,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
 
-from engine.collector import CollectorHub
+from engine.collector import CollectorHub, IntentSignal
 from engine.analyzer import IntentAnalyzer
 from engine.dispatcher import Dispatcher
 from engine.mock_data import get_mock_signals
@@ -60,6 +61,25 @@ def run_pipeline(config: Dict, demo_mode: bool = False, output_html_path: str = 
             hub = CollectorHub(config, state_store=store)
             raw_signals = hub.run()
             config["collection_status"] = hub.last_run_status
+            # Re-hydrate persisted live signals from the SQLite ledger (especially human-reviewed signals
+            # from seller_profile["reviews"]) so Stage 4 webhook delivery remains reachable across runs.
+            seen_keys = {(s.source, s.source_id) for s in raw_signals}
+            seller_prof = config.get("seller_profile") if isinstance(config.get("seller_profile"), dict) else {}
+            reviewed_ids = list((seller_prof.get("reviews") or {}).keys()) if isinstance(seller_prof.get("reviews"), dict) else []
+            if reviewed_ids or config.get("include_ledger_signals", False):
+                sig_kwargs = set(inspect.signature(IntentSignal).parameters) - {"self"}
+                ledger_records = store.load_ledger_signals(source_ids=reviewed_ids if reviewed_ids else None)
+                for rec in ledger_records:
+                    key = (rec.get("source"), rec.get("source_id"))
+                    if key in seen_keys or rec.get("dataset_kind") == "historical_benchmark":
+                        continue
+                    rehydrated = IntentSignal(**{k: v for k, v in rec.items() if k in sig_kwargs})
+                    if rec.get("content_hash"):
+                        rehydrated.content_hash = rec["content_hash"]
+                    if rec.get("version_num"):
+                        rehydrated.version_num = int(rec["version_num"])
+                    raw_signals.append(rehydrated)
+                    seen_keys.add(key)
         enriched = analyzer.analyze_signals(raw_signals)
         if not internal_bd_path:
             internal_dir = os.path.join(tempfile.gettempdir(), "intent_radar_internal")
@@ -91,17 +111,24 @@ def main():
     parser.add_argument("--backup-state", metavar="PATH", help="一致性备份 SQLite 状态库（不发消息）")
     parser.add_argument("--resolve-delivery", metavar="TOKEN", help="人工核对后处理不确定投递")
     parser.add_argument("--resolution", choices=["sent", "not-sent"])
+    parser.add_argument("--purge-days", type=int, metavar="DAYS", help="清理超过指定天数的历史信号记录（PIPL/GDPR 数据保留期合规）")
+    parser.add_argument("--erase-author", metavar="USERNAME", help="删除指定社区作者的所有留存记录（PIPL/GDPR 删除权响应）")
     args = parser.parse_args()
 
     config = load_config(args.config)
     if args.seller_profile:
         with open(args.seller_profile, encoding="utf-8") as profile_file:
-            config["seller_profile"] = json.load(profile_file)["seller_profile"]
-    if args.list_deliveries or args.resolve_delivery or args.backup_state:
+            loaded_prof = json.load(profile_file)
+            config["seller_profile"] = loaded_prof.get("seller_profile", loaded_prof)
+    if args.list_deliveries or args.resolve_delivery or args.backup_state or args.purge_days or args.erase_author:
         store = IntentStateStore(config.get("state_db_path"))
         try:
             if args.backup_state:
                 store.backup(args.backup_state)
+            if args.purge_days:
+                store.purge_expired_signals(args.purge_days)
+            if args.erase_author:
+                store.erase_author(args.erase_author)
             if args.resolve_delivery:
                 if not args.resolution:
                     parser.error("--resolve-delivery 需要 --resolution sent 或 not-sent")

@@ -10,15 +10,39 @@ import re
 from urllib.parse import urlsplit
 
 
+COMPETITOR_ALIASES = {
+    "jira": "atlassian jira",
+    "confluence": "atlassian confluence",
+    "salesforce": "salesforce crm",
+    "newrelic": "new relic",
+    "clerk.dev": "clerk",
+    "hellosign": "hellosign / dropbox sign",
+    "dropbox sign": "hellosign / dropbox sign",
+    "twenty": "twenty crm",
+}
+
+INVALID_COMPETITOR_PLACEHOLDERS = {"", "未知", "通用行业竞品", "同赛道传统竞品", "none", "unknown"}
+
+
+def canonical_competitor(name) -> str:
+    cleaned = str(name or "").strip().lower()
+    if not cleaned:
+        return ""
+    return COMPETITOR_ALIASES.get(cleaned, cleaned)
+
+
 def text(value):
     return "；".join(str(x).strip() for x in value) if isinstance(value, list) else str(value or "").strip()
 
 
 def seller_snapshot(profile):
-    profile = profile or {}
+    profile = profile if isinstance(profile, dict) else {}
+    raw_targets = profile.get("target_competitors")
+    raw_targets = raw_targets if isinstance(raw_targets, list) else []
+    norm_targets = sorted({canonical_competitor(x) for x in raw_targets if canonical_competitor(x)})
     return [text(profile.get(k)) for k in (
         "brand_name", "actor_role", "approved_capabilities", "known_limitations", "cta_link"
-    )] + [sorted(str(x).strip().lower() for x in profile.get("target_competitors", []) if str(x).strip())]
+    )] + [norm_targets]
 
 
 def safe_contact(url):
@@ -39,14 +63,25 @@ def evaluate_facts(facts, profile=None, now=None):
         if not isinstance(value, str) or not value.endswith(("Z", "+00:00")):
             raise ValueError("Policy timestamps must use UTC")
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    profile = profile or {}
-    targets = [str(x).strip().lower() for x in profile.get("target_competitors", [])]
+    facts = facts if isinstance(facts, dict) else {}
+    profile = profile if isinstance(profile, dict) else {}
+    raw_targets = profile.get("target_competitors")
+    raw_targets = raw_targets if isinstance(raw_targets, list) else []
+    targets = [canonical_competitor(x) for x in raw_targets if canonical_competitor(x)]
     complete = bool(text(profile.get("brand_name")) and text(profile.get("actor_role"))
                     and text(profile.get("approved_capabilities")) and targets and "*" not in targets)
-    # Exact normalized entity membership; substrings must not match unrelated brands.
-    entities = [x.strip().lower() for x in facts.get("competitor", "").split("/")]
-    compatible = complete and bool(set(entities) & set(targets))
-    review = (profile.get("reviews") or {}).get(facts.get("source_id"), {})
+    # Exact normalized entity membership; substrings or empty strings must not match unrelated brands.
+    raw_comp = str(facts.get("competitor") or "")
+    entities = [
+        canonical_competitor(x)
+        for x in raw_comp.split("/")
+        if canonical_competitor(x) and canonical_competitor(x) not in INVALID_COMPETITOR_PLACEHOLDERS
+    ]
+    compatible = bool(complete and entities and (set(entities) & set(targets)))
+    raw_reviews = profile.get("reviews")
+    raw_reviews = raw_reviews if isinstance(raw_reviews, dict) else {}
+    raw_rev = raw_reviews.get(facts.get("source_id"))
+    review = raw_rev if isinstance(raw_rev, dict) else {}
     current_review = False
     try:
         reviewed = utc_time(review.get("reviewed_at", ""))
@@ -72,7 +107,7 @@ def evaluate_facts(facts, profile=None, now=None):
         pass
     live = (facts.get("dataset_kind") == "live_production" and facts.get("delivery_eligible") is True and fresh
             and facts.get("content_complete") is True)
-    actionable = (review.get("authority_confirmed") is True
+    actionable = ( current_review and review.get("authority_confirmed") is True
                   and safe_contact(review.get("contact_url")) and bool(text(review.get("contact_evidence"))))
     s4 = bool(s3 and live and actionable)
     passed = [bool(s1), bool(s2), bool(s3), s4]

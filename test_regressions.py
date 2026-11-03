@@ -21,8 +21,8 @@ from engine.policy import evaluate_facts, seller_snapshot
 from engine.state_store import IntentStateStore
 
 
-def signal(body=None, **kw):
-    return IntentSignal("Looking for a Jira alternative", "https://example.org/post", "Test",
+def signal(body=None, title="Looking for a Jira alternative", **kw):
+    return IntentSignal(title, "https://example.org/post", "Test",
         content=body or "My team is looking to migrate away from Jira. We are on a paid plan and evaluating issue trackers.",
         source_id="test_1", timestamp=(datetime.now(timezone.utc) - timedelta(hours=1)).isoformat(), **kw)
 
@@ -304,6 +304,144 @@ atomic_write_json(Path(sys.argv[1]), {"signals": [], "outcomes": {}, "deferred":
                     self.assertEqual(hub.last_run_status, {"hn": "complete", "github": "complete", "devto": "complete"})
             finally:
                 hub.close()
+
+    def test_claude_adversarial_probes_a_to_j(self):
+        ts = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d %H:%M UTC")
+        def run_probe(title, body):
+            s = IntentSignal(title=title, url="https://news.ycombinator.com/item?id=1", source="Hacker News",
+                             content=body, timestamp=ts, source_id="hn_1")
+            return self.analyze(s)
+
+        # Probe A: Completed past migration / retrospective recommendation -> pain_only, Stage 1, blocked
+        res_a = run_probe("We migrated to Linear last year",
+            "We finished switching from Jira to Linear in 2025 and honestly it's great. Highly recommend Linear to everyone.")
+        self.assertEqual(res_a.intent_type, "pain_only")
+        self.assertEqual(res_a.contiguous_stage_num, 1)
+        self.assertEqual(res_a.outreach_policy["policy_status"], "blocked")
+
+        # Probe B: Stealth vendor self-promotion -> vendor_self_promotion, Stage 0, blocked
+        res_b = run_probe("Jira alternatives that actually work",
+            "I've been building Acme, an alternative to Jira for small teams. Feedback welcome, link in profile.")
+        self.assertEqual(res_b.intent_type, "vendor_self_promotion")
+        self.assertEqual(res_b.contiguous_stage_num, 0)
+        self.assertEqual(res_b.outreach_policy["policy_status"], "blocked")
+
+        # Probe C: Common English words ('twenty engineers', 'control plane', 'wiki 替代 + twenty engineers')
+        res_c1 = run_probe("Our control plane keeps crashing",
+            "We have twenty engineers and the control plane is too expensive to run, looking for alternatives for k8s.")
+        self.assertEqual(res_c1.target_competitor, "未知")
+        self.assertEqual(res_c1.contiguous_stage_num, 0)
+        self.assertLessEqual(res_c1.intent_score, 35)
+        self.assertEqual(res_c1.outreach_policy["policy_status"], "blocked")
+
+        res_c2 = run_probe("Looking for a wiki alternative",
+            "We have twenty engineers and our internal wiki is too slow, looking for alternatives.")
+        self.assertEqual(res_c2.target_competitor, "未知")
+        self.assertNotEqual(res_c2.target_competitor, "Twenty CRM")
+
+        # Probe D: Chinese team scale ('50人团队')
+        res_d = run_probe("求推荐 Jira 替代方案", "我们50人团队在用 Jira，续费太贵，寻找替代方案，预算有限。")
+        self.assertEqual(res_d.qualification_meta["team_scale"]["source"], "原文明示")
+        self.assertIn("50人团队", res_d.qualification_meta["team_scale"]["value"])
+        self.assertEqual(res_d.qualification_meta["budget_status"]["source"], "原文明示")
+
+        # Probe E: '学生作业，没有预算' -> lack_of_authority, Stage 1, blocked, zero-budget provenance
+        res_e = run_probe("求推荐 Notion 替代", "学生作业，没有预算，寻找 Notion 的免费替代方案。")
+        self.assertEqual(res_e.intent_type, "lack_of_authority")
+        self.assertEqual(res_e.contiguous_stage_num, 1)
+        self.assertEqual(res_e.outreach_policy["policy_status"], "blocked")
+        self.assertIn("无商业采购预算", res_e.qualification_meta["budget_status"]["value"])
+
+        # Probe F: Blogger / market survey ('Not for my company, just research') -> pain_only, Stage 1, blocked
+        res_f = run_probe("Survey: what Jira alternatives do you use?",
+            "I'm writing a blog post comparing Jira alternatives, what do you all use? Not for my company, just research.")
+        self.assertEqual(res_f.intent_type, "pain_only")
+        self.assertEqual(res_f.contiguous_stage_num, 1)
+        self.assertEqual(res_f.outreach_policy["policy_status"], "blocked")
+
+        # Probe G: '$5M seed' funding noise must NOT be marked as SaaS budget constraint
+        res_g = run_probe("Looking for alternative to Datadog",
+            "We just raised $5M seed and are looking for an alternative to Datadog.")
+        self.assertEqual(res_g.qualification_meta["budget_status"]["source"], "未知")
+
+        # Probe H, I, J: Canonical competitor aliases, empty competitor string, and malformed review in both Python & JS
+        now = datetime.now(timezone.utc)
+        base_facts = dict(source="Hacker News", source_id="hn_1", content_hash="h", pain_verified=True, evaluation_verified=True,
+                          dataset_kind="live_production", delivery_eligible=True, content_complete=True,
+                          published_at=(now - timedelta(days=1)).isoformat())
+        prof_jira = {"brand_name": "Plane", "actor_role": "创始人", "approved_capabilities": ["Jira 导入"], "target_competitors": ["Jira"]}
+        self.assertEqual(evaluate_facts({**base_facts, "competitor": "Atlassian Jira"}, prof_jira, now)["policy_status"], "neutral_inquiry_only")
+        self.assertTrue(evaluate_facts({**base_facts, "competitor": "Atlassian Jira"}, prof_jira, now)["compatible"])
+        prof_empty = {**prof_jira, "target_competitors": ["Atlassian Jira", " "]}
+        self.assertFalse(evaluate_facts({**base_facts, "competitor": ""}, prof_empty, now)["compatible"])
+        malformed_res = evaluate_facts({**base_facts, "competitor": "Atlassian Jira"}, {**prof_jira, "reviews": {"hn_1": ["x"]}}, now)
+        self.assertFalse(malformed_res["review_current"])
+
+    def test_webhook_markdown_injection_escaped_and_ledger_rehydration(self):
+        from main import run_pipeline
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = str(Path(directory) / "state.db")
+            store = IntentStateStore(db_path)
+            malicious_sig = signal(
+                body="My team is looking to migrate away from Jira. <at id=all></at> [点击领取](https://evil.example/phish)",
+                title="Ask HN: [钓鱼标题](https://evil.example) <at id=all></at> Jira alternative?",
+            )
+            store.upsert_signal(malicious_sig)
+            store.close()
+
+            prof = reviewed(malicious_sig, fit="supported", actionable=True)
+            cfg = {
+                "state_db_path": db_path,
+                "client_id": "tenant_alpha",
+                "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/test",
+                "wechat_webhook": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=test",
+                "seller_profile": prof,
+                "use_llm_api": False,
+            }
+            captured_payloads = []
+            def fake_post(url, json=None, timeout=10):
+                captured_payloads.append(json)
+                return Mock(status_code=200, json=lambda: {"code": 0, "errcode": 0})
+
+            with patch.object(CollectorHub, "run", return_value=[]), patch("engine.dispatcher.requests.post", side_effect=fake_post):
+                summary = run_pipeline(
+                    config=cfg,
+                    demo_mode=False,
+                    output_html_path=str(Path(directory) / "report.html"),
+                    internal_bd_path=str(Path(directory) / "bd.html"),
+                )
+            self.assertEqual(summary["feishu_status"], "SUCCESS")
+            self.assertEqual(summary["wechat_status"], "SUCCESS")
+            self.assertEqual(summary["delivered_count"], 2)
+            serialized = json.dumps(captured_payloads, ensure_ascii=False)
+            self.assertNotIn("<at id=all>", serialized)
+            self.assertNotIn("](https://evil.example", serialized)
+
+    def test_resolve_delivery_guards_active_sending_and_resets_attempts_and_privacy_ops(self):
+        store = IntentStateStore(":memory:")
+        try:
+            token = store.claim_delivery("Hacker News", "hn_1", "client:feishu", 1)
+            # Active 'sending' claim (<60s old) cannot be prematurely resolved by operator
+            with self.assertRaises(ValueError):
+                store.resolve_delivery(token, received=False, min_sending_age_seconds=60.0)
+            # Simulate 3 failed attempts then uncertain timeout
+            for _ in range(2):
+                store.finish_delivery("Hacker News", "hn_1", "client:feishu", 1, token, "failed", "feishu")
+                token = store.claim_delivery("Hacker News", "hn_1", "client:feishu", 1)
+            store.finish_delivery("Hacker News", "hn_1", "client:feishu", 1, token, "uncertain", "feishu")
+            # Operator confirms 'not-sent' -> attempts reset to 0 so it can be re-claimed
+            store.resolve_delivery(token, received=False)
+            self.assertTrue(store.should_deliver("Hacker News", "hn_1", "client:feishu", 1))
+            self.assertIsNotNone(store.claim_delivery("Hacker News", "hn_1", "client:feishu", 1))
+
+            # Privacy & retention compliance operations
+            s = signal()
+            s.author = "privacy_user"
+            store.upsert_signal(s)
+            self.assertEqual(store.erase_author("privacy_user"), 1)
+            self.assertIsNone(store.get_signal_record(s.source, s.source_id))
+        finally:
+            store.close()
 
 
 if __name__ == "__main__": unittest.main()

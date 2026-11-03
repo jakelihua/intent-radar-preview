@@ -31,9 +31,26 @@ from .growth_playbook import (
     get_seed_clients,
 )
 from .state_store import IntentStateStore
-from .policy import evaluate_facts
+from .policy import evaluate_facts, safe_contact
 
 logger = logging.getLogger("Dispatcher")
+
+
+def escape_webhook_markdown(raw: str) -> str:
+    """
+    Neutralizes untrusted community strings before embedding into Feishu `lark_md` or WeChat `markdown`.
+    Prevents:
+    - `<at id=all></at>` or HTML/XML tag injection
+    - `[钓鱼链接](https://evil.example)` markdown link spoofing
+    - Formatting breakout via `*`, `_`, `` ` ``, `~`, or newlines
+    """
+    if not raw:
+        return ""
+    cleaned = str(raw).replace("\r", " ").replace("\n", " ")
+    cleaned = cleaned.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    cleaned = cleaned.replace("[", "【").replace("]", "】").replace("(", "（").replace(")", "）")
+    cleaned = cleaned.replace("`", "＇").replace("*", "＊").replace("~", "～")
+    return cleaned.strip()
 
 
 def _make_brand_svg_data_uri(bg_color: str, label: str) -> str:
@@ -184,12 +201,17 @@ class Dispatcher:
 
         for idx, item in enumerate(eligible, 1):
             policy_status = (item.outreach_policy or {}).get("policy_status", "neutral_inquiry_only")
+            safe_title = escape_webhook_markdown(item.signal.title)
+            safe_quote = escape_webhook_markdown(item.signal.evidence_quote)
+            safe_sid = escape_webhook_markdown(item.signal.source_id)
+            safe_url = item.signal.url if safe_contact(item.signal.url) else "#"
+            safe_reply = escape_webhook_markdown(item.public_reply)
             card_item_md = (
                 f"**#{idx} [{item.intent_level}] · 被替换竞品：{item.target_competitor}**\n"
                 f"**资格阶段**：{item.qualification_stage} | **门控策略**：`{policy_status}` | **评分**：`{item.intent_score}分`\n"
-                f"**原帖链接**：[{item.signal.title}]({item.signal.url}) (ID: `{item.signal.source_id}`)\n"
-                f"**原文证据**：“{item.signal.evidence_quote}”\n"
-                f"> 💬 **合规沟通草稿**：{item.public_reply.replace(chr(10), ' ')}"
+                f"**原帖链接**：[{safe_title}]({safe_url}) (ID: `{safe_sid}`)\n"
+                f"**原文证据**：“{safe_quote}”\n"
+                f"> 💬 **合规沟通草稿**：{safe_reply}"
             )
             elements.append({"tag": "div", "text": {"tag": "lark_md", "content": card_item_md}})
             elements.append({"tag": "hr"})
@@ -216,11 +238,15 @@ class Dispatcher:
         now = datetime.now().strftime("%Y-%m-%d %H:%M")
         md_text = f"### 🎯 IntentRadar · 竞品替换信号核验日报 ({now})\n"
         for idx, item in enumerate(eligible, 1):
+            safe_title = escape_webhook_markdown(item.signal.title)
+            safe_quote = escape_webhook_markdown(item.signal.evidence_quote)
+            safe_url = item.signal.url if safe_contact(item.signal.url) else "#"
+            safe_reply = escape_webhook_markdown(item.public_reply)
             md_text += f"**#{idx} [{item.intent_level}]** `{item.target_competitor}`\n"
             md_text += f"- **阶段**：{item.qualification_stage} ({item.intent_score}分)\n"
-            md_text += f"- **原帖**：[{item.signal.title}]({item.signal.url})\n"
-            md_text += f"- **证据**：“{item.signal.evidence_quote}”\n"
-            md_text += f"- **合规草稿**：{item.public_reply.replace(chr(10), ' ')}\n\n"
+            md_text += f"- **原帖**：[{safe_title}]({safe_url})\n"
+            md_text += f"- **证据**：“{safe_quote}”\n"
+            md_text += f"- **合规草稿**：{safe_reply}\n\n"
         payload = {"msgtype": "markdown", "markdown": {"content": md_text}}
         return self._post_claimed(self.wechat_webhook, payload, claims, "wechat", "errcode")
 

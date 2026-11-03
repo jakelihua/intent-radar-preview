@@ -27,7 +27,7 @@ from requests.adapters import HTTPAdapter
 from .collector import IntentSignal, parse_timestamp
 from .policy import evaluate_facts, text
 
-# Automatically load local .env if present
+# Automatically load local .env if present (never overwrite existing environment variables)
 _env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
 if os.path.exists(_env_path):
     try:
@@ -36,7 +36,7 @@ if os.path.exists(_env_path):
                 _line = _line.strip()
                 if _line and not _line.startswith("#") and "=" in _line:
                     _k, _v = _line.split("=", 1)
-                    os.environ[_k.strip()] = _v.strip().strip("'\"")
+                    os.environ.setdefault(_k.strip(), _v.strip().strip("'\""))
     except Exception:
         pass
 
@@ -122,10 +122,38 @@ CATEGORY_FALLBACKS = [
 
 
 
+# Ambiguous product keys that are also common English words; require disambiguation against non-product collocations
+AMBIGUOUS_PRODUCT_KEYS = {"twenty", "plane", "outline", "linear", "slack", "shortcut", "clerk"}
+
+NON_BRAND_COLLOCATION_PATTERNS = [
+    r"\btwenty(?:\s*[- ]\s*(?:one|two|three|four|five|six|seven|eight|nine))?\s+(?:engineers?|developers?|devs?|people|persons?|users?|years?|months?|weeks?|days?|hours?|minutes?|seconds?|percent|%|dollars?|bucks?|teams?|seats?|companies|clients?|customers?|projects?|apps?|services?|servers?|nodes?|pods?|clusters?|million|thousand|hundred|items?|files?|tables?|repos?)\b",
+    r"\b(?:control|data|management|back|air|cargo|user|routing|forwarding|network|execution)\s+planes?\b",
+    r"\bplanes?\s+(?:tickets?|crash(?:es|ed)?|flights?|rides?|trips?|geometry)\b",
+    r"\blinear\s+(?:regression|algebra|scale|scaling|time|growth|search|models?|functions?|equations?|interpolation|programming|history|workflows?|fashion|progression|complexity|types?)\b",
+    r"\b(?:keyboard|desktop|browser|url|useful|handy|quick)\s+shortcuts?\b",
+    r"\b(?:take|taking)\s+a\s+shortcut\b",
+    r"\b(?:rough|brief|course|general|project|document|essay|article|chapter|basic)\s+outlines?\b",
+    r"\boutline\s+(?:of|for\s+(?:the|a|my|our))\b",
+    r"\bcut\s+(?:us|me|them|some)\s+slack\b",
+    r"\bslack\s+(?:time|water|variable|resources?|capacity)\b",
+    r"\b(?:county|court|bank|office|store|hotel|desk|town|city|parish|law|legal|filing|data\s+entry)\s+clerks?\b",
+]
+
+
+def strip_non_brand_collocations(text: str) -> str:
+    if not text:
+        return ""
+    masked = text
+    for pat in NON_BRAND_COLLOCATION_PATTERNS:
+        masked = re.sub(pat, " [NON_BRAND_COLLOCATION] ", masked, flags=re.IGNORECASE)
+    return masked
+
+
 def normalize_product_name(raw_token: str) -> Optional[str]:
     if not raw_token:
         return None
-    cleaned = raw_token.strip().lower().strip(".,;:!?()[]{}\"'")
+    masked = strip_non_brand_collocations(raw_token)
+    cleaned = masked.strip().lower().strip(".,;:!?()[]{}\"'")
     if cleaned in KNOWN_PRODUCTS:
         return KNOWN_PRODUCTS[cleaned]
     for k, v in sorted(KNOWN_PRODUCTS.items(), key=lambda x: -len(x[0])):
@@ -160,25 +188,41 @@ def get_category_for_product(product_name: str, text_lower: str = "") -> str:
     return "垂直行业企业服务软件"
 
 
+def has_concrete_pain_or_eval(title: str, content: str) -> bool:
+    full_text = f"{title or ''} {content or ''}".lower()
+    return bool(re.search(
+        r"(?:alternatives?|replace|replacing|replacement|migrate|migrating|switch|switching|ditch|ditching|leaving|reevaluate|re-evaluate|"
+        r"expensive|pricing|price|cost|billing|rate\s+limit|api\s+limit|quota|slow|bloated|bloat|clunky|laggy|unusable|crash|friction|"
+        r"lock-in|self-host|on-prem|compliance|hard\s+to\s+use|hard\s+to\s+configure|stopped\s+offering|not\s+my\s+choice|forced\s+to\s+use|"
+        r"替代|代替|平替|求推荐|迁移|切换|替换|弃用|涨价|太贵|续费|限流|配额|卡顿|臃肿|难用|崩溃|私有化|自托管|合规|选型)",
+        full_text,
+        re.IGNORECASE,
+    ))
+
+
 def classify_post_intent_type(title: str, content: str) -> Tuple[str, str]:
     """
     Distinguishes:
-    - 'vendor_self_promotion': Vendor/developer promoting their own alternative product
+    - 'vendor_self_promotion': Vendor/developer promoting their own alternative product (including stealth 'I've been building...')
     - 'negative_no_replacement': User mentions tool but explicitly says they are NOT looking to replace / have no plans to switch
-    - 'lack_of_authority': User complains about tool but explicitly states they lack replacement authority ('not my choice')
+    - 'lack_of_authority': User complains about tool but explicitly states they lack replacement authority or are doing zero-budget student homework
+    - 'pain_only': Completed past migration retrospective, blogger/researcher survey, or complaint without active evaluation
     - 'buyer_evaluation': Active replacement evaluation or alternative inquiry
     """
     full_text = f"{title} {content}".strip()
     lower_text = full_text.lower()
 
-    # 1. Check Vendor Self-Promotion
+    # 1. Check Vendor Self-Promotion (explicit Show/Launch HN + stealth builder self-promo)
     vendor_patterns = [
         r"^show hn:",
         r"^launch hn:",
         r"\b(?:we|i)\s+(?:built|created|launched|developed|made|released)\s+(?:a|an|our)\b",
-        r"\b(?:try|check out|announcing|introducing)\s+our\s+(?:new\s+)?(?:paid|open[- ]source|commercial|fast)?",
+        r"\b(?:i've|we've|i\s+have|we\s+have|i\s+am|we\s+are|i'm|we're)\s+(?:been\s+)?(?:building|developing|working\s+on|creating|making|shipping)\s+[a-z0-9_.\s,-]{1,40}?\balternatives?\b",
+        r"\b(?:i've|we've|i\s+have|we\s+have|i\s+am|we\s+are|i'm|we're)\s+(?:been\s+)?(?:building|developing|creating|making)\s+[a-z0-9_-]+,\s+(?:a|an|the)\b",
+        r"\b(?:try|check out|announcing|introducing)\s+(?:our|my)\s+(?:new\s+)?(?:paid|open[- ]source|commercial|fast|project|tool|app)?",
+        r"\b(?:feedback\s+welcome,?\s+link\s+in\s+(?:profile|bio)|link\s+in\s+(?:my\s+)?(?:profile|bio))\b",
         r"\binvite\s+you\s+to\s+(?:try|buy|test)\b",
-        r"(?:我们|我)(?:开发|自研|推出|发布|做了)了?(?:一款|一个)?.*?(?:替代|平替)",
+        r"(?:我们|我)(?:开发|自研|推出|发布|做了|正在写|正在做)了?(?:一款|一个)?.*?(?:替代|平替)",
         r"(?:欢迎|邀请)(?:大家|您)?(?:试用|购买|体验)(?:我们|我方)",
     ]
     for pat in vendor_patterns:
@@ -201,26 +245,46 @@ def classify_post_intent_type(title: str, content: str) -> Tuple[str, str]:
         if m:
             return "negative_no_replacement", full_text[max(0, m.start() - 15): min(len(full_text), m.end() + 45)].strip()
 
-    # 3. Check Explicit Lack of Decision Authority
+    # 3. Check Explicit Lack of Decision Authority OR Non-Commercial Student Assignment
     no_auth_patterns = [
         r"\bnot\s+my\s+(?:choice|decision|call)\b",
         r"\bforced\s+to\s+use\b",
         r"\bcompany\s+forces\s+(?:us|me)\b",
         r"\bmanagement\s+mandated\b",
         r"(?:不是我的选择|无权决定|无选型权|公司强制要求|老板强制)",
+        r"(?:学生作业|课程作业|毕业设计|课设|\b(?:student|school|homework|class)\s+(?:assignment|project|coursework)\b)",
     ]
     for pat in no_auth_patterns:
         m = re.search(pat, lower_text, re.IGNORECASE)
         if m:
             return "lack_of_authority", full_text[max(0, m.start() - 15): min(len(full_text), m.end() + 45)].strip()
 
-    # Positive evidence is required. Absence of a negative phrase is not intent.
+    # 4. Check Completed Past Migration / Resolved Selection / Blogger Survey & Research (Not an active buyer)
+    non_active_eval_patterns = [
+        r"\b(?:we|i)\s+(?:finished|completed)\s+(?:switching|migrating|moving)\b",
+        r"\b(?:we|i)\s+(?:migrated|switched|moved)\s+(?:from\s+[a-z0-9_.\s/-]+?\s+)?to\s+[a-z0-9_.\s/-]+?\s+(?:last\s+(?:year|month|week)|in\s+20\d\d|\d+\s+(?:months?|years?)\s+ago)\b",
+        r"\b(?:already\s+(?:switched|migrated)\s+to|highly\s+recommend\s+[a-z0-9_-]+\s+to\s+everyone)\b",
+        r"\b(?:edit|update)\s*:\s*we\s+(?:went\s+with|chose|picked|decided\s+on|settled\s+on|switched\s+to)\b",
+        r"(?:已经|已)(?:完成)?(?:切换到|迁移到|换成了|选定了)|最终(?:选择了|选定了)",
+        r"^\s*survey\s*:",
+        r"\b(?:writing|working\s+on|drafting)\s+a\s+(?:blog\s*post|article|paper|report|newsletter)\s+(?:comparing|about|on)\b",
+        r"\bnot\s+for\s+my\s+(?:company|team|organization|employer)\b",
+        r"\bjust\s+(?:doing\s+)?(?:research|curious|for\s+a\s+blog)\b",
+        r"(?:写一篇|正在写).*(?:博客|文章|测评|对比|盘点)|(?:非公司选型|仅作调研|问卷调查)",
+    ]
+    for pat in non_active_eval_patterns:
+        m = re.search(pat, lower_text, re.IGNORECASE)
+        if m:
+            return "pain_only", full_text[max(0, m.start() - 10): min(len(full_text), m.end() + 45)].strip()
+
+    # 5. Positive active evaluation evidence is required. Absence of a negative phrase is not intent.
     positive_patterns = [
         r"\balternatives?\b.{0,35}\b(?:to|for)\b",
-        r"\b(?:alternatives?\s+(?:to|for)|(?:jira|postman|salesforce|notion|airtable|hubspot|datadog|docusign|auth0)\s+alternatives?)\b",
-        r"\b(?:looking|searching|seeking)\s+(?:for\s+)?(?:an?\s+)?(?:alternatives?|replacement)\b",
-        r"\b(?:looking to migrate|opportunity to reevaluate|evaluating (?:other|self-host)|switching from|migrating (?:away )?from|replacing .+ with)\b",
-        r"(?:寻找|求推荐|寻求|评估).{0,35}(?:替代|平替|替换|方案)|(?:迁出|弃用|迁移到)",
+        r"\b(?:alternatives?\s+(?:to|for)|(?:jira|postman|salesforce|notion|airtable|hubspot|datadog|docusign|auth0|newrelic|new relic|zendesk)\s+(?:[a-z0-9_-]+\s+)?alternatives?)\b",
+        r"\balternative\s+(?:jira|postman|salesforce|notion|airtable|hubspot|datadog|docusign|auth0)\s+(?:uis?|frontends?|clients?)\b",
+        r"\b(?:looking|searching|seeking)\s+(?:for\s+)?(?:an?\s+|some\s+|good\s+|open[- ]source\s+|affordable\s+)?(?:[a-z0-9_-]+\s+){0,3}(?:alternatives?|replacements?)\b",
+        r"\b(?:looking to migrate|opportunity to reevaluate|evaluating (?:other|self-host)|switching (?:away )?from|migrating (?:away )?from|replacing .+ with)\b",
+        r"(?:寻找|求推荐|寻求|评估|有没有).{0,35}(?:替代|平替|替换|方案)|(?:迁出|弃用|迁移到)",
     ]
     for pattern in positive_patterns:
         match = re.search(pattern, lower_text)
@@ -235,13 +299,14 @@ def extract_entities_directional(
     existing_meta: Optional[Dict] = None,
 ) -> Tuple[str, str, List[str], List[str]]:
     """
-    Syntactic direction-aware entity extractor (Resolves Audit Finding #5).
+    Syntactic direction-aware entity extractor (Resolves Audit Finding #5 & Claude Probe C).
     Determines `target_competitor` (incumbent being replaced) vs `candidate_alternatives` (tools evaluated/adopted)
     strictly from sentence direction, NEVER from hardcoded incumbent/challenger lists.
-    Also returns `system_recommended_alternatives` separately from `candidate_alternatives`.
+    Masks out common English collocations ('twenty engineers', 'control plane', 'linear regression', etc.) first.
     """
     full_text = f"{title or ''}\n{content or ''}".strip()
-    text_lower = full_text.lower()
+    masked_text = strip_non_brand_collocations(full_text)
+    text_lower = masked_text.lower()
 
     # Build regex union of known product keys sorted longest-first
     sorted_keys = sorted(KNOWN_PRODUCTS.keys(), key=len, reverse=True)
@@ -251,8 +316,9 @@ def extract_entities_directional(
     candidates: List[str] = []
 
     def _add_unique(target_list: List[str], raw_str: str) -> None:
+        cleaned_raw = strip_non_brand_collocations(raw_str).lower()
         for k in sorted_keys:
-            if re.search(r"\b" + re.escape(k) + r"\b", raw_str.lower()):
+            if re.search(r"\b" + re.escape(k) + r"\b", cleaned_raw):
                 norm = KNOWN_PRODUCTS[k]
                 if norm not in target_list:
                     target_list.append(norm)
@@ -286,7 +352,7 @@ def extract_entities_directional(
             # "currently use Jira", "using Airtable ... hitting rate limits", "using Jira was not my choice"
             rf"\b(?:currently\s+use|we\s+are\s+using|using)\s+({product_group})\b",
             rf"({product_group})\s*(?:的)?(?:替代|平替|代替)",
-            rf"(?:替换|弃用|迁出|离开|受够了)\s*({product_group})",
+            rf"(?:替换|弃用|迁出|离开|受够了|在用|使用)\s*({product_group})",
         ]
         for pat in outbound_patterns:
             for m in re.finditer(pat, text_lower, re.IGNORECASE):
@@ -303,17 +369,21 @@ def extract_entities_directional(
             if cand_prod and cand_prod not in incumbents and cand_prod not in candidates:
                 candidates.append(cand_prod)
 
-    # 4. Also preserve any candidate in existing_meta ONLY IF it literally appears in full_text
+    # 4. Also preserve any candidate in existing_meta ONLY IF it literally appears in masked_text
     if existing_meta and existing_meta.get("candidate_alternatives"):
         for c in existing_meta["candidate_alternatives"]:
             if c and re.search(r"\b" + re.escape(c.lower()) + r"\b", text_lower):
                 if c not in incumbents and c not in candidates:
                     candidates.append(c)
 
-    # 5. If still no incumbent found via directional patterns, check if a single product is discussed with pain
+    # 5. If still no incumbent found via directional patterns, check if a single unambiguous product is discussed with pain
     if not incumbents:
         mentioned: List[str] = []
         for k in sorted_keys:
+            if k in AMBIGUOUS_PRODUCT_KEYS:
+                # Require capitalized brand usage + software context for ambiguous common words in fallback mode
+                if not re.search(r"\b" + re.escape(k.capitalize()) + r"\b", masked_text):
+                    continue
             if re.search(r"\b" + re.escape(k) + r"\b", text_lower):
                 norm = KNOWN_PRODUCTS[k]
                 if norm not in mentioned and norm not in candidates:
@@ -350,10 +420,15 @@ def extract_entities_directional(
 
 def evaluate_four_stages(sig, target_competitor, qual_meta, intent_type, intent_evidence, seller_profile=None):
     published = parse_timestamp(sig.timestamp)
+    has_pain = has_concrete_pain_or_eval(sig.title, sig.content)
     facts = {
         "source": sig.source, "source_id": sig.source_id, "content_hash": sig.content_hash,
         "competitor": target_competitor,
-        "pain_verified": intent_type != "vendor_self_promotion" and target_competitor not in ("未知", "通用行业竞品", "同赛道传统竞品"),
+        "pain_verified": (
+            intent_type != "vendor_self_promotion"
+            and target_competitor not in ("未知", "通用行业竞品", "同赛道传统竞品")
+            and has_pain
+        ),
         "evaluation_verified": intent_type == "buyer_evaluation",
         "dataset_kind": sig.dataset_kind,
         "delivery_eligible": sig.delivery_eligible,
@@ -633,11 +708,15 @@ class IntentAnalyzer:
                 out["evidence"] = out.get("evidence_snippet") or ("原帖未披露" if src == "未知" else sig.evidence_quote)
             return out
 
-        # 1. Team scale provenance
+        # 1. Team scale provenance (supports both English word-bounded and Chinese character-adjacent numbers)
         if "team_scale" not in existing:
-            team_match = re.search(r"\b(\d+\s*(?:person|people|users|engineers|devs|seats|人|名))\b", text, re.IGNORECASE)
+            team_match = re.search(
+                r"(?<![\dA-Za-z])(\d+\s*(?:person|people|users|engineers|devs|developers|seats|members|employees)\b|\d+\s*(?:人团队|人公司|人规模|名员工|名工程师|名研发|个席位|人|名))",
+                text,
+                re.IGNORECASE,
+            )
             team_phrase = re.search(
-                r"\b(my team|our team|a start-up|our startup|small to medium sized businesses|share views with the team|team’s next sprint)\b",
+                r"(\b(?:my team|our team|a start-up|our startup|engineering team|product team|small to medium sized businesses|team of|company of)\b|(?:我们团队|研发团队|公司团队|业务团队|初创公司))",
                 text,
                 re.IGNORECASE,
             )
@@ -665,15 +744,34 @@ class IntentAnalyzer:
         else:
             existing["team_scale"] = _normalize_prov_entry(existing["team_scale"])
 
-        # 2. Budget status provenance
+        # 2. Budget status provenance (explicitly distinguishes zero-budget, funding/valuation noise, and SaaS pricing/plan constraints)
         if "budget_status" not in existing:
-            price_match = re.search(
-                r"(\$\d[\d,\.]*(?:/[a-z]+)?|\bpro plan\b|\bpaid plan\b|\benterprise plan\b|预算|付费套餐)",
+            no_budget_m = re.search(
+                r"(?:没有预算|无预算|零预算|0预算|预算为\s*0|\bno\s+budget\b|\bzero\s+budget\b|\bwithout\s+(?:any\s+)?budget\b|\$0\s+budget\b)",
                 text,
                 re.IGNORECASE,
             )
-            os_match = re.search(r"\b(open[- ]source alternative|free alternative|免费|开源)\b", text, re.IGNORECASE)
-            if price_match:
+            # Strip startup funding / valuation / ARR phrases so "$5M seed" is never misclassified as SaaS budget
+            text_without_funding = re.sub(
+                r"(?:\b(?:raised|raising|funding|seed|series\s+[a-e]|valuation|arr|mrr|revenue)\s+(?:of\s+)?\$\d[\d,\.]*\s*[mkb]?\b|\$\d[\d,\.]*\s*[mkb]\s*(?:seed|series|round|valuation|arr|mrr|funding|revenue)\b)",
+                " [FUNDING_NOISE] ",
+                text,
+                flags=re.IGNORECASE,
+            )
+            price_match = re.search(
+                r"(\$\d[\d,\.]*\s*(?:/\s*[a-z]+|\s+per\s+(?:month|mo|year|yr|user|seat|envelope|host|request))|\b(?:pro|paid|enterprise|business|team|commercial)\s+(?:plan|tier|edition|subscription|package|pricing)\b|(?:预算(?:有限|充足|在|约|上限)|付费套餐|付费版|企业版|续费太贵|续费报价|年费|月费))",
+                text_without_funding,
+                re.IGNORECASE,
+            )
+            os_match = re.search(r"(\b(?:open[- ]source|free|self[- ]hosted)\s+alternatives?\b|免费替代|开源替代|免费|开源)", text, re.IGNORECASE)
+            if no_budget_m:
+                existing["budget_status"] = {
+                    "value": f"原文明示无商业采购预算（原文提及 {no_budget_m.group(0)}）",
+                    "source": "原文明示",
+                    "provenance": "原文明示",
+                    "evidence": no_budget_m.group(0),
+                }
+            elif price_match:
                 existing["budget_status"] = {
                     "value": f"涉及明确价格或付费套餐约束（原文提及 {price_match.group(1)}）",
                     "source": "原文明示",
@@ -682,7 +780,7 @@ class IntentAnalyzer:
                 }
             elif os_match:
                 existing["budget_status"] = {
-                    "value": f"倾向开源方案（原文提及 {os_match.group(1)}，商业预算未知）",
+                    "value": f"倾向开源/免费方案（原文提及 {os_match.group(1)}，商业预算未知）",
                     "source": "未知",
                     "provenance": "未知",
                     "evidence": os_match.group(0),
@@ -697,11 +795,15 @@ class IntentAnalyzer:
         else:
             existing["budget_status"] = _normalize_prov_entry(existing["budget_status"])
 
-        # 3. Decision authority provenance
+        # 3. Decision authority provenance (generalized semantic patterns, never benchmark-overfitted strings)
         if "decision_authority" not in existing:
-            no_auth_m = re.search(r"\b(not my choice|forced to use|company forces|不是我的选择|无选型权)\b", text, re.IGNORECASE)
+            no_auth_m = re.search(
+                r"(\b(?:not my (?:choice|decision|call)|forced to use|company forces (?:us|me)|management mandated)\b|不是我的选择|无选型权|无权决定|学生作业|课程作业|毕业设计)",
+                text,
+                re.IGNORECASE,
+            )
             eval_m = re.search(
-                r"\b(my team is looking to migrate|opportunity to reevaluate|we are using .* hitting rate limits|i've tried some tools|tried both auth0 and clerk)\b",
+                r"(\b(?:(?:my|our) team is looking to (?:migrate|switch|replace)|opportunity to reevaluate|we are (?:currently )?(?:using|evaluating)|(?:i've|we've|i have|we have) (?:tried|evaluated|tested))\b|(?:我们.*?在用.*?(?:寻找|求推荐)|我们团队正在(?:评估|寻找)))",
                 text,
                 re.IGNORECASE,
             )
@@ -729,10 +831,10 @@ class IntentAnalyzer:
         else:
             existing["decision_authority"] = _normalize_prov_entry(existing["decision_authority"])
 
-        # 4. Migration urgency provenance
+        # 4. Migration urgency provenance (generalized semantic triggers)
         if "migration_urgency" not in existing:
             urg_m = re.search(
-                r"\b(looking to migrate away|constantly hitting rate limits|opportunity to reevaluate|2 days past where i wanted to be|stopped offering their apis)\b",
+                r"(\b(?:looking to migrate away|constantly hitting rate limits|opportunity to reevaluate|need to (?:migrate|switch|replace) (?:within|before|soon)|renewal (?:is )?coming up|stopped offering (?:their )?apis?)\b|(?:续费太贵|急需替换|准备迁出|即将到期))",
                 text,
                 re.IGNORECASE,
             )
@@ -832,6 +934,10 @@ class IntentAnalyzer:
             score = 20
             intent_level = "⛔ 已排除 · 明示不考虑替换"
             buyer_persona = f"继续使用 {target_competitor} 的团队（无切换计划）"
+        elif target_competitor in ("未知", "通用行业竞品", "同赛道传统竞品"):
+            score = 25
+            intent_level = "⛔ 已排除 · 未识别到明确目标竞品"
+            buyer_persona = "非特定软件选型讨论"
         elif no_authority:
             score = 64
             intent_level = "⚠️ 阶段 1/4 · 仅抱怨痛点（无替换决策权）"
@@ -1096,8 +1202,9 @@ class IntentAnalyzer:
 
         if not validated["is_software_or_saas"]:
             base.intent_score = min(base.intent_score, 25)
-            base.intent_type = "vendor_self_promotion"
-            validated["intent_type"] = "vendor_self_promotion"
+            base.intent_type = "pain_only"
+            base.target_competitor = "未知"
+            validated["intent_type"] = "pain_only"
 
         full_text_lower = f"{sig.title} {sig.content}".lower()
 

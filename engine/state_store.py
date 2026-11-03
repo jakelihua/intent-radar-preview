@@ -8,13 +8,14 @@ Resolves Audit Finding #8:
 """
 
 import hashlib
+import json
 import os
 import sqlite3
 import threading
 import uuid
 import time
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
 
 
 def compute_content_hash(title: str, content: str) -> str:
@@ -60,10 +61,15 @@ class IntentStateStore:
                     content_hash TEXT NOT NULL,
                     version_num INTEGER NOT NULL DEFAULT 1,
                     raw_content TEXT NOT NULL,
+                    signal_json TEXT NOT NULL DEFAULT '',
                     PRIMARY KEY (source, source_id)
                 )
                 """
             )
+            try:
+                cur.execute("ALTER TABLE signals_ledger ADD COLUMN signal_json TEXT NOT NULL DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS client_deliveries (
@@ -209,6 +215,16 @@ class IntentStateStore:
         sig.sync_status = status
         sig.first_seen_at = first_seen
         sig.last_seen_at = collected_at
+        if hasattr(sig, "to_dict"):
+            try:
+                sig_json = json.dumps(sig.to_dict(), ensure_ascii=False)
+                with self._lock, self._conn:
+                    self._conn.execute(
+                        "UPDATE signals_ledger SET signal_json = ? WHERE source = ? AND source_id = ?",
+                        (sig_json, source, source_id),
+                    )
+            except Exception:
+                pass
         return {
             "status": status,
             "version_num": version_num,
@@ -217,6 +233,57 @@ class IntentStateStore:
             "first_seen_at": first_seen,
             "last_seen_at": collected_at,
         }
+
+    def load_ledger_signals(self, source_ids: Optional[List[str]] = None, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Reads persisted signals from `signals_ledger` so Stage 3/4 human reviews can be
+        evaluated and delivered on subsequent runs even after a post scrolls out of the live API page.
+        """
+        with self._lock:
+            cur = self._conn.cursor()
+            if source_ids:
+                placeholders = ",".join("?" for _ in source_ids)
+                cur.execute(
+                    f"SELECT * FROM signals_ledger WHERE source_id IN ({placeholders}) ORDER BY updated_at DESC LIMIT ?",
+                    (*source_ids, int(limit)),
+                )
+            else:
+                cur.execute(
+                    "SELECT * FROM signals_ledger ORDER BY updated_at DESC LIMIT ?",
+                    (int(limit),),
+                )
+            rows = cur.fetchall()
+        results: List[Dict[str, Any]] = []
+        for row in rows:
+            rdict = dict(row)
+            sig_json = rdict.get("signal_json") or ""
+            if sig_json:
+                try:
+                    parsed = json.loads(sig_json)
+                    if isinstance(parsed, dict):
+                        parsed["content_hash"] = rdict["content_hash"]
+                        parsed["version_num"] = rdict["version_num"]
+                        results.append(parsed)
+                        continue
+                except Exception:
+                    pass
+            results.append({
+                "source": rdict["source"],
+                "source_id": rdict["source_id"],
+                "url": rdict["normalized_url"],
+                "title": rdict["title"],
+                "author": rdict["author"],
+                "timestamp": rdict["published_at"],
+                "updated_at": rdict["updated_at"],
+                "collected_at": rdict["last_seen_at"],
+                "raw_content": rdict["raw_content"],
+                "content": rdict["raw_content"],
+                "content_hash": rdict["content_hash"],
+                "version_num": rdict["version_num"],
+                "dataset_kind": "live_production",
+                "content_complete": True,
+            })
+        return results
 
     def should_deliver(self, source: str, source_id: str, client_id: str, version_num: int) -> bool:
         """Returns True if this (source, source_id) has never been delivered to client_id or has a newer version_num."""
@@ -316,12 +383,28 @@ class IntentStateStore:
             return [dict(row) for row in self._conn.execute(
                 "SELECT * FROM delivery_outbox ORDER BY updated_at DESC LIMIT 100")]
 
-    def resolve_delivery(self, token, received):
-        """Operator confirms an ambiguous outcome; this method never sends."""
+    def resolve_delivery(self, token, received, min_sending_age_seconds: float = 60.0):
+        """
+        Operator confirms an ambiguous outcome; this method never sends.
+        - Rejects resolving a claim still in 'sending' state unless it has been stale for >= min_sending_age_seconds.
+        - When resolved as not received (received=False), resets attempts to 0 so a previously 3x-failed record can be re-sent.
+        """
         with self._lock:
             row = self._conn.execute("SELECT * FROM delivery_outbox WHERE token=? AND status IN ('sending','uncertain')", (token,)).fetchone()
         if row is None:
             raise ValueError("No unresolved delivery with this token")
+        if row["status"] == "sending":
+            try:
+                updated_str = str(row["updated_at"] or "").replace("Z", "+00:00")
+                updated_dt = datetime.fromisoformat(updated_str)
+                if updated_dt.tzinfo is None:
+                    updated_dt = updated_dt.replace(tzinfo=timezone.utc)
+                age = (datetime.now(timezone.utc) - updated_dt).total_seconds()
+                if age < min_sending_age_seconds:
+                    raise ValueError("Delivery claim is still actively sending; wait for timeout before manual resolution")
+            except ValueError as e:
+                if "actively sending" in str(e):
+                    raise
         # Move uncertain back to sending only for the same claim; finish_delivery
         # uses a compare-and-set so a concurrent operator cannot resolve it twice.
         with self._lock:
@@ -329,6 +412,28 @@ class IntentStateStore:
             self._conn.commit()
         self.finish_delivery(row["source"], row["source_id"], row["client_id"], row["version_num"],
                              token, "sent" if received else "failed", row["client_id"].rsplit(":", 1)[-1])
+        if not received:
+            with self._lock:
+                self._conn.execute(
+                    "UPDATE delivery_outbox SET attempts=0 WHERE source=? AND source_id=? AND client_id=? AND version_num=? AND status='failed'",
+                    (row["source"], row["source_id"], row["client_id"], row["version_num"]),
+                )
+                self._conn.commit()
+
+    def purge_expired_signals(self, max_age_days: int = 30) -> int:
+        """Deletes signals from signals_ledger older than max_age_days for data retention compliance."""
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=max(1, int(max_age_days)))).strftime("%Y-%m-%d %H:%M UTC")
+        with self._lock, self._conn:
+            cur = self._conn.execute("DELETE FROM signals_ledger WHERE last_seen_at < ?", (cutoff,))
+            return cur.rowcount
+
+    def erase_author(self, author: str) -> int:
+        """Deletes all stored signals by a specific community username (PIPL/GDPR right to erasure)."""
+        if not author or not str(author).strip():
+            return 0
+        with self._lock, self._conn:
+            cur = self._conn.execute("DELETE FROM signals_ledger WHERE author = ?", (str(author).strip(),))
+            return cur.rowcount
 
     def close(self) -> None:
         with self._lock:
