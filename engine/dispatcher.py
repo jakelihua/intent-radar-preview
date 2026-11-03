@@ -461,10 +461,6 @@ class Dispatcher:
         ::-webkit-scrollbar-track {{ background: transparent; }}
         ::-webkit-scrollbar-thumb {{ background: #d4d4d8; border-radius: 9999px; }}
         ::-webkit-scrollbar-thumb:hover {{ background: #a1a1aa; }}
-        .review-panel {{ padding:12px; border:1px solid #d4d4d8; border-radius:8px; font-size:12px; margin:12px 0; }}
-        .review-panel label {{ display:block; margin:8px 0; }}
-        .review-panel input:not([type="checkbox"]), .review-panel textarea, .review-panel select {{ display:block; width:100%; padding:6px; border:1px solid #a1a1aa; border-radius:4px; }}
-        .review-panel button {{ padding:6px 10px; margin:4px; background:#18181b; color:white; border-radius:4px; }}
         .drawer-mask {{ background: rgba(9, 9, 11, 0.45); backdrop-filter: blur(3px); }}
     </style>
 </head>
@@ -485,28 +481,28 @@ class Dispatcher:
             <div class="flex flex-col">
                 <div class="flex items-center gap-1.5">
                     <span class="text-xs font-bold text-white tracking-wide">IntentRadar</span>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1 py-0.2 rounded border border-emerald-500/30">v3.2 Pilot</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1 py-0.2 rounded border border-emerald-500/30">v3.3 Pilot</span>
                 </div>
-                <span class="text-[10px] text-zinc-400 font-mono">公开竞品替换信号核验台</span>
+                <span class="text-[10px] text-zinc-400 font-mono">B2B 竞品替换情报大盘与核验台</span>
             </div>
         </div>
 
         <div class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             <div class="px-2.5 pb-1.5 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">四步资格核验视图</div>
 
-            <button type="button" onclick="setFilterCategory('all', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-semibold text-white bg-zinc-800 rounded-lg text-left transition-all">
+            <button type="button" data-nav-cat="all" onclick="setFilterCategory('all', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-semibold text-white bg-zinc-800 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                 <span>全部核验样本</span>
                 <span id="badgeCountAll" class="ml-auto bg-zinc-700 text-zinc-200 py-0.5 px-2 rounded-full text-[10px] font-mono">{len(signals)}</span>
             </button>
 
-            <button type="button" onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
+            <button type="button" data-nav-cat="high-intent" onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>替换评估证据（权限另行核验）</span>
+                <span>替换评估证据（Stage 2+）</span>
                 <span id="badgeCountHigh" class="ml-auto bg-emerald-500/20 text-emerald-300 py-0.5 px-2 rounded-full text-[10px] font-mono">{high_intent_count}</span>
             </button>
 
-            <button type="button" onclick="setFilterCategory('caution', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
+            <button type="button" data-nav-cat="caution" onclick="setFilterCategory('caution', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 <span>替换意图未核实 / 已阻断</span>
                 <span id="badgeCountCaution" class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">{caution_count}</span>
@@ -514,13 +510,13 @@ class Dispatcher:
 
             <div class="pt-3 px-2.5 pb-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">核心痛点维度过滤</div>
 
-            <button type="button" onclick="setFilterCategory('pricing', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
+            <button type="button" data-nav-cat="pricing" onclick="setFilterCategory('pricing', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>API 限流 / 价格与账单</span>
                 <span id="badgeCountPricing" class="ml-auto bg-rose-500/20 text-rose-300 py-0.5 px-2 rounded-full text-[10px] font-mono">{pricing_count}</span>
             </button>
 
-            <button type="button" onclick="setFilterCategory('privacy', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
+            <button type="button" data-nav-cat="privacy" onclick="setFilterCategory('privacy', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 <span>强制上云 / 开源自托管</span>
                 <span id="badgeCountPrivacy" class="ml-auto bg-indigo-500/20 text-indigo-300 py-0.5 px-2 rounded-full text-[10px] font-mono">{privacy_count}</span>
@@ -561,10 +557,10 @@ class Dispatcher:
     </aside>
 
     <!-- Main Workspace -->
-    <div class="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-hidden bg-zinc-50/50">
+    <div class="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-hidden">
         <!-- Top Application Bar -->
-        <header class="min-h-14 py-2 px-4 sm:px-5 bg-white border-b border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 flex-shrink-0">
-            <div class="relative w-full sm:max-w-xs lg:max-w-sm">
+        <header class="min-h-14 py-2 px-4 sm:px-5 bg-white border-b border-zinc-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 flex-shrink-0">
+            <div class="relative w-full sm:max-w-xs flex-1">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
@@ -572,7 +568,7 @@ class Dispatcher:
                        id="searchInput"
                        oninput="handleSearch()"
                        aria-label="搜索竞品、原帖ID、原文证据或发帖人"
-                       placeholder="搜索被替换竞品、原帖ID、原文证据... (快捷键 /)"
+                       placeholder="搜索竞品、ID、原文证据... (/)"
                        class="block w-full pl-9 pr-8 py-1.5 border border-zinc-200 rounded-lg text-xs placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-zinc-50 focus:bg-white">
                 <button type="button" id="searchClearBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-zinc-700" title="清空搜索">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -581,32 +577,35 @@ class Dispatcher:
 
             <!-- View Switcher & Explicit Export Buttons -->
             <div class="flex items-center justify-between sm:justify-end gap-1.5 w-full sm:w-auto flex-wrap">
-                <div class="flex items-center gap-0.5 text-xs text-zinc-600 bg-zinc-100 p-1 rounded-lg border border-zinc-200">
-                    <button type="button" onclick="setViewMode('table')" id="btnViewTable" class="px-2.5 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1 whitespace-nowrap">
+                <div class="flex items-center gap-0.5 text-[11px] text-zinc-600 bg-zinc-100 p-0.5 rounded-lg border border-zinc-200">
+                    <button type="button" onclick="setViewMode('table')" id="btnViewTable" class="px-2 py-1 rounded-md font-semibold text-zinc-900 bg-white shadow-xs transition-all flex items-center gap-1 whitespace-nowrap">
                         <span>核验宽表</span>
                     </button>
-                    <button type="button" onclick="setViewMode('split')" id="btnViewSplit" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap">
+                    <button type="button" onclick="setViewMode('split')" id="btnViewSplit" class="px-2 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap">
                         <span>分屏工作台</span>
                     </button>
-                    <button type="button" onclick="setViewMode('cards')" id="btnViewCards" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap">
+                    <button type="button" onclick="setViewMode('cards')" id="btnViewCards" class="px-2 py-1 rounded-md font-medium text-zinc-600 hover:text-zinc-900 transition-all flex items-center gap-1 whitespace-nowrap">
                         <span>证据卡片</span>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    <button type="button" id="btnToggleCustomizer" onclick="toggleBrandCustomizer()" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/90 transition-colors whitespace-nowrap">
+                <div class="flex items-center gap-1 flex-wrap">
+                    <button type="button" id="btnToggleDashboard" onclick="toggleDashboardOverview()" class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 transition-colors whitespace-nowrap">
+                        <span>📊 收起大盘</span>
+                    </button>
+                    <button type="button" id="btnToggleCustomizer" onclick="toggleBrandCustomizer()" class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/90 transition-colors whitespace-nowrap">
                         <span>🎯 阶段3卖方能力门控</span>
                     </button>
-                    <button type="button" id="btnExportFilteredXlsx" onclick="triggerExport('filtered', 'xlsx')" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors whitespace-nowrap">
+                    <button type="button" id="btnExportFilteredXlsx" onclick="triggerExport('filtered', 'xlsx')" class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors whitespace-nowrap">
                         <span>导出当前筛选 ({len(signals)}条 .xlsx)</span>
                     </button>
-                    <button type="button" id="btnExportFilteredCsv" onclick="triggerExport('filtered', 'csv')" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-zinc-100 text-zinc-800 border border-zinc-300 shadow-2xs transition-colors whitespace-nowrap">
+                    <button type="button" id="btnExportFilteredCsv" onclick="triggerExport('filtered', 'csv')" class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-zinc-100 text-zinc-800 border border-zinc-300 shadow-2xs transition-colors whitespace-nowrap">
                         <span>导出当前 CSV ({len(signals)}条)</span>
                     </button>
-                    <button type="button" id="btnExportAllXlsx" onclick="triggerExport('all', 'xlsx')" class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs transition-colors whitespace-nowrap">
+                    <button type="button" id="btnExportAllXlsx" onclick="triggerExport('all', 'xlsx')" class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs transition-colors whitespace-nowrap">
                         <span>导出全库 ({len(signals)}条 .xlsx)</span>
                     </button>
-                    <button type="button" id="btnHowItWorks" onclick="openHowItWorksModal(this)" class="inline-flex items-center px-2 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 whitespace-nowrap" title="查看四步资格核验规范">
+                    <button type="button" id="btnHowItWorks" onclick="openHowItWorksModal(this)" class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 whitespace-nowrap" title="查看四步资格核验规范">
                         <span>📘 核验标准</span>
                     </button>
                 </div>
@@ -614,88 +613,142 @@ class Dispatcher:
         </header>
 
         <!-- Cross-Category Brand Capability Customizer Drawer/Bar -->
-        <div id="brandCustomizerBar" class="hidden bg-amber-50/70 border-b border-amber-200/80 px-4 sm:px-5 py-3 flex-shrink-0">
+        <div id="brandCustomizerBar" class="hidden ir-customizer-panel flex-shrink-0">
             <div class="flex flex-col gap-2">
                 <div class="flex items-center justify-between flex-wrap gap-2">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span class="text-xs font-bold text-zinc-900">🎯 阶段 3 卖方产品能力档案与真实身份披露配置（Capability & Role Gating）</span>
-                        <span class="text-[11px] text-zinc-600">未配置卖方能力时仅生成中立核验问题；配置后严格校核赛道适配与发送人真实身份（禁止通配符或自动补造能力）：</span>
+                        <span class="text-[11px] text-zinc-500">一键体验预设赛道或手动配置（严格校核赛道适配与真实身份，禁止通配符或自动补造能力）：</span>
                     </div>
-                    <div class="flex items-center gap-1.5 flex-wrap" id="brandPresetButtons"></div>
+                    <button type="button" onclick="toggleBrandCustomizer()" class="text-[11px] font-semibold text-zinc-500 hover:text-zinc-800">收起配置 ▲</button>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-                    <div class="sm:col-span-2">
-                        <input id="customBrandName" type="text" placeholder="卖方产品名 (如: Plane)" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                <div class="flex items-center gap-1.5 flex-wrap" id="brandPresetButtons"></div>
+                <div class="ir-form-grid">
+                    <div class="ir-field-group">
+                        <label for="customBrandName" class="ir-field-label">卖方产品名</label>
+                        <input id="customBrandName" type="text" placeholder="如: Plane / Hoppscotch" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
                     </div>
-                    <div class="sm:col-span-2">
+                    <div class="ir-field-group">
+                        <label for="customActorRole" class="ir-field-label">发送人真实身份</label>
                         <select id="customActorRole" aria-label="发送人真实角色" class="w-full px-2 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900">
                             <option value="产品研发团队">身份: 产品研发团队</option>
                             <option value="官方销售顾问">身份: 官方销售顾问</option>
                             <option value="外部选型顾问">身份: 外部选型顾问</option>
                         </select>
                     </div>
-                    <div class="sm:col-span-2">
-                        <input id="customTargetCompetitors" type="text" placeholder="适配被替换竞品 (必填, 如: Atlassian Jira)" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                    <div class="ir-field-group">
+                        <label for="customTargetCompetitors" class="ir-field-label">适配被替换竞品 (必填)</label>
+                        <input id="customTargetCompetitors" type="text" placeholder="如: Atlassian Jira, Linear" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
                     </div>
-                    <div class="sm:col-span-2">
-                        <input id="customApprovedCaps" type="text" placeholder="已核准真实能力 (必填)" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                    <div class="ir-field-group">
+                        <label for="customApprovedCaps" class="ir-field-label">已核准真实能力 (必填)</label>
+                        <input id="customApprovedCaps" type="text" placeholder="如: 原生 Git 同步、离线执行" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
                     </div>
-                    <div class="sm:col-span-2">
-                        <input id="customKnownLimits" type="text" placeholder="已知限制/待确认项" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                    <div class="ir-field-group">
+                        <label for="customKnownLimits" class="ir-field-label">已知限制 / 待确认边界</label>
+                        <input id="customKnownLimits" type="text" placeholder="如: 暂不支持旧版专有插件" class="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
                     </div>
-                    <div class="sm:col-span-2 flex items-center gap-1">
-                        <input id="customBrandLink" type="text" placeholder="验证文档 URL" class="w-full px-2 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
-                        <button type="button" onclick="applyCustomBrandProfile()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white whitespace-nowrap">
-                            应用门控
-                        </button>
+                    <div class="ir-field-group">
+                        <label for="customBrandLink" class="ir-field-label">验证文档 URL & 应用</label>
+                        <div class="flex items-center gap-1">
+                            <input id="customBrandLink" type="text" placeholder="https://docs..." class="w-full px-2 py-1.5 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900" />
+                            <button type="button" onclick="applyCustomBrandProfile()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white whitespace-nowrap">
+                                应用门控
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Compact Above-the-Fold Verification Status & Competitor Filter Bar -->
-        <div class="bg-white border-b border-zinc-200/80 px-4 sm:px-5 py-2 flex-shrink-0 min-w-0 space-y-1.5">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        {_html.escape(dataset_badge_text)}
-                    </span>
-                    <span class="text-[11px] text-zinc-500">
-                        严格分离「作者原文提及候选」与「系统推荐候选」；未绑定卖方能力档案时最高处于阶段 2/4，仅生成中立核验问题
-                    </span>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span id="activeBrandIndicator" class="text-[11px] font-medium text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md">当前视角：默认中立证据核验（阶段3待绑定卖方能力·仅生成中立问题）</span>
-                    <span id="liveFilterSummary" class="text-[11px] font-mono font-semibold text-zinc-800 bg-zinc-100 px-2 py-0.5 rounded-md">当前筛选显示 {len(signals)} / {len(signals)} 条样本</span>
-                </div>
-            </div>
-            <div class="flex items-center flex-wrap gap-1.5 max-w-full" id="competitorPillContainer">
-                {comp_pills_html}
             </div>
         </div>
 
         <!-- Main Scrollable Workspace -->
-        <main class="flex-1 overflow-y-auto p-3 sm:p-4 min-w-0 max-w-full" id="mainContainer">
+        <main class="flex-1 overflow-y-auto p-3 sm:p-5 min-w-0 max-w-full" id="mainContainer">
+
+            <!-- EXECUTIVE INTELLIGENCE OVERVIEW DASHBOARD (全景情报大盘) -->
+            <section id="overviewDashboardSection" class="ir-dashboard-section" aria-label="竞品替换情报全景大盘">
+                <!-- Executive Status & Telemetry Banner -->
+                <div class="ir-overview-banner">
+                    <div class="ir-overview-banner-left">
+                        <span class="ir-overview-pulse"></span>
+                        <span class="text-xs font-bold tracking-wide text-white">{_html.escape(dataset_badge_text)}</span>
+                        <span role="status" class="text-[11px] font-mono text-zinc-300 bg-zinc-800/90 px-2 py-0.5 rounded border border-zinc-700">来源执行状态：{collection_status_text or "历史演练"}</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="activeBrandIndicator" class="text-[11px] font-medium text-zinc-200 bg-zinc-800 border border-zinc-700 px-2.5 py-0.5 rounded-md">当前视角：默认中立证据核验（阶段3待绑定卖方能力·仅生成中立问题）</span>
+                        <span id="liveFilterSummary" class="text-[11px] font-mono font-semibold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-md">当前筛选显示 {len(signals)} / {len(signals)} 条样本</span>
+                    </div>
+                </div>
+
+                <!-- Row 1: 4 Core KPI Metric Cards -->
+                <div id="dashboardKpiGrid" class="ir-kpi-grid"></div>
+
+                <!-- Row 2: 3 Visual Analytics & Telemetry Panels -->
+                <div class="ir-chart-grid">
+                    <!-- Panel 1: 4-Stage Qualification Funnel -->
+                    <div class="ir-chart-card">
+                        <div class="ir-chart-header">
+                            <span class="ir-chart-title">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                                <span>四步连续资格核验漏斗</span>
+                            </span>
+                            <span class="ir-chart-subtitle">点击阶段过滤宽表</span>
+                        </div>
+                        <div id="chartFunnelContainer" class="ir-funnel-list"></div>
+                    </div>
+
+                    <!-- Panel 2: Incumbent Competitor Heat Distribution -->
+                    <div class="ir-chart-card">
+                        <div class="ir-chart-header">
+                            <span class="ir-chart-title">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                <span>被替换竞品信号热度排行</span>
+                            </span>
+                            <span class="ir-chart-subtitle">点击竞品联动筛选</span>
+                        </div>
+                        <div id="chartCompetitorContainer" class="ir-bar-list"></div>
+                    </div>
+
+                    <!-- Panel 3: Churn Drivers & 4D Provenance Matrix -->
+                    <div class="ir-chart-card">
+                        <div class="ir-chart-header">
+                            <span class="ir-chart-title">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path></svg>
+                                <span>流失驱动归因与证据可信度</span>
+                            </span>
+                            <span class="ir-chart-subtitle">三态溯源分布</span>
+                        </div>
+                        <div id="chartDriversAndProvenanceContainer" class="flex flex-col justify-between flex-1 gap-2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!--Competitor Filter Pills Toolbar -->
+            <div class="bg-white rounded-xl border border-zinc-200/90 px-3.5 py-2.5 mb-3 shadow-xs flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center flex-wrap gap-1.5 max-w-full" id="competitorPillContainer">
+                    {comp_pills_html}
+                </div>
+                <div class="text-[11px] text-zinc-500">
+                    严格分离「原文提及候选」与「系统参考候选」· 点击任意行打开右侧核验抽屉
+                </div>
+            </div>
 
             <!-- 1. DATA GRID VIEW -->
-            <p role="status" style="font-size:12px;padding:8px;color:#52525b">来源执行状态：{collection_status_text or "历史演练"}</p>
-            <div id="tableViewWrapper" class="bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden max-w-full">
+            <div id="tableViewWrapper" class="ir-workbench-card max-w-full">
                 <div class="overflow-x-auto max-w-full">
                     <table class="w-full divide-y divide-zinc-200 text-left text-xs">
                         <thead class="bg-zinc-50/90 font-semibold text-zinc-500 uppercase tracking-wider text-[11px]">
                             <tr>
-                                <th onclick="toggleSort('idx')" class="py-2.5 px-2 w-9 text-center cursor-pointer hover:bg-zinc-100 select-none">
+                                <th onclick="toggleSort('idx')" class="py-2.5 px-1.5 w-9 text-center cursor-pointer hover:bg-zinc-100 select-none">
                                     <span>#<span id="sortIndicatorIdx" class="text-zinc-400 font-mono text-[10px]">↕</span></span>
                                 </th>
                                 <th onclick="toggleSort('score')" class="py-2.5 px-2 w-32 whitespace-nowrap cursor-pointer hover:bg-zinc-100 select-none">
-                                    <span>连续阶段/排序分 <span id="sortIndicatorScore" class="text-zinc-400 font-mono text-[10px]">↕</span></span>
+                                    <span>阶段 / 评分 <span id="sortIndicatorScore" class="text-zinc-400 font-mono text-[10px]">↕</span></span>
                                 </th>
-                                <th class="py-2.5 px-2 w-40 whitespace-nowrap">被替换竞品 / 候选区分</th>
-                                <th class="py-2.5 px-2.5">原帖标题 · 原文关键证据摘录 · 三态来源 · 阻碍项</th>
-                                <th class="py-2.5 px-2 w-36 whitespace-nowrap">发布时间 / 核验时间</th>
-                                <th class="py-2.5 px-2 w-24 whitespace-nowrap">7步跟进状态</th>
-                                <th class="py-2.5 px-2.5 w-32 whitespace-nowrap text-right">核验操作</th>
+                                <th class="py-2.5 px-2 w-36 whitespace-nowrap">被替换竞品 / 候选</th>
+                                <th class="py-2.5 px-2.5">原帖完整标题 · 逐字证据摘录 · 四维来源 · 阻碍项</th>
+                                <th class="py-2.5 px-2 w-36 whitespace-nowrap">发布时间 / 互动</th>
+                                <th class="py-2.5 px-1.5 w-24 whitespace-nowrap">跟进状态</th>
+                                <th class="py-2.5 px-2 w-32 whitespace-nowrap text-right">核验操作</th>
                             </tr>
                         </thead>
                         <tbody id="leadTableBody" class="divide-y divide-zinc-100 font-normal text-zinc-700"></tbody>

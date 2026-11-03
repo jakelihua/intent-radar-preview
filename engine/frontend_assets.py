@@ -838,15 +838,15 @@ function updateLiveCountsAndExportButtons(filteredLeads) {
         btnExpFilteredXlsx.innerHTML = `<svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>导出当前筛选 (${count}条 .xlsx)</span>`;
         btnExpFilteredXlsx.disabled = (count === 0);
         btnExpFilteredXlsx.className = (count === 0)
-            ? 'inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-200 text-zinc-400 cursor-not-allowed whitespace-nowrap'
-            : 'inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors whitespace-nowrap';
+            ? 'inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-zinc-200 text-zinc-400 cursor-not-allowed whitespace-nowrap'
+            : 'inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors whitespace-nowrap';
     }
     if (btnExpFilteredCsv) {
         btnExpFilteredCsv.innerText = `导出当前 CSV (${count}条)`;
         btnExpFilteredCsv.disabled = (count === 0);
         btnExpFilteredCsv.className = (count === 0)
-            ? 'inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-100 text-zinc-400 border border-zinc-200 cursor-not-allowed whitespace-nowrap'
-            : 'inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-zinc-100 text-zinc-800 border border-zinc-300 shadow-2xs transition-colors whitespace-nowrap';
+            ? 'inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-zinc-100 text-zinc-400 border border-zinc-200 cursor-not-allowed whitespace-nowrap'
+            : 'inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-zinc-100 text-zinc-800 border border-zinc-300 shadow-2xs transition-colors whitespace-nowrap';
     }
     if (btnExpAllXlsx) {
         btnExpAllXlsx.innerText = `导出全库 (${total}条 .xlsx)`;
@@ -888,15 +888,17 @@ function renderTable(leads) {
         let compatBadge = '';
         if (customBrandProfile && customBrandProfile.brand_name) {
             if (!st.s3Passed) {
-                compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">⛔ ${st.compat.compatible ? '能力待核验' : '档案不完整或赛道不匹配'}</span>`;
+                compatBadge = `<span class="whitespace-nowrap inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">⛔ ${st.compat.compatible ? '能力待核验' : '赛道不匹配/档案不全'}</span>`;
             } else {
-                compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ 阶段3适配 ${escapeHtml(customBrandProfile.brand_name)}</span>`;
+                compatBadge = `<span class="whitespace-nowrap inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ 适配 ${escapeHtml(customBrandProfile.brand_name)}</span>`;
             }
         }
 
         const candText = (lead.candidate_alternatives && lead.candidate_alternatives.length > 0)
-            ? `原文提及候选: ${lead.candidate_alternatives.join(', ')}`
-            : `原文未提及候选${lead.system_recommended_alternatives && lead.system_recommended_alternatives.length ? ' (系统推荐: ' + lead.system_recommended_alternatives.slice(0, 2).join('/') + ')' : ''}`;
+            ? `原文提及: ${lead.candidate_alternatives.join(', ')}`
+            : (lead.system_recommended_alternatives && lead.system_recommended_alternatives.length
+                ? `系统参考: ${lead.system_recommended_alternatives.slice(0, 2).join(' / ')}`
+                : '原文未提及候选');
 
         const isActive = (lead.id === activeLeadId);
         const rowClasses = isActive
@@ -907,53 +909,51 @@ function renderTable(leads) {
 
         return `
         <tr class="${rowClasses}" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}">
-            <td class="py-2.5 px-2 font-mono text-zinc-400 text-center text-[11px]">${lead.idx}</td>
+            <td class="py-2.5 px-1.5 font-mono text-zinc-400 text-center text-[11px] font-semibold">#${String(lead.idx).padStart(2, '0')}</td>
             <td class="py-2.5 px-2 whitespace-nowrap">
                 <div class="flex flex-col gap-1 items-start">
                     ${getScoreBadgeHtml(lead)}
-                    <span class="text-[10px] text-zinc-500 font-medium">${escapeHtml(st.stageLabel.split('·')[1] || st.stageLabel)}</span>
+                    <span class="text-[10px] text-zinc-500 font-medium">${escapeHtml((st.stageLabel.split('·')[1] || st.stageLabel).replace(/（.*?）/g, '').trim())}</span>
+                    ${compatBadge}
                 </div>
             </td>
             <td class="py-2.5 px-2 whitespace-nowrap">
                 <div class="flex flex-col gap-1 items-start">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-800 border border-zinc-200/80">
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-zinc-100 text-zinc-900 border border-zinc-200">
                         ${logoHtml}
                         <span>${escapeHtml(lead.competitor)}</span>
                     </span>
-                    <span class="text-[10px] text-zinc-500 truncate max-w-[165px]" title="${escapeHtml(candText)}">${escapeHtml(candText)}</span>
+                    <span class="ir-cand-sub" title="${escapeHtml(candText)}">${escapeHtml(candText)}</span>
                 </div>
             </td>
-            <td class="py-2.5 px-2.5 max-w-[430px]">
-                <div class="flex items-center gap-1.5 mb-0.5">
-                    <span class="font-semibold text-zinc-900 group-hover:text-emerald-700 transition-colors line-clamp-1 leading-snug">${escapeHtml(lead.title)}</span>
-                    ${compatBadge}
-                </div>
-                <div class="text-[11px] text-zinc-600 italic bg-zinc-50 px-2 py-1 rounded border border-zinc-200/70 line-clamp-1 mb-1" title="${escapeHtml(lead.evidence_quote)}">
-                    证据：“${escapeHtml(lead.evidence_quote)}”
+            <td class="py-2.5 px-2.5 ir-table-cell-main">
+                <div class="ir-post-title" title="${escapeHtml(lead.title)}">${escapeHtml(lead.title)}</div>
+                <div class="ir-quote-callout" title="${escapeHtml(lead.evidence_quote)}">
+                    <span class="ir-quote-text">“${escapeHtml(lead.evidence_quote)}”</span>
                 </div>
                 <div class="flex items-center flex-wrap gap-1 text-[10px]">
                     <span class="px-1.5 py-0.2 rounded border ${PROVENANCE_BADGE_CLASSES[scaleSrc]}">规模:${escapeHtml(scaleSrc)}</span>
                     <span class="px-1.5 py-0.2 rounded border ${PROVENANCE_BADGE_CLASSES[budgetSrc]}">预算:${escapeHtml(budgetSrc)}</span>
                     <span class="px-1.5 py-0.2 rounded border ${PROVENANCE_BADGE_CLASSES[authSrc]}">决策权:${escapeHtml(authSrc)}</span>
-                    <span class="text-zinc-400 truncate max-w-[210px]" title="待核验阻碍：${escapeHtml(blockerText)}">· 阻碍：${escapeHtml(blockerText)}</span>
+                    <span class="ir-blocker-sub" title="待核验阻碍：${escapeHtml(blockerText)}">· 阻碍：${escapeHtml(blockerText)}</span>
                 </div>
             </td>
             <td class="py-2.5 px-2 whitespace-nowrap">
-                <div class="text-[11px] font-mono text-zinc-800">发布: ${escapeHtml(lead.timestamp)}</div>
-                <div class="text-[10px] font-mono text-zinc-400">核验: ${escapeHtml(lead.collected_at)}</div>
-                <div class="text-[10px] text-amber-700 font-medium mt-0.5">${escapeHtml(lead.source)} #${escapeHtml(lead.source_id)} · ${escapeHtml(lead.engagement)}</div>
+                <div class="text-[10px] font-mono text-zinc-800" title="发布时间: ${escapeHtml(lead.timestamp)}">发布: ${escapeHtml(String(lead.timestamp || '').replace(':00 UTC', '').replace(' UTC', ''))}</div>
+                <div class="text-[10px] font-mono text-zinc-400" title="核验时间: ${escapeHtml(lead.collected_at)}">核验: ${escapeHtml(String(lead.collected_at || '').replace(':00 UTC', '').replace(' UTC', ''))}</div>
+                <div class="ir-meta-sub" title="${escapeHtml(lead.source)} #${escapeHtml(lead.source_id)} · ${escapeHtml(lead.engagement)}">#${escapeHtml(lead.source_id)} · ${escapeHtml(lead.engagement)}</div>
             </td>
-            <td class="py-2.5 px-2 whitespace-nowrap" data-stop-propagation="true">
+            <td class="py-2.5 px-1.5 whitespace-nowrap" data-stop-propagation="true">
                 <div class="flex flex-col gap-1 items-start">
                     <button type="button" data-action="cycle-status" data-lead-id="${escapeHtml(lead.id)}" class="px-2 py-0.5 rounded-md text-[11px] font-semibold border transition-all ${statusClass} shadow-2xs" title="点击切换 7 阶段跟进状态">
-                        ${escapeHtml(status)}
+                        ${escapeHtml(status)} ▾
                     </button>
-                    ${status === '不合格' && disqReason ? `<span class="text-[10px] text-rose-600 max-w-[110px] truncate" title="${escapeHtml(disqReason)}">${escapeHtml(disqReason)}</span>` : ''}
+                    ${status === '不合格' && disqReason ? `<span class="ir-disq-sub" title="${escapeHtml(disqReason)}">${escapeHtml(disqReason)}</span>` : ''}
                 </div>
             </td>
-            <td class="py-2.5 px-2.5 whitespace-nowrap text-right space-x-1" data-stop-propagation="true">
-                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors" title="直接核验原帖">
-                    核验原帖 ↗
+            <td class="py-2.5 px-2 whitespace-nowrap text-right space-x-1" data-stop-propagation="true">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-1.5 py-1 rounded-md text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors" title="直接核验原帖">
+                    原帖↗
                 </a>
                 <button type="button" id="drawer-trigger-${escapeHtml(lead.id)}" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
                     核验详情
@@ -961,6 +961,269 @@ function renderTable(leads) {
             </td>
         </tr>`;
     }).join('');
+}
+
+function renderExecutiveDashboard(filteredLeads) {
+    const allLeads = Array.isArray(LEADS_DATA) ? LEADS_DATA : [];
+    const total = allLeads.length;
+    const shown = filteredLeads.length;
+    if (total === 0) return;
+
+    const evals = allLeads.map(l => ({ lead: l, st: evaluateLeadStages(l, customBrandProfile) }));
+    const s1Count = evals.filter(x => x.st.s1Passed).length;
+    const s2Count = evals.filter(x => x.st.s2Passed).length;
+    const s3Count = evals.filter(x => x.st.s3Passed).length;
+    const s4Count = evals.filter(x => x.st.s4Passed).length;
+
+    const avgScore = (allLeads.reduce((acc, l) => acc + (Number(l.intent_score) || 0), 0) / total).toFixed(1);
+    const highScoreCount = allLeads.filter(l => (Number(l.intent_score) || 0) >= 80 && hasReplacementAuthority(l)).length;
+    const completeCount = allLeads.filter(l => l.content_complete !== false).length;
+    const uniqueComps = new Set(allLeads.map(l => l.competitor)).size;
+
+    let authExplicit = 0, authInferred = 0, authUnknown = 0, blockedCount = 0;
+    allLeads.forEach(l => {
+        const qm = l.qualification_meta || {};
+        const src = (qm.decision_authority && qm.decision_authority.source) || '未知';
+        if (isAuthorityNegated(l)) {
+            blockedCount++;
+        } else if (src === '原文明示') {
+            authExplicit++;
+        } else if (src === '模型推断') {
+            authInferred++;
+        } else {
+            authUnknown++;
+        }
+    });
+
+    let pendingCrm = 0, activeCrm = 0, wonCrm = 0, disqCrm = 0;
+    allLeads.forEach(l => {
+        const st = getLeadStatus(l.id);
+        if (st === '未处理') pendingCrm++;
+        else if (st === '已成交') wonCrm++;
+        else if (st === '不合格') disqCrm++;
+        else activeCrm++;
+    });
+    const outreachEligible = evals.filter(x => x.st.can_outreach).length;
+
+    // 1. Update 4 KPI Cards
+    const kpiHost = document.getElementById('dashboardKpiGrid');
+    if (kpiHost) {
+        const pct = (n) => Math.max(0, Math.min(100, Math.round((n / total) * 100)));
+        const sellerModeBadge = (customBrandProfile && customBrandProfile.brand_name)
+            ? `<span class="ir-kpi-badge bg-emerald-50 text-emerald-800 border border-emerald-200">已绑定: ${escapeHtml(customBrandProfile.brand_name)}</span>`
+            : `<span class="ir-kpi-badge bg-zinc-100 text-zinc-700 border border-zinc-200">默认中立视角</span>`;
+
+        kpiHost.innerHTML = `
+        <div class="ir-kpi-card accent-emerald">
+            <div class="ir-kpi-header">
+                <span class="ir-kpi-title">📡 情报总盘与原文完整度</span>
+                <span class="ir-kpi-badge bg-emerald-50 text-emerald-800 border border-emerald-200">100% 官方 API 溯源</span>
+            </div>
+            <div class="ir-kpi-value-row">
+                <span class="ir-kpi-number">${shown}</span>
+                <span class="ir-kpi-unit">/ ${total} 条当前命中 · 覆盖 ${uniqueComps} 大竞品</span>
+            </div>
+            <div class="ir-segmented-bar" title="当前筛选命中率 ${pct(shown)}%">
+                <div class="ir-segmented-fill bg-emerald-500" style="width:${pct(shown)}%"></div>
+            </div>
+            <div class="ir-kpi-footer">
+                <span>原文完整率 <strong>${completeCount}/${total}</strong></span>
+                <span class="text-emerald-700 font-semibold">零伪造逐字引述</span>
+            </div>
+        </div>
+
+        <div class="ir-kpi-card accent-blue">
+            <div class="ir-kpi-header">
+                <span class="ir-kpi-title">🎯 四步连续资格漏斗</span>
+                ${sellerModeBadge}
+            </div>
+            <div class="ir-kpi-value-row">
+                <span class="ir-kpi-number">${customBrandProfile && customBrandProfile.brand_name ? s3Count : s2Count}</span>
+                <span class="ir-kpi-unit">条通过${customBrandProfile && customBrandProfile.brand_name ? '阶段 3 能力核验' : '阶段 2 替换评估'}</span>
+            </div>
+            <div class="ir-segmented-bar" title="S1痛点:${s1Count} | S2评估:${s2Count} | S3适配:${s3Count} | S4推进:${s4Count}">
+                <div class="ir-segmented-fill bg-emerald-500" style="width:${pct(s3Count)}%"></div>
+                <div class="ir-segmented-fill bg-blue-500" style="width:${pct(Math.max(0, s2Count - s3Count))}%"></div>
+                <div class="ir-segmented-fill bg-amber-500" style="width:${pct(Math.max(0, s1Count - s2Count))}%"></div>
+            </div>
+            <div class="ir-kpi-footer font-mono">
+                <span>S1:${s1Count} → S2:${s2Count}</span>
+                <span>S3适配:<strong>${s3Count}</strong> → S4:<strong>${s4Count}</strong></span>
+            </div>
+        </div>
+
+        <div class="ir-kpi-card accent-indigo">
+            <div class="ir-kpi-header">
+                <span class="ir-kpi-title">⚡ 买方意向分与权限分布</span>
+                <span class="ir-kpi-badge bg-indigo-50 text-indigo-800 border border-indigo-200">≥80分高优: ${highScoreCount}条</span>
+            </div>
+            <div class="ir-kpi-value-row">
+                <span class="ir-kpi-number">${avgScore}</span>
+                <span class="ir-kpi-unit">分均值 · 明示/推断权限 ${authExplicit + authInferred} 条</span>
+            </div>
+            <div class="ir-segmented-bar" title="原文明示:${authExplicit} | 模型推断:${authInferred} | 未知:${authUnknown} | 无权阻断:${blockedCount}">
+                <div class="ir-segmented-fill bg-emerald-500" style="width:${pct(authExplicit)}%"></div>
+                <div class="ir-segmented-fill bg-amber-500" style="width:${pct(authInferred)}%"></div>
+                <div class="ir-segmented-fill bg-zinc-400" style="width:${pct(authUnknown)}%"></div>
+                <div class="ir-segmented-fill bg-rose-500" style="width:${pct(blockedCount)}%"></div>
+            </div>
+            <div class="ir-kpi-footer">
+                <span>明示:<strong>${authExplicit}</strong> · 推断:<strong>${authInferred}</strong> · 未知:${authUnknown}</span>
+                <span class="text-rose-700 font-semibold">阻断:${blockedCount}</span>
+            </div>
+        </div>
+
+        <div class="ir-kpi-card accent-amber">
+            <div class="ir-kpi-header">
+                <span class="ir-kpi-title">📋 7步跟进转化与门控台账</span>
+                <span class="ir-kpi-badge bg-amber-50 text-amber-800 border border-amber-200">允许外发: ${outreachEligible}条</span>
+            </div>
+            <div class="ir-kpi-value-row">
+                <span class="ir-kpi-number">${activeCrm + wonCrm}</span>
+                <span class="ir-kpi-unit">条推进中 · 待处理 ${pendingCrm} 条</span>
+            </div>
+            <div class="ir-segmented-bar">
+                <div class="ir-segmented-fill bg-emerald-500" style="width:${pct(wonCrm + activeCrm)}%"></div>
+                <div class="ir-segmented-fill bg-zinc-300" style="width:${pct(pendingCrm)}%"></div>
+                <div class="ir-segmented-fill bg-rose-500" style="width:${pct(disqCrm)}%"></div>
+            </div>
+            <div class="ir-kpi-footer">
+                <span>推进/成交:<strong>${activeCrm + wonCrm}</strong> · 待办:${pendingCrm}</span>
+                <span>已归档不合格:${disqCrm}</span>
+            </div>
+        </div>`;
+    }
+
+    // 2. Render Funnel Chart
+    const funnelHost = document.getElementById('chartFunnelContainer');
+    if (funnelHost) {
+        const stages = [
+            { code: 'S1', name: '阶段 1/4 · 痛点真实存在 (Pain Verified)', count: s1Count, color: 'bg-zinc-700', cat: 'all', desc: '原帖包含具体生产故障、涨价或替换触发事件' },
+            { code: 'S2', name: '阶段 2/4 · 正在评估替代 (Active Eval)', count: s2Count, color: 'bg-blue-500', cat: 'high-intent', desc: '排除无决策权抱怨、回顾帖与厂商自荐软文' },
+            { code: 'S3', name: '阶段 3/4 · 卖方能力适配 (Capability Fit)', count: s3Count, color: 'bg-emerald-500', cat: 'high-intent', desc: '需配置卖方档案并通过版本绑定的人工逐项核验' },
+            { code: 'S4', name: '阶段 4/4 · 当期可触达推进 (Deliverable)', count: s4Count, color: 'bg-emerald-600', cat: 'high-intent', desc: '联系路径/权限已核实且处于实时新鲜度窗口' }
+        ];
+        funnelHost.innerHTML = stages.map(st => {
+            const rate = Math.round((st.count / total) * 100);
+            return `
+            <div class="ir-funnel-row" data-action="dashboard-filter-cat" data-category="${st.cat}" title="点击筛选该阶段信号">
+                <div class="ir-funnel-top">
+                    <span class="font-semibold text-zinc-900">${escapeHtml(st.name)}</span>
+                    <span class="font-mono font-bold text-zinc-800">${st.count} 条 <span class="text-zinc-400 font-normal">(${rate}%)</span></span>
+                </div>
+                <div class="ir-funnel-track">
+                    <div class="ir-funnel-fill ${st.color}" style="width:${Math.max(rate, st.count > 0 ? 6 : 0)}%"></div>
+                </div>
+                <div class="text-[10px] text-zinc-500 flex items-center justify-between">
+                    <span>${escapeHtml(st.desc)}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // 3. Render Competitor Radar Distribution
+    const compHost = document.getElementById('chartCompetitorContainer');
+    if (compHost) {
+        const compMap = {};
+        allLeads.forEach(l => {
+            const c = l.competitor || '未知';
+            if (!compMap[c]) compMap[c] = { count: 0, totalScore: 0 };
+            compMap[c].count++;
+            compMap[c].totalScore += (Number(l.intent_score) || 0);
+        });
+        const sortedComps = Object.entries(compMap).sort((a, b) => b[1].count - a[1].count || b[1].totalScore - a[1].totalScore);
+        const maxCompCount = sortedComps.length ? sortedComps[0][1].count : 1;
+
+        compHost.innerHTML = sortedComps.slice(0, 7).map(([compName, info]) => {
+            const avg = Math.round(info.totalScore / info.count);
+            const widthPct = Math.round((info.count / maxCompCount) * 100);
+            const isSelected = currentCompetitor.toLowerCase() === compName.toLowerCase();
+            return `
+            <button type="button" data-action="filter-competitor" data-competitor="${escapeHtml(isSelected ? 'ALL' : compName)}" class="ir-bar-item ${isSelected ? 'active-bar' : ''}" title="点击按 ${escapeHtml(compName)} 过滤宽表">
+                <div class="ir-bar-bg" style="width:${widthPct}%; background:${isSelected ? 'rgba(16,185,129,0.16)' : 'rgba(24,24,27,0.05)'}"></div>
+                <div class="ir-bar-content">
+                    ${getBrandLogoHtml(compName, 'w-3.5 h-3.5')}
+                    <span class="truncate">${escapeHtml(compName)}</span>
+                </div>
+                <div class="ir-bar-metric">
+                    <span class="px-1.5 py-0.2 rounded bg-white/90 border border-zinc-200 text-[10px] text-zinc-600">均分 ${avg}</span>
+                    <span class="font-bold text-zinc-900">${info.count} 条</span>
+                </div>
+            </button>`;
+        }).join('');
+    }
+
+    // 4. Render Churn Drivers & 4D Tri-State Provenance Matrix
+    const driverHost = document.getElementById('chartDriversAndProvenanceContainer');
+    if (driverHost) {
+        const pricingCnt = allLeads.filter(isPricingDriverLead).length;
+        const privacyCnt = allLeads.filter(isPrivacyDriverLead).length;
+        const workflowCnt = allLeads.filter(l => /性能|卡顿|慢|繁琐|复杂|配置|耦合|迁移|slow|complex|heavy|lock-in/i.test((l.churn_drivers || []).join(' ') + ' ' + l.title + ' ' + l.content)).length;
+
+        const dims = [
+            { key: 'team_scale', label: '团队规模' },
+            { key: 'budget_status', label: '预算状态' },
+            { key: 'decision_authority', label: '决策权限' },
+            { key: 'migration_urgency', label: '迁移窗口' }
+        ];
+
+        const dimRowsHtml = dims.map(d => {
+            let exp = 0, inf = 0, unk = 0;
+            allLeads.forEach(l => {
+                const qm = l.qualification_meta || {};
+                const src = (qm[d.key] && qm[d.key].source) || '未知';
+                if (src === '原文明示') exp++;
+                else if (src === '模型推断') inf++;
+                else unk++;
+            });
+            return `
+            <div class="flex items-center gap-2 text-[11px]">
+                <span class="w-14 text-zinc-600 font-semibold flex-shrink-0">${d.label}</span>
+                <div class="ir-segmented-bar flex-1">
+                    <div class="ir-segmented-fill bg-emerald-500" style="width:${Math.round(exp/total*100)}%" title="原文明示: ${exp}条"></div>
+                    <div class="ir-segmented-fill bg-amber-500" style="width:${Math.round(inf/total*100)}%" title="模型推断: ${inf}条"></div>
+                    <div class="ir-segmented-fill bg-zinc-300" style="width:${Math.round(unk/total*100)}%" title="未知待核: ${unk}条"></div>
+                </div>
+                <span class="font-mono text-[10px] text-zinc-500 w-24 text-right flex-shrink-0">明${exp}/推${inf}/未${unk}</span>
+            </div>`;
+        }).join('');
+
+        driverHost.innerHTML = `
+        <div class="ir-bar-list">
+            <button type="button" data-action="dashboard-filter-cat" data-category="pricing" class="ir-bar-item ${currentCategory === 'pricing' ? 'active-bar' : ''}">
+                <div class="ir-bar-bg" style="width:${Math.round(pricingCnt/total*100)}%; background:rgba(244,63,94,0.08)"></div>
+                <div class="ir-bar-content"><span>💰 API 限流 / 套餐涨价与账单失控</span></div>
+                <div class="ir-bar-metric"><strong>${pricingCnt} 条</strong></div>
+            </button>
+            <button type="button" data-action="dashboard-filter-cat" data-category="privacy" class="ir-bar-item ${currentCategory === 'privacy' ? 'active-bar' : ''}">
+                <div class="ir-bar-bg" style="width:${Math.round(privacyCnt/total*100)}%; background:rgba(79,70,229,0.08)"></div>
+                <div class="ir-bar-content"><span>🛡️ 强制上云 / 离线与开源自托管诉求</span></div>
+                <div class="ir-bar-metric"><strong>${privacyCnt} 条</strong></div>
+            </button>
+            <button type="button" data-action="dashboard-filter-cat" data-category="all" class="ir-bar-item">
+                <div class="ir-bar-bg" style="width:${Math.round(workflowCnt/total*100)}%; background:rgba(16,185,129,0.08)"></div>
+                <div class="ir-bar-content"><span>⚙️ 性能迟缓 / 复杂工作流与框架解耦</span></div>
+                <div class="ir-bar-metric"><strong>${workflowCnt} 条</strong></div>
+            </button>
+        </div>
+        <div class="pt-2 border-t border-zinc-100 space-y-1.5">
+            <div class="flex items-center justify-between text-[10px] font-bold text-zinc-500 uppercase">
+                <span>四维资格三态证据可信度分布</span>
+                <span><b class="text-emerald-600">■明示</b> <b class="text-amber-500">■推断</b> <b class="text-zinc-400">■未知</b></span>
+            </div>
+            ${dimRowsHtml}
+        </div>`;
+    }
+}
+
+function toggleDashboardOverview() {
+    const sec = document.getElementById('overviewDashboardSection');
+    const btn = document.getElementById('btnToggleDashboard');
+    if (!sec) return;
+    const isHidden = sec.classList.toggle('hidden');
+    if (btn) {
+        btn.innerHTML = isHidden ? '<span>📊 展开情报大盘</span>' : '<span>📊 收起大盘</span>';
+    }
 }
 
 function renderCards(leads) {
@@ -1201,6 +1464,7 @@ function applyRender() {
     const filtered = getFilteredAndSortedLeads();
     updateLiveCountsAndExportButtons(filtered);
     updateCategoryBadges();
+    renderExecutiveDashboard(filtered);
 
     const tableWrap = document.getElementById('tableViewWrapper');
     const splitWrap = document.getElementById('splitViewWrapper');
@@ -1381,7 +1645,7 @@ function renderBrandPresets() {
     const container = document.getElementById('brandPresetButtons');
     if (!container || !Array.isArray(BRAND_PRESETS_DATA)) return;
     container.innerHTML = BRAND_PRESETS_DATA.map(p => `
-        <button type="button" data-action="select-brand-preset" data-preset-id="${escapeHtml(p.id)}" class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-white hover:bg-emerald-50 text-zinc-700 hover:text-emerald-700 border border-zinc-200 hover:border-emerald-300 transition-all shadow-2xs">
+        <button type="button" data-action="select-brand-preset" data-preset-id="${escapeHtml(p.id)}" class="ir-preset-chip">
             ${escapeHtml(p.label)}
         </button>
     `).join('');
@@ -1419,7 +1683,7 @@ function applyCustomBrandProfile() {
         customBrandProfile = null;
         if (indicator) {
             indicator.innerText = '当前视角：默认中立证据核验（阶段3待绑定卖方能力·仅生成中立问题）';
-            indicator.className = 'text-[11px] font-medium text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md';
+            indicator.className = 'text-[11px] font-medium text-zinc-200 bg-zinc-800 border border-zinc-700 px-2.5 py-0.5 rounded-md';
         }
         applyRender();
         if (activeLeadId) {
@@ -1447,7 +1711,7 @@ function applyCustomBrandProfile() {
     if (parsedTargets.length === 0 || !capVal) {
         if (indicator) {
             indicator.innerText = `⚠️ 卖方档案未完整配置：${nameVal}（需填写适配竞品与已核准能力）`;
-            indicator.className = 'text-[11px] font-semibold text-rose-800 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md';
+            indicator.className = 'text-[11px] font-semibold text-rose-300 bg-rose-500/20 border border-rose-500/30 px-2.5 py-0.5 rounded-md';
         }
         applyRender();
         if (activeLeadId) {
@@ -1460,7 +1724,7 @@ function applyCustomBrandProfile() {
 
     if (indicator) {
         indicator.innerText = `已启用卖方能力门控：${nameVal} (${customBrandProfile.actor_role} · 仅适配 ${customBrandProfile.target_competitors.join('/')})`;
-        indicator.className = 'text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md';
+        indicator.className = 'text-[11px] font-semibold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-md';
     }
 
     applyRender();
@@ -1497,13 +1761,15 @@ function setFilterCategory(cat, btn) {
 function filterByCompetitor(comp, btn) {
     currentCompetitor = comp;
     document.querySelectorAll('.comp-pill').forEach(b => {
-        b.classList.remove('bg-zinc-900', 'text-white', 'font-semibold');
-        b.classList.add('bg-white', 'text-zinc-700', 'border-zinc-200');
+        const pillComp = (b.getAttribute('data-competitor') || '').toLowerCase();
+        if (pillComp === comp.toLowerCase()) {
+            b.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
+            b.classList.remove('bg-white', 'text-zinc-700', 'border-zinc-200');
+        } else {
+            b.classList.remove('bg-zinc-900', 'text-white', 'font-semibold');
+            b.classList.add('bg-white', 'text-zinc-700', 'border-zinc-200');
+        }
     });
-    if (btn) {
-        btn.classList.add('bg-zinc-900', 'text-white', 'font-semibold');
-        btn.classList.remove('bg-white', 'text-zinc-700', 'border-zinc-200');
-    }
     applyRender();
 }
 
@@ -1729,6 +1995,12 @@ document.addEventListener('click', (e) => {
     } else if (action === 'filter-competitor') {
         const comp = actionEl.getAttribute('data-competitor');
         if (comp) filterByCompetitor(comp, actionEl);
+    } else if (action === 'dashboard-filter-cat') {
+        const cat = actionEl.getAttribute('data-category');
+        if (cat) {
+            const matchingNavBtn = document.querySelector(`.nav-btn[data-nav-cat="${cat}"]`);
+            setFilterCategory(cat, matchingNavBtn);
+        }
     }
 });
 
