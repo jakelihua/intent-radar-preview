@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.env
+report_local.html
+/scratch/
+internal_bd_ops.html
+*.sqlite3
+.intent_radar_state.sqlite3

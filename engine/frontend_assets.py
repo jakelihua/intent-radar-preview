@@ -1,16 +1,26 @@
 """
-Frontend JS Controller, Pure-JS OpenXML (.xlsx) Generator, and Internal BD Playbook Renderer.
-Separates data validation, filtering, capability-gated outreach, explicit export, and accessible UI events.
+Frontend JS Controller, Pure-JS OpenXML (.xlsx) Generator, and Internal BD Playbook Renderer (v3.1).
+Resolves Audit Round-2 Findings:
+- Finding #3 & #6: Unified 4-stage sequential qualification & outreach policy ('blocked' | 'neutral_inquiry_only' | 'approved_recommendation')
+  mirrored identically in JS; requires explicit `actor_role`, `target_competitors` (no '*' wildcard default), and `approved_capabilities`.
+- Finding #4: Separates `candidate_alternatives` (author verbatim mentions) from `system_recommended_alternatives` (system suggestions)
+  and renders per-field verbatim evidence snippets on every provenance card.
+- Finding #10: `memoryStatusStore` is initialized once from `localStorage` and serves as the authoritative session truth
+  so quota errors on subsequent writes never revert to stale `localStorage` values.
+- P2 Fixes:
+  1. Restores focus after `closeDrawer()` by querying the newly rendered button for `lastFocusedTrigger.leadId` in live DOM.
+  2. Blocks `/` search shortcut when modal or drawer is open.
+  3. Uses `role="group"` + `aria-pressed="true|false"` on Split View buttons instead of mismatched `listbox`/`button`.
+  4. Checks `/^[\t\r\n]/` and `/^[\s]*[=+\-@]/` BEFORE `\r` normalization in CSV sanitization (`sanitizeCsvCell`), separates XLSX `inlineStr` handling, clamps 32,767-char Excel cell limit, and adds `<cellStyles><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>` in `xl/styles.xml`.
 """
 
-import json
 from datetime import datetime
 from typing import Dict, List
 
 
 CLIENT_WORKBENCH_JS = r"""
 // ============================================================================
-// 1. Security, URL Validation & OWASP Spreadsheet Sanitization
+// 1. Security, URL Validation & Separated CSV / XLSX Sanitization
 // ============================================================================
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
@@ -35,22 +45,34 @@ function sanitizeUrl(url) {
     return '#';
 }
 
-// OWASP CSV / Spreadsheet Formula Injection Prevention
+// OWASP CSV Formula Injection Prevention:
+// Checks leading \t, \r, \n OR optional whitespace followed by =, +, -, @, \t, \r BEFORE normalizing \r!
+function sanitizeCsvCell(val) {
+    if (val === null || val === undefined) return '';
+    const raw = String(val);
+    const needsPrefix = /^[\t\r\n]/.test(raw) || /^[\s]*[=+\-@\t\r]/.test(raw);
+    const normalized = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    return needsPrefix ? ("'" + normalized) : normalized;
+}
+
+// Backward-compatible alias for unit tests
 function sanitizeSpreadsheetCell(val) {
+    return sanitizeCsvCell(val);
+}
+
+// XLSX inlineStr text normalizer (enforces Excel's 32,767 char cell limit without adding literal single quotes)
+const EXCEL_MAX_CELL_CHARS = 32767;
+function normalizeXlsxCellText(val) {
     if (val === null || val === undefined) return '';
     let str = String(val).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    const trimmedLeft = str.replace(/^\s+/, '');
-    if (trimmedLeft.length > 0 && /^[=+\-@]/.test(trimmedLeft)) {
-        return "'" + str;
-    }
-    if (/^[\t\r]/.test(str)) {
-        return "'" + str;
+    if (str.length > EXCEL_MAX_CELL_CHARS) {
+        str = str.slice(0, EXCEL_MAX_CELL_CHARS - 15) + '...[TRUNCATED]';
     }
     return str;
 }
 
 // ============================================================================
-// 2. Unified State & 7-Stage Qualification Funnel
+// 2. Authoritative Session State Store & 7-Stage Qualification Funnel
 // ============================================================================
 let currentCategory = 'all';
 let currentCompetitor = 'ALL';
@@ -61,11 +83,12 @@ let currentSplitPitchTab = 'reply';
 let currentSortField = 'default';
 let currentSortDir = 'desc';
 let customBrandProfile = null;
-let lastFocusedElement = null;
+let lastFocusedTrigger = null;
 
-// In-memory fallback if localStorage is blocked or quota-exceeded
+// Authoritative in-memory session store (initialized once from localStorage; immune to subsequent quota write failures)
 const memoryStatusStore = {};
 const memoryDisqualifyReasonStore = {};
+let sessionStoreInitialized = false;
 
 const QUALIFICATION_STATUSES = [
     '未处理',
@@ -101,30 +124,65 @@ const PROVENANCE_BADGE_CLASSES = {
     '未知': 'bg-zinc-100 text-zinc-600 border-zinc-200'
 };
 
+function initSessionStateFromStorage() {
+    if (sessionStoreInitialized) return;
+    sessionStoreInitialized = true;
+    if (typeof LEADS_DATA === 'undefined' || !Array.isArray(LEADS_DATA)) return;
+    LEADS_DATA.forEach(lead => {
+        if (!lead || !lead.id) return;
+        try {
+            const savedStatus = localStorage.getItem('ir_lead_status_' + lead.id);
+            if (savedStatus && QUALIFICATION_STATUSES.includes(savedStatus)) {
+                memoryStatusStore[lead.id] = savedStatus;
+            }
+            const savedDisq = localStorage.getItem('ir_lead_disq_' + lead.id);
+            if (savedDisq) {
+                memoryDisqualifyReasonStore[lead.id] = savedDisq;
+            }
+        } catch (e) {}
+    });
+}
+
 function getLeadStatus(id) {
+    initSessionStateFromStorage();
+    if (Object.prototype.hasOwnProperty.call(memoryStatusStore, id)) {
+        return memoryStatusStore[id];
+    }
     try {
         const val = localStorage.getItem('ir_lead_status_' + id);
-        if (val && QUALIFICATION_STATUSES.includes(val)) return val;
+        if (val && QUALIFICATION_STATUSES.includes(val)) {
+            memoryStatusStore[id] = val;
+            return val;
+        }
     } catch (e) {}
-    return memoryStatusStore[id] || '未处理';
+    return '未处理';
 }
 
 function getDisqualifyReason(id) {
+    initSessionStateFromStorage();
+    if (Object.prototype.hasOwnProperty.call(memoryDisqualifyReasonStore, id)) {
+        return memoryDisqualifyReasonStore[id];
+    }
     try {
         const val = localStorage.getItem('ir_lead_disq_' + id);
-        if (val) return val;
+        if (val) {
+            memoryDisqualifyReasonStore[id] = val;
+            return val;
+        }
     } catch (e) {}
-    return memoryDisqualifyReasonStore[id] || '';
+    return '';
 }
 
 function setLeadStatus(id, newStatus, reason = null) {
     if (!QUALIFICATION_STATUSES.includes(newStatus)) return;
+    initSessionStateFromStorage();
+    // Session memory is ALWAYS updated first and remains authoritative even if localStorage fails
     memoryStatusStore[id] = newStatus;
     if (reason !== null) {
         memoryDisqualifyReasonStore[id] = reason;
-    } else if (newStatus === '不合格' && !getDisqualifyReason(id)) {
-        const lead = LEADS_DATA.find(x => x.id === id);
-        const defaultReason = (lead && lead.intent_score < 68)
+    } else if (newStatus === '不合格' && !memoryDisqualifyReasonStore[id]) {
+        const lead = (typeof LEADS_DATA !== 'undefined' ? LEADS_DATA : []).find(x => x.id === id);
+        const defaultReason = (lead && isAuthorityNegated(lead))
             ? '无替换决策权（如一线员工被动使用）'
             : DISQUALIFY_REASONS[0];
         memoryDisqualifyReasonStore[id] = defaultReason;
@@ -148,7 +206,7 @@ function setLeadStatus(id, newStatus, reason = null) {
     }
 
     if (!persistedOk) {
-        showToast(`本地存储受限（localStorage 写入失败），状态【${newStatus}】仅在当前会话生效`, true);
+        showToast(`本地存储受限（localStorage 写入失败），状态【${newStatus}】已在当前会话内存中生效`, true);
     } else {
         const suffix = (newStatus === '不合格' && getDisqualifyReason(id)) ? `（原因：${getDisqualifyReason(id)}）` : '';
         showToast(`已记录线索状态为【${newStatus}】${suffix}`);
@@ -162,28 +220,65 @@ function cycleStatus(id) {
     setLeadStatus(id, nextStatus);
 }
 
-// ============================================================================
-// 3. Cross-Category Brand Capability Gating & Honest Outreach Generator
-// ============================================================================
-function hasReplacementAuthority(lead) {
-    if (!lead) return false;
-    const authVal = (lead.qualification_meta && lead.qualification_meta.decision_authority && lead.qualification_meta.decision_authority.value) || '';
-    if (authVal.includes('无采购与替换决策权') || authVal.includes('无选型决定权') || lead.intent_score < 68) {
-        return false;
+// Sync cross-tab storage updates into session memory
+window.addEventListener('storage', (e) => {
+    if (!e || !e.key) return;
+    if (e.key.startsWith('ir_lead_status_')) {
+        const id = e.key.replace('ir_lead_status_', '');
+        if (e.newValue && QUALIFICATION_STATUSES.includes(e.newValue)) {
+            memoryStatusStore[id] = e.newValue;
+            applyRender();
+        }
+    } else if (e.key.startsWith('ir_lead_disq_')) {
+        const id = e.key.replace('ir_lead_disq_', '');
+        if (e.newValue !== null) {
+            memoryDisqualifyReasonStore[id] = e.newValue;
+            applyRender();
+        }
     }
-    return true;
+});
+
+// ============================================================================
+// 3. Unified 4-Stage Sequential Qualification & Outreach Policy Engine
+// ============================================================================
+function isAuthorityNegated(lead) {
+    if (!lead) return true;
+    const qm = lead.qualification_meta || {};
+    const authVal = (qm.decision_authority && qm.decision_authority.value) || '';
+    const fullText = ((lead.title || '') + ' ' + (lead.content || '')).toLowerCase();
+    return (
+        lead.intent_type === 'lack_of_authority' ||
+        lead.intent_type === 'negative_no_replacement' ||
+        lead.intent_type === 'vendor_self_promotion' ||
+        authVal.includes('无采购与替换决策权') ||
+        authVal.includes('无选型决定权') ||
+        fullText.includes('not my choice')
+    );
+}
+
+function hasReplacementAuthority(lead) {
+    if (!lead || isAuthorityNegated(lead)) return false;
+    const qm = lead.qualification_meta || {};
+    const authSrc = (qm.decision_authority && (qm.decision_authority.source || qm.decision_authority.provenance)) || '未知';
+    // CRITICAL (Audit Finding #6): "未知" authority is NEVER treated as verified replacement authority!
+    return authSrc === '原文明示' || authSrc === '模型推断';
 }
 
 function checkBrandCompatibility(lead, profile) {
     if (!profile || !profile.brand_name) {
-        return { compatible: true, mode: 'neutral' };
+        return { compatible: false, mode: 'unconfigured', reason: '当前未配置特定卖方产品能力档案（阶段 3 待核验）' };
     }
-    const targets = profile.target_competitors || ['*'];
-    if (targets.includes('*')) {
-        return { compatible: true, mode: 'custom_wildcard' };
+    const cleanTargets = (profile.target_competitors || []).map(t => String(t).trim()).filter(t => t && t !== '*');
+    const approvedCaps = String(profile.approved_capabilities || '').trim();
+    if (cleanTargets.length === 0 || !approvedCaps) {
+        return {
+            compatible: false,
+            mode: 'incomplete_profile',
+            reason: `卖方档案【${profile.brand_name}】缺少明确的「适配被替换竞品」或「已核准真实能力」（系统禁止默认使用 * 通配符或自动补造能力）。`
+        };
     }
     const leadCompLower = (lead.competitor || '').toLowerCase();
-    const isMatch = targets.some(t => {
+    const isMatch = cleanTargets.some(t => {
         const tl = t.toLowerCase();
         return leadCompLower.includes(tl) || tl.includes(leadCompLower);
     });
@@ -191,39 +286,129 @@ function checkBrandCompatibility(lead, profile) {
         return {
             compatible: false,
             mode: 'mismatch',
-            reason: `当前已选卖方产品为【${profile.brand_name}】（仅适配替换：${targets.join(' / ')}），而本条线索被替换标的为【${lead.competitor}】（${lead.category}）。跨赛道强行套用话术已被系统拦截。`
+            reason: `当前已选卖方产品为【${profile.brand_name}】（仅适配替换：${cleanTargets.join(' / ')}），而本条线索被替换标的为【${lead.competitor}】（${lead.category}）。跨赛道强行套用话术已被系统拦截。`
         };
     }
-    return { compatible: true, mode: 'matched' };
+    return { compatible: true, mode: 'matched', reason: `卖方【${profile.brand_name}】赛道与核准能力已匹配` };
+}
+
+function evaluateLeadStages(lead, profile) {
+    const qm = lead.qualification_meta || {};
+    const authSrc = (qm.decision_authority && (qm.decision_authority.source || qm.decision_authority.provenance)) || '未知';
+    const budgetSrc = (qm.budget_status && (qm.budget_status.source || qm.budget_status.provenance)) || '未知';
+    const negated = isAuthorityNegated(lead);
+
+    const s1Passed = lead.intent_type !== 'vendor_self_promotion' && lead.competitor && lead.competitor !== '未知';
+    const s2Passed = s1Passed && !negated;
+
+    let s3Passed = false;
+    let s3Status = '待核验 · 未配置特定卖方能力档案';
+    let s3Blocker = '客户能力未知时不能通过阶段 3；请先在上方选择或填写卖方能力档案';
+    const compat = checkBrandCompatibility(lead, profile);
+    if (!s2Passed) {
+        s3Status = '未通过 · 前置阶段未成立';
+        s3Blocker = '发帖人无替换决策权或明确不考虑替换';
+    } else if (profile && profile.brand_name) {
+        if (compat.compatible) {
+            s3Passed = true;
+            s3Status = `已通过 · 适配【${profile.brand_name}】`;
+            s3Blocker = profile.known_limitations || '';
+        } else {
+            s3Passed = false;
+            s3Status = compat.mode === 'incomplete_profile' ? '受阻 · 卖方档案不完整' : '已拦截 · 跨赛道能力不匹配';
+            s3Blocker = compat.reason;
+        }
+    }
+
+    const bothUnknown = (authSrc === '未知' && budgetSrc === '未知');
+    const isSparse = ((lead.content || '').trim().length < 100 && bothUnknown);
+    let s4Passed = false;
+    let s4Status = '待推进';
+    if (s3Passed && !isSparse && lead.delivery_eligible) {
+        s4Passed = true;
+        s4Status = '已通过 · 当期可推进商机';
+    } else if (s3Passed && isSparse) {
+        s4Status = '待核验 · 预算与权限未知（仅可提问）';
+    } else if (s3Passed && !lead.delivery_eligible) {
+        s4Status = '历史基准样本 · 仅供核验演练（不计当期交付）';
+    }
+
+    let contiguous = 0;
+    for (const p of [s1Passed, s2Passed, s3Passed, s4Passed]) {
+        if (p) contiguous += 1;
+        else break;
+    }
+
+    let stageLabel = lead.qualification_stage || '阶段 2/4 · 正在评估替代';
+    if (contiguous === 0) {
+        stageLabel = '阶段 0/4 · 非买方替换线索';
+    } else if (contiguous === 1) {
+        stageLabel = '阶段 1/4 · 仅抱怨竞品（无替换决策权）';
+    } else if (contiguous === 2) {
+        if (profile && profile.brand_name && !compat.compatible) {
+            stageLabel = `阶段 2/4 · 阶段3受阻（${compat.mode === 'mismatch' ? '跨赛道不匹配' : '档案不完整'}）`;
+        } else if (bothUnknown) {
+            stageLabel = '阶段 2/4 · 初步寻优（预算/权限与卖方适配待核验）';
+        } else {
+            stageLabel = '阶段 2/4 · 正在评估替代（待绑定卖方能力核验阶段3）';
+        }
+    } else if (contiguous === 3) {
+        if (bothUnknown) {
+            stageLabel = '阶段 3/4 · 卖方能力已匹配（预算/权限未知·先提问核实）';
+        } else if (!lead.delivery_eligible) {
+            stageLabel = '阶段 3/4 · 卖方能力已匹配（历史基准样本·不计当期交付）';
+        } else {
+            stageLabel = '阶段 3/4 · 卖方能力已匹配（待首轮确认）';
+        }
+    } else {
+        stageLabel = '阶段 4/4 · 四步核验全部通过（当期可推进商机）';
+    }
+
+    return {
+        contiguous,
+        stageLabel,
+        s1Passed,
+        s2Passed,
+        s3Passed,
+        s4Passed,
+        s3Status,
+        s3Blocker,
+        s4Status,
+        compat,
+        bothUnknown
+    };
 }
 
 function getEffectivePitch(lead, type = 'reply') {
     if (!lead) return '';
+    const st = evaluateLeadStages(lead, customBrandProfile);
 
-    // 1. Check if lead explicitly lacks replacement decision authority
-    if (!hasReplacementAuthority(lead)) {
+    // 1. Blocked if Stage 1 or Stage 2 failed (lack of authority / negative intent / vendor post)
+    if (!st.s2Passed) {
+        if (lead.outreach_policy && lead.outreach_policy.policy_status === 'blocked' && lead.public_reply) {
+            return lead.public_reply;
+        }
         const quote = lead.evidence_quote || lead.content || '';
-        return `⚠️ 【资格核验拦截 · 不建议直接发送推销话术】\n` +
+        return `⚠️ 【资格核验拦截 · 已禁止发送推销话术】\n` +
                `原因：原帖作者 @${lead.author} 在正文中明确表示 "${quote}"（无工具选型与替换决策权）。\n` +
-               `建议动作：将该帖标记为「不合格（原因：无替换决策权）」，仅保留痛点作为产品研发参考，避免无效打扰。`;
+               `处置要求：将该帖标记为「不合格（原因：无替换决策权）」，仅保留痛点作为产品研发参考，严禁外呼打扰。`;
     }
 
-    // 2. If no custom brand is active, return neutral evidence-backed qualification draft
+    // 2. If no custom brand is active, return backend's strictly neutral qualification questions (zero capability claims)
     if (!customBrandProfile || !customBrandProfile.brand_name) {
         if (type === 'dev') return lead.pitch_dev || lead.suggested_pitch || '';
         if (type === 'exec') return lead.pitch_exec || lead.suggested_pitch || '';
         return lead.public_reply || '';
     }
 
-    // 3. Check Cross-Category Brand Capability Compatibility
-    const compat = checkBrandCompatibility(lead, customBrandProfile);
-    if (!compat.compatible) {
-        return `⛔ 【跨赛道能力不匹配 · 已禁止生成推荐话术】\n${compat.reason}\n💡 解决方案：请在上方「卖方产品能力档案」中切换至适配【${lead.competitor}】的预设，或切回「默认中立核验视角」。`;
+    // 3. If custom brand is active, check Stage 3 compatibility & profile completeness
+    if (!st.s3Passed) {
+        return `⛔ 【卖方能力门控拦截 · 已禁止生成推荐话术】\n${st.compat.reason}\n💡 解决方案：请在上方「卖方产品能力档案」中切换至适配【${lead.competitor}】且包含完整核准能力的预设，或切回「默认中立核验视角」。`;
     }
 
-    // 4. Honest, Evidence-Grounded Outreach using ONLY approved capabilities & explicit unknown blockers
     const bName = customBrandProfile.brand_name;
-    const bCaps = customBrandProfile.approved_capabilities || '标准数据导入与可预测的商业授权';
+    const actorRole = customBrandProfile.actor_role || '产品团队成员';
+    const bCaps = customBrandProfile.approved_capabilities;
     const bLimits = customBrandProfile.known_limitations || '具体生产环境兼容性仍需根据贵司实际架构核实';
     const bLink = customBrandProfile.cta_link || '';
     const evidenceSnippet = (lead.evidence_quote || lead.title || '').slice(0, 120);
@@ -231,19 +416,30 @@ function getEffectivePitch(lead, type = 'reply') {
         ? lead.qualification_meta.blocking_conditions.join('；')
         : '具体席位规模与现有历史数据迁移边界待确认';
 
+    const disclosure = `利益相关披露：我是【${bName}】的${actorRole}。`;
+
+    // 4. If budget & authority are both unknown (e.g., 1-sentence inquiry), only allow neutral qualification question with disclosure
+    if (st.bothUnknown) {
+        return `${disclosure}\n` +
+               `看到你在寻找 ${lead.competitor} 的替代方案（“${evidenceSnippet}”）。\n` +
+               `由于原帖尚未披露具体使用模块、团队席位数与预算形式（开源自托管或商业托管），方便补充一下你们最核心的 1-2 个必选需求吗？\n` +
+               `我们可以据此客观核对是否属于【${bName}】的已核准支持范围（已知边界：${bLimits}）。`;
+    }
+
+    // 5. Stage 3 passed & authority/budget not blank -> Approved Recommendation with role-accurate disclosure
     if (type === 'reply') {
-        return `利益相关披露：我参与了【${bName}】的开发。\n` +
-               `针对你在原帖提到的「${evidenceSnippet}」，我们目前已核准支持的能力包括：${bCaps}。\n` +
+        return `${disclosure}\n` +
+               `针对你在原帖提到的「${evidenceSnippet}」，【${bName}】目前已核准支持的能力包括：${bCaps}。\n` +
                `但需要客观说明已知边界：【${bLimits}】；同时原帖尚未涉及【${blockers}】，仍需结合你们的具体场景确认。\n` +
                `${bLink ? '这里有对应的迁移核验文档：' + bLink + ' ，' : ''}建议先用一小份脱敏数据做最小化验证。`;
     } else if (type === 'dev') {
         return `Hi @${lead.author}，在 ${lead.source} 看到你关于 ${lead.competitor} 的讨论（原帖提及：“${evidenceSnippet}”）。\n` +
-               `先做利益相关披露：我负责【${bName}】的研发。针对该场景，我们已支持：${bCaps}。\n` +
+               `${disclosure}针对该场景，我们已核准支持：${bCaps}。\n` +
                `在判断是否适合你们团队前，想先请教并确认两个边界问题：1) ${bLimits}；2) ${blockers}。\n` +
                `${bLink ? '迁移验证指南参考：' + bLink : '方便的话可以先跑一下沙箱导入测试。'}`;
     } else {
         return `您好 @${lead.author}，关注到贵团队在 ${lead.source} 评估 ${lead.competitor} 的替代方案。\n` +
-               `我是【${bName}】团队成员（利益相关披露）。对照原帖提到的痛点，我方已核准支持：${bCaps}。\n` +
+               `${disclosure}对照原帖提到的痛点，我方已核准支持：${bCaps}。\n` +
                `目前尚待确认的阻碍条件包括：【${blockers}】以及【${bLimits}】。建议先安排 15 分钟技术边界核对或小样本导入测试，确认完全匹配后再评估商务方案。`;
     }
 }
@@ -252,11 +448,15 @@ function getEffectivePitch(lead, type = 'reply') {
 // 4. Unified Filtering & Sorting Predicates
 // ============================================================================
 function isHighIntentLead(item) {
-    return item.intent_score >= 80 && hasReplacementAuthority(item);
+    const st = evaluateLeadStages(item, customBrandProfile);
+    if (customBrandProfile && customBrandProfile.brand_name) {
+        return st.contiguous >= 3 && hasReplacementAuthority(item);
+    }
+    return st.contiguous >= 2 && item.intent_score >= 80 && hasReplacementAuthority(item);
 }
 
 function isCautionOrPendingLead(item) {
-    return item.intent_score < 80 || !hasReplacementAuthority(item);
+    return !isHighIntentLead(item);
 }
 
 function isPricingDriverLead(item) {
@@ -294,6 +494,7 @@ function getFilteredLeads() {
                 item.title,
                 item.competitor,
                 (item.candidate_alternatives || []).join(' '),
+                (item.system_recommended_alternatives || []).join(' '),
                 item.category,
                 item.author,
                 item.source_id,
@@ -357,8 +558,8 @@ function createZipStoreArchive(files) {
         const lv = new DataView(localHeader.buffer);
         lv.setUint32(0, 0x04034b50, true);
         lv.setUint16(4, 20, true);
-        lv.setUint16(6, 0x0800, true); // UTF-8 flag
-        lv.setUint16(8, 0, true);      // STORE (no compression)
+        lv.setUint16(6, 0x0800, true);
+        lv.setUint16(8, 0, true);
         lv.setUint16(10, 0, true);
         lv.setUint16(12, 0x21, true);
         lv.setUint32(14, crc, true);
@@ -424,7 +625,6 @@ function excelColName(colIdxZeroBased) {
 
 function escapeXmlText(val) {
     if (val === null || val === undefined) return '';
-    // Strip invalid XML control chars except \t, \n, \r
     const cleaned = String(val).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
     return cleaned
         .replace(/&/g, '&amp;')
@@ -444,7 +644,7 @@ function buildRealXlsxBlob(headers, rows, colWidths) {
 
     const headerCellsXml = headers.map((h, cIdx) => {
         const ref = `${excelColName(cIdx)}1`;
-        const safeText = escapeXmlText(sanitizeSpreadsheetCell(h));
+        const safeText = escapeXmlText(normalizeXlsxCellText(h));
         return `<c r="${ref}" s="1" t="inlineStr"><is><t xml:space="preserve">${safeText}</t></is></c>`;
     }).join('');
 
@@ -452,7 +652,7 @@ function buildRealXlsxBlob(headers, rows, colWidths) {
         const rowNum = rIdx + 2;
         const cellsXml = row.map((cellVal, cIdx) => {
             const ref = `${excelColName(cIdx)}${rowNum}`;
-            const safeText = escapeXmlText(sanitizeSpreadsheetCell(cellVal));
+            const safeText = escapeXmlText(normalizeXlsxCellText(cellVal));
             return `<c r="${ref}" s="2" t="inlineStr"><is><t xml:space="preserve">${safeText}</t></is></c>`;
         }).join('');
         return `<row r="${rowNum}">${cellsXml}</row>`;
@@ -506,6 +706,9 @@ function buildRealXlsxBlob(headers, rows, colWidths) {
       <alignment horizontal="left" vertical="top" wrapText="1"/>
     </xf>
   </cellXfs>
+  <cellStyles count="1">
+    <cellStyle name="Normal" xfId="0" builtinId="0"/>
+  </cellStyles>
 </styleSheet>`;
 
     const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -548,15 +751,15 @@ function buildRealXlsxBlob(headers, rows, colWidths) {
 function buildExportTableData(leads) {
     const headers = [
         '序号', '来源平台', '来源原帖ID', '发布时间(UTC)', '采集核验时间(UTC)',
-        '资格核验阶段', '意向评分', '被替换竞品(Incumbent)', '提及候选方案(Candidates)',
+        '四步资格核验阶段', '意向评分', '被替换竞品(Incumbent)', '原文提及候选(系统推荐另列)',
         '原帖标题', '原文关键证据摘录', '发帖人账号',
         '团队规模及来源', '预算状态及来源', '决策权限及来源', '迁移急迫度及来源',
         '待核验阻碍条件', '建议触达路径', '跟进状态', '不合格原因',
-        '公开透明利益披露回复', '1v1技术核验草稿', '商业可行性核验草稿', '原帖直达链接'
+        '公开沟通草稿(受门控约束)', '1v1技术核验草稿', '商业可行性核验草稿', '原帖直达链接'
     ];
     const colWidths = [
         6, 14, 14, 18, 18,
-        24, 10, 18, 22,
+        28, 10, 18, 28,
         34, 42, 16,
         24, 24, 26, 24,
         36, 30, 12, 22,
@@ -570,16 +773,23 @@ function buildExportTableData(leads) {
 
     const rows = leads.map(l => {
         const qm = l.qualification_meta || {};
+        const st = evaluateLeadStages(l, customBrandProfile);
+        const authorCands = (l.candidate_alternatives && l.candidate_alternatives.length > 0)
+            ? `原文提及:${l.candidate_alternatives.join(',')}`
+            : '原文未提及候选';
+        const sysCands = (l.system_recommended_alternatives && l.system_recommended_alternatives.length > 0)
+            ? ` | 系统推荐:${l.system_recommended_alternatives.join(',')}`
+            : '';
         return [
             String(l.idx),
             l.source || '',
             l.source_id || l.id || '',
             l.timestamp || '',
             l.collected_at || '',
-            l.qualification_stage || '',
+            st.stageLabel,
             `${l.intent_score}分`,
             l.competitor || '',
-            (l.candidate_alternatives || []).join(', ') || '未点名特定候选',
+            authorCands + sysCands,
             l.title || '',
             l.evidence_quote || l.content || '',
             l.author || '',
@@ -622,10 +832,10 @@ function triggerExport(scope = 'filtered', format = 'xlsx') {
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(url), 1500);
-        showToast(`已导出真实 .xlsx 核验台账（${scope === 'all' ? '全库' : '当前筛选'} ${leads.length} 条，含冻结首行、筛选器与公式防注入）`);
+        showToast(`已导出真实 .xlsx 核验台账（${scope === 'all' ? '全库' : '当前筛选'} ${leads.length} 条，含 Normal 样式与冻结首行）`);
     } else {
         const cleanCsvCell = (val) => {
-            const safeVal = sanitizeSpreadsheetCell(val);
+            const safeVal = sanitizeCsvCell(val);
             return `"${String(safeVal).replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`;
         };
         const csvLines = [
@@ -651,9 +861,14 @@ function copyFilteredPitches(btn) {
         showToast('当前筛选结果为 0 条，没有可复制的话术', true);
         return;
     }
-    const eligibleLeads = leads.filter(l => hasReplacementAuthority(l) && checkBrandCompatibility(l, customBrandProfile).compatible);
+    const eligibleLeads = leads.filter(l => {
+        const st = evaluateLeadStages(l, customBrandProfile);
+        if (!st.s2Passed) return false;
+        if (customBrandProfile && customBrandProfile.brand_name && !st.s3Passed) return false;
+        return true;
+    });
     if (eligibleLeads.length === 0) {
-        showToast('当前筛选线索均因「跨赛道不匹配」或「无选型决策权」被拦截，请先切换匹配的卖方预设', true);
+        showToast('当前筛选线索均因「跨赛道不匹配」「档案不完整」或「无选型决策权」被拦截', true);
         return;
     }
     const skippedCount = leads.length - eligibleLeads.length;
@@ -661,13 +876,13 @@ function copyFilteredPitches(btn) {
         `【#${l.idx} 标的：${l.competitor} | 发帖人：@${l.author} | 来源ID：${l.source_id}】\n` +
         `原帖链接：${l.url}\n` +
         `原文证据：“${l.evidence_quote}”\n` +
-        `【💬 公开透明利益披露回复】：\n${getEffectivePitch(l, 'reply')}\n` +
-        `【💻 1v1 技术核验草稿】：\n${getEffectivePitch(l, 'dev')}`
+        `【💬 公开沟通草稿】：\n${getEffectivePitch(l, 'reply')}\n` +
+        `【💻 1v1 核验草稿】：\n${getEffectivePitch(l, 'dev')}`
     ).join('\n\n========================================\n\n');
 
     const msg = skippedCount > 0
-        ? `已复制 ${eligibleLeads.length} 条合规话术（自动跳过 ${skippedCount} 条不匹配/无决策权线索）`
-        : `已复制当前筛选 ${eligibleLeads.length} 条透明披露话术！`;
+        ? `已复制 ${eligibleLeads.length} 条合规草稿（自动拦截跳过 ${skippedCount} 条无决策权或不匹配线索）`
+        : `已复制当前筛选 ${eligibleLeads.length} 条合规沟通草稿！`;
     copyToClipboard(fullText, msg, btn);
 }
 """
@@ -689,6 +904,7 @@ function getBrandLogoHtml(name, size = 'w-3.5 h-3.5') {
 function renderProvenanceBadge(metaItem, label) {
     const src = (metaItem && metaItem.source) ? metaItem.source : '未知';
     const val = (metaItem && metaItem.value) ? metaItem.value : '未披露';
+    const ev = (metaItem && metaItem.evidence) ? metaItem.evidence : '';
     const cls = PROVENANCE_BADGE_CLASSES[src] || PROVENANCE_BADGE_CLASSES['未知'];
     return `
     <div class="p-2.5 rounded-lg bg-zinc-50/90 border border-zinc-200/80 flex flex-col justify-between gap-1">
@@ -697,20 +913,22 @@ function renderProvenanceBadge(metaItem, label) {
             <span class="px-1.5 py-0.2 rounded text-[10px] font-bold border ${cls}">[${escapeHtml(src)}]</span>
         </div>
         <div class="text-xs font-medium text-zinc-800 leading-snug">${escapeHtml(val)}</div>
+        ${ev ? `<div class="text-[10px] text-zinc-500 italic line-clamp-1" title="原文依据：${escapeHtml(ev)}">依据: "${escapeHtml(ev)}"</div>` : ''}
     </div>`;
 }
 
 function getScoreBadgeHtml(lead) {
-    if (!hasReplacementAuthority(lead)) {
-        return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300" title="发帖人明示无选型决策权"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>${lead.intent_score}分 · 无决策权</span>`;
+    const st = evaluateLeadStages(lead, customBrandProfile);
+    if (!st.s2Passed) {
+        return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300" title="阶段 1/4：发帖人明示无选型决策权或已拦截"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>${lead.intent_score}分 · 阶段 ${st.contiguous}/4</span>`;
     }
-    if (lead.intent_score >= 85) {
-        return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${lead.intent_score}分 · 已核验评估</span>`;
+    if (st.contiguous >= 3) {
+        return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${lead.intent_score}分 · 阶段 ${st.contiguous}/4</span>`;
     }
-    if (lead.intent_score >= 80) {
-        return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>${lead.intent_score}分 · 可跟进评估</span>`;
+    if (hasReplacementAuthority(lead) && lead.intent_score >= 80) {
+        return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200" title="阶段 2/4 已通过，待配置卖方能力档案验证阶段 3"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>${lead.intent_score}分 · 阶段 ${st.contiguous}/4</span>`;
     }
-    return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-700 border border-zinc-300"><span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>${lead.intent_score}分 · 待核验资格</span>`;
+    return `<span class="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-700 border border-zinc-300"><span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>${lead.intent_score}分 · 阶段 ${st.contiguous}/4</span>`;
 }
 
 function updateLiveCountsAndExportButtons(filteredLeads) {
@@ -745,6 +963,7 @@ function updateLiveCountsAndExportButtons(filteredLeads) {
     }
     if (btnExpAllXlsx) {
         btnExpAllXlsx.innerText = `导出全库 (${total}条 .xlsx)`;
+        btnExpAllXlsx.disabled = (total === 0);
     }
     if (btnCopyFiltered) {
         btnCopyFiltered.disabled = (count === 0);
@@ -777,17 +996,20 @@ function renderTable(leads) {
         const budgetSrc = (qm.budget_status && qm.budget_status.source) || '未知';
         const authSrc = (qm.decision_authority && qm.decision_authority.source) || '未知';
         const blockerText = (qm.blocking_conditions && qm.blocking_conditions[0]) || '待核验具体迁移边界';
-        const compat = checkBrandCompatibility(lead, customBrandProfile);
+        const st = evaluateLeadStages(lead, customBrandProfile);
 
-        const compatBadge = (!compat.compatible)
-            ? `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">⛔ 跨赛道不匹配</span>`
-            : (customBrandProfile && customBrandProfile.brand_name && hasReplacementAuthority(lead)
-                ? `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ 适配 ${escapeHtml(customBrandProfile.brand_name)}</span>`
-                : '');
+        let compatBadge = '';
+        if (customBrandProfile && customBrandProfile.brand_name) {
+            if (!st.s3Passed) {
+                compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">⛔ ${st.compat.mode === 'incomplete_profile' ? '档案不完整' : '跨赛道不匹配'}</span>`;
+            } else {
+                compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ 阶段3适配 ${escapeHtml(customBrandProfile.brand_name)}</span>`;
+            }
+        }
 
         const candText = (lead.candidate_alternatives && lead.candidate_alternatives.length > 0)
-            ? `提及候选: ${lead.candidate_alternatives.slice(0, 3).join(', ')}`
-            : '未点名特定候选';
+            ? `原文提及候选: ${lead.candidate_alternatives.join(', ')}`
+            : `原文未提及候选${lead.system_recommended_alternatives && lead.system_recommended_alternatives.length ? ' (系统推荐: ' + lead.system_recommended_alternatives.slice(0, 2).join('/') + ')' : ''}`;
 
         const isActive = (lead.id === activeLeadId);
         const rowClasses = isActive
@@ -802,7 +1024,7 @@ function renderTable(leads) {
             <td class="py-2.5 px-2 whitespace-nowrap">
                 <div class="flex flex-col gap-1 items-start">
                     ${getScoreBadgeHtml(lead)}
-                    <span class="text-[10px] text-zinc-500 font-medium">${escapeHtml(lead.qualification_stage.split('·')[0])}</span>
+                    <span class="text-[10px] text-zinc-500 font-medium">${escapeHtml(st.stageLabel.split('·')[1] || st.stageLabel)}</span>
                 </div>
             </td>
             <td class="py-2.5 px-2 whitespace-nowrap">
@@ -811,7 +1033,7 @@ function renderTable(leads) {
                         ${logoHtml}
                         <span>${escapeHtml(lead.competitor)}</span>
                     </span>
-                    <span class="text-[10px] text-zinc-500 truncate max-w-[155px]" title="${escapeHtml(candText)}">${escapeHtml(candText)}</span>
+                    <span class="text-[10px] text-zinc-500 truncate max-w-[165px]" title="${escapeHtml(candText)}">${escapeHtml(candText)}</span>
                 </div>
             </td>
             <td class="py-2.5 px-2.5 max-w-[430px]">
@@ -843,10 +1065,10 @@ function renderTable(leads) {
                 </div>
             </td>
             <td class="py-2.5 px-2.5 whitespace-nowrap text-right space-x-1" data-stop-propagation="true">
-                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors" title="直接核验 Hacker News 原帖">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors" title="直接核验原帖">
                     核验原帖 ↗
                 </a>
-                <button type="button" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
+                <button type="button" id="drawer-trigger-${escapeHtml(lead.id)}" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-xs">
                     核验详情
                 </button>
             </td>
@@ -876,6 +1098,7 @@ function renderCards(leads) {
         const safeUrl = escapeHtml(sanitizeUrl(lead.url));
         const qm = lead.qualification_meta || {};
         const blockers = (qm.blocking_conditions || []).join('；');
+        const st = evaluateLeadStages(lead, customBrandProfile);
 
         return `
         <div class="bg-white rounded-xl border border-zinc-200/90 p-4 shadow-xs hover:shadow-md transition-all cursor-pointer" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}">
@@ -885,7 +1108,7 @@ function renderCards(leads) {
                         ${logoHtml}
                         <span>被替换标的：${escapeHtml(lead.competitor)}</span>
                     </span>
-                    <span class="text-xs text-zinc-500 font-medium">${escapeHtml(lead.qualification_stage)}</span>
+                    <span class="text-xs text-zinc-500 font-medium">${escapeHtml(st.stageLabel)}</span>
                     <span class="text-[11px] font-mono bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded">ID: ${escapeHtml(lead.source_id)}</span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -916,13 +1139,13 @@ function renderCards(leads) {
                 <div class="flex items-center gap-3 text-zinc-500 font-mono text-[11px]">
                     <span>发布: ${escapeHtml(lead.timestamp)}</span>
                     <span>核验: ${escapeHtml(lead.collected_at)}</span>
-                    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-sans font-semibold">打开 HN 原帖 (#${escapeHtml(lead.source_id)}) ↗</a>
+                    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-sans font-semibold">打开原帖 (#${escapeHtml(lead.source_id)}) ↗</a>
                 </div>
                 <div class="flex items-center gap-2">
                     <button type="button" data-action="copy-lead-pitch" data-lead-id="${escapeHtml(lead.id)}" class="px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200">
-                        复制透明披露回复
+                        复制沟通草稿
                     </button>
-                    <button type="button" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}" class="px-3 py-1 rounded-lg text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800">
+                    <button type="button" id="card-trigger-${escapeHtml(lead.id)}" data-action="open-drawer" data-lead-id="${escapeHtml(lead.id)}" class="px-3 py-1 rounded-lg text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800">
                         打开完整核验抽屉
                     </button>
                 </div>
@@ -958,7 +1181,7 @@ function renderSplitView(leads) {
         const status = getLeadStatus(lead.id);
         const logoHtml = getBrandLogoHtml(lead.competitor);
         const isSelected = (lead.id === activeLeadId);
-        const compat = checkBrandCompatibility(lead, customBrandProfile);
+        const st = evaluateLeadStages(lead, customBrandProfile);
 
         const itemClass = isSelected
             ? 'w-full text-left p-3 bg-emerald-50/80 border-l-4 border-l-emerald-600 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-zinc-900'
@@ -969,7 +1192,7 @@ function renderSplitView(leads) {
                 id="split-item-${escapeHtml(lead.id)}"
                 data-action="select-split-lead"
                 data-lead-id="${escapeHtml(lead.id)}"
-                aria-selected="${isSelected ? 'true' : 'false'}"
+                aria-pressed="${isSelected ? 'true' : 'false'}"
                 class="${itemClass}">
             <div class="flex items-center justify-between gap-1 mb-1">
                 <div class="flex items-center gap-1.5 truncate">
@@ -992,7 +1215,7 @@ function renderSplitView(leads) {
             <div class="flex items-center justify-between text-[10px] text-zinc-500">
                 <span class="font-mono">${escapeHtml(lead.timestamp)}</span>
                 <div class="flex items-center gap-1">
-                    ${!compat.compatible ? `<span class="text-rose-600 font-semibold">⛔不匹配</span>` : ''}
+                    ${(customBrandProfile && customBrandProfile.brand_name && !st.s3Passed) ? `<span class="text-rose-600 font-semibold">⛔不匹配</span>` : ''}
                     <span class="px-1.5 py-0.2 rounded border border-zinc-200 bg-white">${escapeHtml(status)}</span>
                 </div>
             </div>
@@ -1010,9 +1233,12 @@ function populateDetailPane(prefix, id) {
 
     const logoHtml = getBrandLogoHtml(lead.competitor);
     const qm = lead.qualification_meta || {};
-    const candList = (lead.candidate_alternatives && lead.candidate_alternatives.length > 0)
+    const authorCandList = (lead.candidate_alternatives && lead.candidate_alternatives.length > 0)
         ? lead.candidate_alternatives.join(' / ')
-        : '原帖未点名特定候选产品';
+        : '原文未提及特定候选';
+    const sysRecList = (lead.system_recommended_alternatives && lead.system_recommended_alternatives.length > 0)
+        ? `（系统推荐参考：${lead.system_recommended_alternatives.join(' / ')}）`
+        : '';
 
     const titleEl = document.getElementById(`${prefix}Title`);
     const compBadgeEl = document.getElementById(`${prefix}CompetitorBadge`);
@@ -1034,7 +1260,7 @@ function populateDetailPane(prefix, id) {
 
     if (titleEl) titleEl.innerText = lead.title;
     if (compBadgeEl) {
-        compBadgeEl.innerHTML = `${logoHtml} <span>被替换竞品：${escapeHtml(lead.competitor)}</span> <span class="text-zinc-400">|</span> <span class="text-zinc-600 font-normal">提及候选：${escapeHtml(candList)}</span>`;
+        compBadgeEl.innerHTML = `${logoHtml} <span>被替换竞品：${escapeHtml(lead.competitor)}</span> <span class="text-zinc-400">|</span> <span class="text-zinc-600 font-normal">原文提及候选：${escapeHtml(authorCandList)} ${escapeHtml(sysRecList)}</span>`;
     }
     if (scoreBadgeEl) scoreBadgeEl.innerHTML = getScoreBadgeHtml(lead);
     if (authorEl) authorEl.innerText = `发帖人：@${lead.author}`;
@@ -1060,7 +1286,7 @@ function populateDetailPane(prefix, id) {
     }
 
     if (contactPathEl) {
-        contactPathEl.innerText = qm.contact_path || '通过原帖公开透明披露开发者身份并提供迁移核验文档';
+        contactPathEl.innerText = qm.contact_path || '通过原帖发送中立核验问题核实未知维度';
     }
 
     if (churnBadgesEl) {
@@ -1083,8 +1309,10 @@ function populateDetailPane(prefix, id) {
 }
 
 function applyRender() {
+    initSessionStateFromStorage();
     const filtered = getFilteredAndSortedLeads();
     updateLiveCountsAndExportButtons(filtered);
+    updateCategoryBadges();
 
     const tableWrap = document.getElementById('tableViewWrapper');
     const splitWrap = document.getElementById('splitViewWrapper');
@@ -1094,7 +1322,6 @@ function applyRender() {
     if (splitWrap) splitWrap.classList.add('hidden');
     if (cardWrap) cardWrap.classList.add('hidden');
 
-    // Only render the active view (avoids redundant hidden DOM redraws)
     if (currentViewMode === 'table') {
         renderTable(filtered);
     } else if (currentViewMode === 'split') {
@@ -1107,15 +1334,18 @@ function applyRender() {
 
 CLIENT_WORKBENCH_EVENTS_JS = r"""
 // ============================================================================
-// 7. Accessible Drawer, Focus Trap, Brand Capability Customizer & Event Delegation
+// 7. Accessible Drawer, Focus Restoration, Brand Capability Customizer & Events
 // ============================================================================
 function openDrawer(id, triggerEl = null) {
     const lead = LEADS_DATA.find(x => x.id === id);
     if (!lead) return;
 
-    if (triggerEl || document.activeElement) {
-        lastFocusedElement = triggerEl || document.activeElement;
-    }
+    const sourceEl = triggerEl || document.activeElement;
+    lastFocusedTrigger = {
+        leadId: id,
+        elementId: (sourceEl && sourceEl.id) ? sourceEl.id : '',
+        action: (sourceEl && sourceEl.getAttribute) ? (sourceEl.getAttribute('data-action') || 'open-drawer') : 'open-drawer'
+    };
 
     activeLeadId = id;
     applyRender();
@@ -1128,11 +1358,9 @@ function openDrawer(id, triggerEl = null) {
         drawer.removeAttribute('hidden');
         drawer.removeAttribute('inert');
         drawer.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(() => {
-            drawer.classList.remove('translate-x-full');
-            const closeBtn = document.getElementById('drawerCloseBtn');
-            if (closeBtn) closeBtn.focus();
-        });
+        drawer.classList.remove('translate-x-full');
+        const closeBtn = document.getElementById('drawerCloseBtn');
+        if (closeBtn) closeBtn.focus();
     }
 }
 
@@ -1150,11 +1378,26 @@ function closeDrawer() {
             }
         }, 280);
     }
+    const triggerInfo = lastFocusedTrigger;
+    lastFocusedTrigger = null;
     activeLeadId = null;
     applyRender();
-    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
-        lastFocusedElement.focus();
-        lastFocusedElement = null;
+
+    // Restore focus to the freshly rendered element in live DOM (fixes detached DOM node focus bug)
+    if (triggerInfo) {
+        let targetEl = null;
+        if (triggerInfo.elementId) {
+            targetEl = document.getElementById(triggerInfo.elementId);
+        }
+        if (!targetEl && triggerInfo.leadId) {
+            targetEl = document.getElementById('drawer-trigger-' + triggerInfo.leadId) ||
+                       document.getElementById('card-trigger-' + triggerInfo.leadId) ||
+                       document.querySelector(`button[data-action="open-drawer"][data-lead-id="${triggerInfo.leadId}"]`) ||
+                       document.querySelector(`[data-action="open-drawer"][data-lead-id="${triggerInfo.leadId}"]`);
+        }
+        if (targetEl && typeof targetEl.focus === 'function') {
+            targetEl.focus();
+        }
     }
 }
 
@@ -1260,13 +1503,15 @@ function selectBrandPreset(presetId) {
     const preset = (BRAND_PRESETS_DATA || []).find(p => p.id === presetId);
     if (!preset) return;
     const nameInput = document.getElementById('customBrandName');
+    const roleSelect = document.getElementById('customActorRole');
     const compInput = document.getElementById('customTargetCompetitors');
     const capInput = document.getElementById('customApprovedCaps');
     const limitInput = document.getElementById('customKnownLimits');
     const linkInput = document.getElementById('customBrandLink');
 
     if (nameInput) nameInput.value = preset.brand_name || '';
-    if (compInput) compInput.value = (preset.target_competitors || ['*']).join(', ');
+    if (roleSelect && preset.actor_role) roleSelect.value = preset.actor_role;
+    if (compInput) compInput.value = (preset.target_competitors || []).join(', ');
     if (capInput) capInput.value = preset.approved_capabilities || '';
     if (limitInput) limitInput.value = preset.known_limitations || '';
     if (linkInput) linkInput.value = preset.cta_link || '';
@@ -1275,6 +1520,7 @@ function selectBrandPreset(presetId) {
 
 function applyCustomBrandProfile() {
     const nameVal = (document.getElementById('customBrandName')?.value || '').trim();
+    const roleVal = (document.getElementById('customActorRole')?.value || '产品研发团队').trim();
     const compRaw = (document.getElementById('customTargetCompetitors')?.value || '').trim();
     const capVal = (document.getElementById('customApprovedCaps')?.value || '').trim();
     const limitVal = (document.getElementById('customKnownLimits')?.value || '').trim();
@@ -1284,7 +1530,7 @@ function applyCustomBrandProfile() {
     if (!nameVal) {
         customBrandProfile = null;
         if (indicator) {
-            indicator.innerText = '当前视角：默认中立证据核验';
+            indicator.innerText = '当前视角：默认中立证据核验（阶段3待绑定卖方能力·仅生成中立问题）';
             indicator.className = 'text-[11px] font-medium text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md';
         }
         applyRender();
@@ -1292,24 +1538,40 @@ function applyCustomBrandProfile() {
             populateDetailPane('drawer', activeLeadId);
             populateDetailPane('split', activeLeadId);
         }
-        showToast('已切换为【默认中立证据核验视角】');
+        showToast('已切换为【默认中立核验视角】（仅输出中立核验问题，不承诺卖方能力）');
         return;
     }
 
+    // CRITICAL (Audit Finding #6): Do NOT default empty target_competitors to ['*'] or auto-fabricate capabilities!
     const parsedTargets = compRaw
-        ? compRaw.split(/[,，/]/).map(s => s.trim()).filter(Boolean)
-        : ['*'];
+        ? compRaw.split(/[,，/]/).map(s => s.trim()).filter(s => s && s !== '*')
+        : [];
 
     customBrandProfile = {
         brand_name: nameVal,
-        target_competitors: parsedTargets.length > 0 ? parsedTargets : ['*'],
-        approved_capabilities: capVal || '支持标准数据导入与本地沙箱迁移验证',
+        actor_role: roleVal || '产品研发团队',
+        target_competitors: parsedTargets,
+        approved_capabilities: capVal,
         known_limitations: limitVal || '具体生产环境适配边界需结合贵司实际数据量级核实',
         cta_link: linkVal
     };
 
+    if (parsedTargets.length === 0 || !capVal) {
+        if (indicator) {
+            indicator.innerText = `⚠️ 卖方档案未完整配置：${nameVal}（需填写适配竞品与已核准能力）`;
+            indicator.className = 'text-[11px] font-semibold text-rose-800 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md';
+        }
+        applyRender();
+        if (activeLeadId) {
+            populateDetailPane('drawer', activeLeadId);
+            populateDetailPane('split', activeLeadId);
+        }
+        showToast(`请补充填写【${nameVal}】的「适配被替换竞品」与「已核准真实能力」，系统禁止通配符或自动补造能力`, true);
+        return;
+    }
+
     if (indicator) {
-        indicator.innerText = `已启用卖方能力门控：${nameVal} (仅适配 ${customBrandProfile.target_competitors.join('/')})`;
+        indicator.innerText = `已启用卖方能力门控：${nameVal} (${customBrandProfile.actor_role} · 仅适配 ${customBrandProfile.target_competitors.join('/')})`;
         indicator.className = 'text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md';
     }
 
@@ -1318,7 +1580,7 @@ function applyCustomBrandProfile() {
         populateDetailPane('drawer', activeLeadId);
         populateDetailPane('split', activeLeadId);
     }
-    showToast(`已启用【${nameVal}】能力边界门控（非匹配赛道将自动拦截话术生成）`);
+    showToast(`已启用【${nameVal}】阶段 3 能力门控（非匹配赛道与未知权限将自动拦截推荐）`);
 }
 
 function setFilterCategory(cat, btn) {
@@ -1443,8 +1705,9 @@ function resetAllFilters() {
     applyRender();
 }
 
+let modalTriggerEl = null;
 function openHowItWorksModal(triggerEl = null) {
-    lastFocusedElement = triggerEl || document.activeElement;
+    modalTriggerEl = triggerEl || document.activeElement;
     const modalMask = document.getElementById('howItWorksMask');
     if (modalMask) {
         modalMask.classList.remove('hidden');
@@ -1462,9 +1725,9 @@ function closeHowItWorksModal() {
         modalMask.setAttribute('hidden', '');
         modalMask.setAttribute('aria-hidden', 'true');
     }
-    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
-        lastFocusedElement.focus();
-        lastFocusedElement = null;
+    if (modalTriggerEl && typeof modalTriggerEl.focus === 'function') {
+        modalTriggerEl.focus();
+        modalTriggerEl = null;
     }
 }
 
@@ -1542,7 +1805,7 @@ function updateCategoryBadges() {
     setBadge('badgeCountPrivacy', privacy);
 }
 
-// Event Delegation for all dynamic lead rows/cards/buttons (Zero inline ID interpolation)
+// Event Delegation for all dynamic lead rows/cards/buttons
 document.addEventListener('click', (e) => {
     const stopEl = e.target.closest('[data-stop-propagation="true"]');
     const actionEl = e.target.closest('[data-action]');
@@ -1566,7 +1829,7 @@ document.addEventListener('click', (e) => {
         e.stopPropagation();
         const lead = LEADS_DATA.find(x => x.id === leadId);
         if (lead) {
-            copyToClipboard(getEffectivePitch(lead, 'reply'), `已复制 #${lead.idx} 透明披露话术`, actionEl);
+            copyToClipboard(getEffectivePitch(lead, 'reply'), `已复制 #${lead.idx} 沟通草稿`, actionEl);
         }
     } else if (action === 'select-brand-preset') {
         const presetId = actionEl.getAttribute('data-preset-id');
@@ -1598,8 +1861,8 @@ document.addEventListener('keydown', (e) => {
 
     const howItWorks = document.getElementById('howItWorksMask');
     const drawer = document.getElementById('detailDrawer');
-    const isModalOpen = howItWorks && !howItWorks.classList.contains('hidden');
-    const isDrawerOpen = drawer && !drawer.classList.contains('translate-x-full');
+    const isModalOpen = Boolean(howItWorks && !howItWorks.classList.contains('hidden'));
+    const isDrawerOpen = Boolean(drawer && !drawer.classList.contains('translate-x-full'));
 
     if (e.key === 'Escape') {
         if (isModalOpen) {
@@ -1641,6 +1904,9 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+    // Do NOT allow background shortcuts (/ or Arrow keys) when a modal or drawer dialog is open!
+    if (isModalOpen || isDrawerOpen) return;
+
     const activeTag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toUpperCase() : '';
     const isEditable = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) || (document.activeElement && document.activeElement.isContentEditable);
 
@@ -1654,7 +1920,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    if (!isEditable && !isModalOpen && !isDrawerOpen && currentViewMode === 'split') {
+    if (!isEditable && currentViewMode === 'split') {
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault();
             const leads = getFilteredAndSortedLeads();
@@ -1670,6 +1936,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    initSessionStateFromStorage();
     updateCategoryBadges();
     renderBrandPresets();
     applyRender();
@@ -1689,7 +1956,7 @@ def render_internal_bd_html(
 ) -> str:
     """
     Renders the standalone Internal BD & Self-Operation Playbook (`internal_bd_ops.html`).
-    Kept strictly separate from the public client-facing verification workbench (`report.html` / `index.html`).
+    Every seed client entry displays separated `verbatim_evidence_record`, `analysis_summary`, and `recommended_next_step`.
     """
     import html as _html
 
@@ -1724,11 +1991,12 @@ def render_internal_bd_html(
 
     clients_html = ""
     for idx, client in enumerate(seed_clients, 1):
+        rec = client.get("verbatim_evidence_record", {})
         clients_html += f"""
         <div class="bg-white rounded-xl border border-zinc-200 p-5 shadow-xs space-y-3">
             <div class="flex items-start justify-between gap-2">
                 <div>
-                    <span class="text-xs font-mono font-bold text-zinc-500">#{idx} · 关联真实证据 ID: {_html.escape(client.get('verified_evidence_id', ''))}</span>
+                    <span class="text-xs font-mono font-bold text-zinc-500">#{idx} · 关联真实证据 ID: {_html.escape(client.get('verified_evidence_id', ''))} (@{_html.escape(rec.get('author', ''))} · {_html.escape(rec.get('timestamp', ''))})</span>
                     <h4 class="text-sm font-bold text-zinc-900">{_html.escape(client['name'])}</h4>
                     <p class="text-xs text-zinc-500">{_html.escape(client['category'])} · 阶段：{_html.escape(client['stage'])}</p>
                 </div>
@@ -1736,8 +2004,15 @@ def render_internal_bd_html(
                     被替换竞品：{_html.escape(client['target_incumbent'])}
                 </span>
             </div>
+            <div class="text-xs text-emerald-900 bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-200 space-y-1">
+                <div><strong>1. 逐字原文证据 (Verbatim Quote)：</strong>“{_html.escape(rec.get('verbatim_quote', ''))}”</div>
+                <div class="font-mono text-[11px] text-emerald-700">原帖标题：{_html.escape(rec.get('title', ''))} | 链接：{_html.escape(rec.get('url', ''))}</div>
+            </div>
             <p class="text-xs text-zinc-700 bg-zinc-50 p-2.5 rounded-lg border border-zinc-200">
-                <strong>匹配逻辑：</strong>{_html.escape(client['pain_point'])}
+                <strong>2. 资格核验归纳 (Analysis Summary)：</strong>{_html.escape(client.get('analysis_summary', client['pain_point']))}
+            </p>
+            <p class="text-xs text-blue-900 bg-blue-50/70 p-2.5 rounded-lg border border-blue-200">
+                <strong>3. 建议跟进动作 (Recommended Action)：</strong>{_html.escape(client.get('recommended_next_step', ''))}
             </p>
             <pre class="bg-zinc-950 text-zinc-100 p-3.5 rounded-xl text-xs font-mono whitespace-pre-wrap leading-relaxed select-all">{_html.escape(client['bd_pitch'])}</pre>
             <div class="text-[11px] text-zinc-500">建议触达渠道：{_html.escape(client['contact_channel'])}</div>
@@ -1771,13 +2046,13 @@ def render_internal_bd_html(
     <header class="bg-zinc-950 text-white p-6 rounded-2xl border border-zinc-800 space-y-2">
         <div class="flex items-center justify-between flex-wrap gap-2">
             <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                🔒 内部运营后台文档 · 已与客户交付工作台 (report.html) 物理隔离
+                🔒 内部运营后台文档 · 已与客户交付工作台物理隔离至非公开目录
             </span>
             <span class="text-xs font-mono text-zinc-400">生成时间：{now_str}</span>
         </div>
-        <h1 class="text-lg font-bold">IntentRadar · 诚实证据流 BD 与单赛道人工核验试点手册</h1>
+        <h1 class="text-lg font-bold">IntentRadar · 诚实证据流 BD 与单赛道人工核验试点手册 (v3.1)</h1>
         <p class="text-xs text-zinc-300 leading-relaxed">
-            本页面仅供内部 BD 与运营使用，不在公开演示或客户交付页面展示。核心纪律：1) 每次只向目标卖方发送 1 条已核验真实原帖与原文摘录；2) 社区回复严格遵循「利益相关披露」原则，严禁伪装第三方过来人用户；3) 试点合作明确约定合格线索定义与未达标按条退款条款。
+            本页面由已核验的 `IntentSignal` 记录动态生成，严格分离：① 逐字原文证据 (Verbatim Quote)、② 资格核验归纳 (Analysis Summary)、③ 建议动作 (Recommended Action)。
         </p>
     </header>
 
@@ -1789,14 +2064,14 @@ def render_internal_bd_html(
     </section>
 
     <section class="space-y-3">
-        <h2 class="text-base font-bold text-zinc-900">二、1对1 卖方开发名录（每家绑定 1 条已核验 HN 真实原帖证据）</h2>
+        <h2 class="text-base font-bold text-zinc-900">二、1对1 卖方开发名录（动态读取 mock_data.py 同一条已核验记录）</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {clients_html}
         </div>
     </section>
 
     <section class="space-y-3">
-        <h2 class="text-base font-bold text-zinc-900">三、透明利益披露社区回复模板与试点招募文案</h2>
+        <h2 class="text-base font-bold text-zinc-900">三、真实角色利益披露模板</h2>
         <div class="grid grid-cols-1 gap-4">
             {campaigns_html}
         </div>
