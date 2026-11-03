@@ -24,7 +24,8 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 import requests
 from requests.adapters import HTTPAdapter
-from .collector import IntentSignal
+from .collector import IntentSignal, parse_timestamp
+from .policy import evaluate_facts, text
 
 # Automatically load local .env if present
 _env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
@@ -119,11 +120,6 @@ CATEGORY_FALLBACKS = [
     (r"spreadsheet|airtable|多维表格", "多维表格与低代码业务系统"),
 ]
 
-# Unapproved promotional claims that must NEVER pass LLM output validation
-UNAPPROVED_CLAIM_PATTERNS = re.compile(
-    r"(?:省\s*\d+\s*%|节省\s*\d+\s*%|save\s*\d+\s*%|零停机|zero\s*downtime|100%\s*兼容|已有\s*\d+\s*家客户|超过\s*\d+\s*家企业|立减|包过)",
-    re.IGNORECASE,
-)
 
 
 def normalize_product_name(raw_token: str) -> Optional[str]:
@@ -218,7 +214,19 @@ def classify_post_intent_type(title: str, content: str) -> Tuple[str, str]:
         if m:
             return "lack_of_authority", full_text[max(0, m.start() - 15): min(len(full_text), m.end() + 45)].strip()
 
-    return "buyer_evaluation", ""
+    # Positive evidence is required. Absence of a negative phrase is not intent.
+    positive_patterns = [
+        r"\balternatives?\b.{0,35}\b(?:to|for)\b",
+        r"\b(?:alternatives?\s+(?:to|for)|(?:jira|postman|salesforce|notion|airtable|hubspot|datadog|docusign|auth0)\s+alternatives?)\b",
+        r"\b(?:looking|searching|seeking)\s+(?:for\s+)?(?:an?\s+)?(?:alternatives?|replacement)\b",
+        r"\b(?:looking to migrate|opportunity to reevaluate|evaluating (?:other|self-host)|switching from|migrating (?:away )?from|replacing .+ with)\b",
+        r"(?:寻找|求推荐|寻求|评估).{0,35}(?:替代|平替|替换|方案)|(?:迁出|弃用|迁移到)",
+    ]
+    for pattern in positive_patterns:
+        match = re.search(pattern, lower_text)
+        if match:
+            return "buyer_evaluation", full_text[match.start():match.end()]
+    return "pain_only", ""
 
 
 def extract_entities_directional(
@@ -340,421 +348,56 @@ def extract_entities_directional(
     return target_competitor, category, candidates, sys_recs
 
 
-def evaluate_four_stages(
-    sig: IntentSignal,
-    target_competitor: str,
-    qual_meta: Dict[str, Any],
-    intent_type: str,
-    intent_evidence: str,
-    seller_profile: Optional[Dict[str, Any]] = None,
-) -> Tuple[Dict[str, Dict[str, Any]], int, str]:
-    """
-    Evaluates the 4 qualification stages sequentially and returns:
-    (stages_dict, contiguous_passed_count, stage_summary_label)
-
-    Rule (Audit Finding #3):
-    - Each stage records `passed` (bool), `status` (str), `evidence` (str), and `blocker` (str).
-    - Overall stage is the highest CONTIGUOUS passed stage (0/4 to 4/4).
-    - Score never substitutes for stage qualification.
-    - Stage 3 CANNOT pass when seller capability profile is unknown/unset.
-    """
-    full_text = f"{sig.title} {sig.content}".strip()
-    auth_obj = qual_meta.get("decision_authority", {})
-    auth_val = auth_obj.get("value", "")
-    auth_src = auth_obj.get("source") or auth_obj.get("provenance") or "未知"
-    budget_obj = qual_meta.get("budget_status", {})
-    budget_src = budget_obj.get("source") or budget_obj.get("provenance") or "未知"
-    scale_obj = qual_meta.get("team_scale", {})
-    scale_src = scale_obj.get("source") or scale_obj.get("provenance") or "未知"
-
-    # --- STAGE 1: 抱怨竞品 / 痛点存在 ---
-    if intent_type == "vendor_self_promotion":
-        s1 = {
-            "passed": False,
-            "status": "未通过 · 厂商自我推广帖",
-            "evidence": intent_evidence or sig.evidence_quote,
-            "blocker": "发帖人为替代品厂商/开发者主动宣传自家产品，不属于买方替换线索",
-        }
-    elif target_competitor in ("未知", "通用行业竞品", "同赛道传统竞品"):
-        s1 = {
-            "passed": False,
-            "status": "未通过 · 被替换竞品未知",
-            "evidence": sig.evidence_quote,
-            "blocker": "未能识别明确的被替换软件标的",
-        }
-    else:
-        s1 = {
-            "passed": True,
-            "status": "已通过 · 明确提及被替换标的或痛点",
-            "evidence": sig.evidence_quote,
-            "blocker": "",
-        }
-
-    # --- STAGE 2: 买方正在评估替代 ---
-    no_authority = (
-        intent_type == "lack_of_authority"
-        or "not my choice" in full_text.lower()
-        or "无采购与替换决策权" in auth_val
-        or "无选型决定权" in auth_val
-    )
-    if not s1["passed"]:
-        s2 = {
-            "passed": False,
-            "status": "未通过 · 前置阶段未通过",
-            "evidence": "",
-            "blocker": s1["blocker"],
-        }
-    elif intent_type == "negative_no_replacement":
-        s2 = {
-            "passed": False,
-            "status": "已否决 · 原文明示不考虑替换/无切换计划",
-            "evidence": intent_evidence or sig.evidence_quote,
-            "blocker": "发帖人明确表示不考虑替换现有工具，严禁纳入销售外呼",
-        }
-    elif no_authority:
-        s2 = {
-            "passed": False,
-            "status": "受阻 · 原文明示无选型/替换决定权",
-            "evidence": auth_obj.get("evidence") or intent_evidence or sig.evidence_quote,
-            "blocker": "发帖人被动使用该软件且无权更换底层系统，直接推销整套替换方案无效",
-        }
-    else:
-        s2 = {
-            "passed": True,
-            "status": "已通过 · 存在主动寻优或替换评估意图",
-            "evidence": qual_meta.get("migration_urgency", {}).get("evidence") or sig.evidence_quote,
-            "blocker": "预算或决策角色仍需核实" if (budget_src == "未知" or auth_src == "未知") else "",
-        }
-
-    # --- STAGE 3: 卖方产品能力与边界匹配 ---
-    both_budget_and_auth_unknown = (budget_src == "未知" and auth_src == "未知")
-    is_single_sentence_sparse = (len(sig.content.strip()) < 100 and both_budget_and_auth_unknown)
-
-    if not s2["passed"]:
-        s3 = {
-            "passed": False,
-            "status": "未通过 · 前置评估资格未成立",
-            "evidence": "",
-            "blocker": s2["blocker"],
-        }
-    elif is_single_sentence_sparse:
-        s3 = {
-            "passed": False,
-            "status": "待核验 · 原帖仅单句提问且预算/权限/痛点未知",
-            "evidence": sig.evidence_quote,
-            "blocker": "原帖未披露具体业务痛点、预算与决策权限，无法核验卖方产品能力匹配度，需先发送中立问题核实",
-        }
-    elif not seller_profile or not str(seller_profile.get("brand_name") or "").strip():
-        s3 = {
-            "passed": False,
-            "status": "待核验 · 未配置特定卖方能力档案",
-            "evidence": "当前处于默认中立工作台视角（未指定特定卖方产品）",
-            "blocker": "客户产品能力未知时不能通过阶段 3；请先配置或选择含明确适配竞品与已核准能力的卖方档案",
-        }
-    else:
-        b_name = str(seller_profile.get("brand_name")).strip()
-        raw_targets = seller_profile.get("target_competitors") or []
-        clean_targets = [str(t).strip() for t in raw_targets if str(t).strip() and str(t).strip() != "*"]
-        app_caps_raw = seller_profile.get("approved_capabilities") or ""
-        if isinstance(app_caps_raw, list):
-            app_caps = "；".join(str(c).strip() for c in app_caps_raw if str(c).strip())
-        else:
-            app_caps = str(app_caps_raw).strip()
-        if not clean_targets or not app_caps:
-            s3 = {
-                "passed": False,
-                "status": f"受阻 · 卖方【{b_name}】能力档案不完整",
-                "evidence": "",
-                "blocker": "卖方档案必须显式提供非空的适配被替换竞品列表与已核准能力说明（严禁使用通配符或自动补造能力）",
-            }
-        else:
-            comp_low = target_competitor.lower()
-            is_match = any(t.lower() in comp_low or comp_low in t.lower() for t in clean_targets)
-            if not is_match:
-                s3 = {
-                    "passed": False,
-                    "status": f"已拦截 · 跨赛道能力不匹配（{b_name} 不适配 {target_competitor}）",
-                    "evidence": f"卖方适配竞品：{', '.join(clean_targets)} | 本帖被替换竞品：{target_competitor}",
-                    "blocker": f"卖方产品【{b_name}】仅支持替换 {', '.join(clean_targets)}，与本帖标的【{target_competitor}】跨赛道不匹配",
-                }
-            else:
-                s3 = {
-                    "passed": True,
-                    "status": f"已通过 · 卖方【{b_name}】赛道与核准能力匹配",
-                    "evidence": f"已核准能力：{app_caps}",
-                    "blocker": str(seller_profile.get("known_limitations") or "需结合买方实际环境验证迁移边界"),
-                }
-
-    # --- STAGE 4: 可触达并推进 ---
-    if not s3["passed"]:
-        s4 = {
-            "passed": False,
-            "status": "待推进 · 需先完成阶段 3 卖方能力匹配",
-            "evidence": qual_meta.get("contact_path", ""),
-            "blocker": s3["blocker"],
-        }
-    elif is_single_sentence_sparse:
-        s4 = {
-            "passed": False,
-            "status": "待核验 · 原帖仅单句提问且预算/权限均未知",
-            "evidence": qual_meta.get("contact_path", ""),
-            "blocker": "原帖未披露预算、决策权限与具体使用痛点，需先发送中立问题核实，不得直接算作可成交商机",
-        }
-    else:
-        is_hist = not getattr(sig, "delivery_eligible", False)
-        s4 = {
-            "passed": True,
-            "status": (
-                "已通过 · 具备明确触达路径与合规沟通草稿（历史基准归档·不自动推送当期Webhook）"
-                if is_hist
-                else "已通过 · 证据完备、能力匹配且具当期可触达路径"
-            ),
-            "evidence": qual_meta.get("contact_path", ""),
-            "blocker": "历史基准样本仅用于工作台核验演练，不计入当期实时Webhook交付配额" if is_hist else "",
-        }
-
-    stages = {
-        "stage_1_pain": s1,
-        "stage_2_eval": s2,
-        "stage_3_fit": s3,
-        "stage_4_actionable": s4,
+def evaluate_four_stages(sig, target_competitor, qual_meta, intent_type, intent_evidence, seller_profile=None):
+    published = parse_timestamp(sig.timestamp)
+    facts = {
+        "source": sig.source, "source_id": sig.source_id, "content_hash": sig.content_hash,
+        "competitor": target_competitor,
+        "pain_verified": intent_type != "vendor_self_promotion" and target_competitor not in ("未知", "通用行业竞品", "同赛道传统竞品"),
+        "evaluation_verified": intent_type == "buyer_evaluation",
+        "dataset_kind": sig.dataset_kind,
+        "delivery_eligible": sig.delivery_eligible,
+        "content_complete": getattr(sig, "content_complete", False),
+        "published_at": published.isoformat() if published else "",
     }
+    # Fields are produced by the backend; the UI never reclassifies community text.
+    qual_meta["policy_facts"] = facts
+    decision = evaluate_facts(facts, seller_profile)
+    reasons = [
+        "无可核验的买方痛点或标的",
+        "缺乏主动替换证据，或作者明确拒绝替换/无决定权",
+        "需要针对本条原帖与当前卖方能力的人工匹配记录；不支持的必选项不得放行",
+        "需核实联系人与选型权限，且必须为当期完整内容；历史样本不可交付",
+    ]
+    names = ("stage_1_pain", "stage_2_eval", "stage_3_fit", "stage_4_actionable")
+    stages = {key: {"passed": ok, "status": "已通过" if ok else "待核验/受阻",
+                    "evidence": intent_evidence or sig.evidence_quote if i < 2 else text((seller_profile or {}).get("reviews", {}).get(sig.source_id, {}).get("evidence")),
+                    "blocker": "" if ok else reasons[i]}
+              for i, (key, ok) in enumerate(zip(names, decision["passed"]))}
+    count = decision["contiguous"]
+    label = ["非买方线索", "痛点记录（替换资格未成立）", "正在评估替代（能力待核验）",
+             "能力已核验（触达/时效待核验）", "四步核验通过（当期可推进）"][count]
+    return stages, count, f"阶段 {count}/4 · {label}"
 
-    contiguous = 0
-    for key in ("stage_1_pain", "stage_2_eval", "stage_3_fit", "stage_4_actionable"):
-        if stages[key]["passed"]:
-            contiguous += 1
-        else:
-            break
 
-    if contiguous == 0:
-        if intent_type == "vendor_self_promotion":
-            label = "阶段 0/4 · 厂商推广帖（已排除非买方线索）"
-        else:
-            label = "阶段 0/4 · 未通过痛点与标的核验"
-    elif contiguous == 1:
-        if intent_type == "negative_no_replacement":
-            label = "阶段 1/4 · 原文明示不考虑替换（已阻断推进）"
-        elif no_authority:
-            label = "阶段 1/4 · 仅抱怨竞品（原文明示无替换决策权）"
-        else:
-            label = "阶段 1/4 · 仅抱怨竞品（替换评估意图未成立）"
-    elif contiguous == 2:
-        if both_budget_and_auth_unknown:
-            label = "阶段 2/4 · 初步寻优（预算/权限与卖方适配待核验）"
-        else:
-            label = "阶段 2/4 · 正在评估替代（待绑定卖方能力档案核验阶段3）"
-    elif contiguous == 3:
-        if not getattr(sig, "delivery_eligible", False):
-            label = "阶段 3/4 · 卖方能力已匹配（历史基准样本·不计当期交付）"
-        else:
-            label = "阶段 3/4 · 卖方能力已匹配（待首轮提问确认预算与权限）"
+def evaluate_outreach_policy(sig, target_competitor, category, churn_drivers, qual_meta,
+                             stages, contiguous_stage, intent_type, seller_profile=None):
+    decision = evaluate_facts(qual_meta.get("policy_facts", {}), seller_profile)
+    status = decision["policy_status"]
+    if status == "blocked":
+        message = "⛔ 资格核验拦截：缺乏替换资格，或产品能力不匹配。仅保留研究记录，禁止销售推销。"
+    elif status == "neutral_inquiry_only":
+        message = (f"看到你关于 {target_competitor} 的讨论。方便补充当前需要解决的工作流、"
+                   "必选能力、选型权限和计划时间吗？确认需求与支持边界前，仅作中立核验，不推荐特定产品。")
     else:
-        label = "阶段 4/4 · 四步核验全部通过（当期可推进商机）"
-
-    return stages, contiguous, label
-
-
-def evaluate_outreach_policy(
-    sig: IntentSignal,
-    target_competitor: str,
-    category: str,
-    churn_drivers: List[str],
-    qual_meta: Dict[str, Any],
-    stages: Dict[str, Dict[str, Any]],
-    contiguous_stage: int,
-    intent_type: str,
-    seller_profile: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
-    """
-    Unified Backend Outreach Policy Engine (Resolves Audit Finding #6).
-    Outputs:
-    - policy_status: 'blocked' | 'neutral_inquiry_only' | 'approved_recommendation'
-    - can_outreach: bool
-    - can_recommend_product: bool
-    - reason: str
-    - public_reply: str
-    - pitch_dev: str
-    - pitch_exec: str
-    """
-    evidence_snippet = (sig.evidence_quote or sig.content or sig.title).strip()
-    if len(evidence_snippet) > 120:
-        evidence_snippet = evidence_snippet[:117] + "..."
-
-    blocking_list = qual_meta.get("blocking_conditions") or ["具体业务场景与数据迁移格式待核实"]
-    primary_blocker = blocking_list[0]
-    churn_summary = "、".join((churn_drivers or ["现有工具使用受限"])[:2])
-
-    def _finalize_policy(d: Dict[str, Any]) -> Dict[str, Any]:
-        can_out = bool(d.get("can_outreach", False))
-        d["allow_copy"] = can_out
-        d["allow_export_outreach"] = can_out
-        d["allow_webhook_push"] = bool(can_out and getattr(sig, "delivery_eligible", False))
-        return d
-
-    # 1. BLOCKED cases: vendor promotion, explicit refusal to replace, lack of decision authority, or cross-category mismatch
-    if intent_type == "vendor_self_promotion":
-        reason = f"原帖属于厂商/开发者自我推广（{evidence_snippet}），非买方采购求助，已阻断全部外呼与推送。"
-        msg = f"⛔ 【系统门控已阻断 · 厂商推广帖】\n原因：{reason}"
-        return _finalize_policy({
-            "policy_status": "blocked",
-            "can_outreach": False,
-            "can_recommend_product": False,
-            "reason": reason,
-            "public_reply": msg,
-            "pitch_dev": msg,
-            "pitch_exec": msg,
-        })
-
-    if intent_type == "negative_no_replacement":
-        reason = f"原帖作者明确表示不考虑替换/无切换计划（“{evidence_snippet}”），已阻断销售触达。"
-        msg = f"⛔ 【系统门控已阻断 · 买方明示不考虑替换】\n原因：{reason}"
-        return _finalize_policy({
-            "policy_status": "blocked",
-            "can_outreach": False,
-            "can_recommend_product": False,
-            "reason": reason,
-            "public_reply": msg,
-            "pitch_dev": msg,
-            "pitch_exec": msg,
-        })
-
-    if not stages["stage_2_eval"]["passed"]:
-        reason = stages["stage_2_eval"]["blocker"] or f"发帖人 @{sig.author} 无选型与替换决策权（“{evidence_snippet}”）。"
-        msg = (
-            f"⚠️ 【资格核验拦截 · 已禁止发送推销话术】\n"
-            f"原因：原帖作者 @{sig.author} 明确表示 “{evidence_snippet}”（{reason}）。\n"
-            f"处置要求：仅可归档为产品体验痛点样本，严禁向发帖人发送产品推销或计入可推进商机。"
-        )
-        return _finalize_policy({
-            "policy_status": "blocked",
-            "can_outreach": False,
-            "can_recommend_product": False,
-            "reason": reason,
-            "public_reply": msg,
-            "pitch_dev": msg,
-            "pitch_exec": msg,
-        })
-
-    # Check if a seller_profile was explicitly supplied
-    if seller_profile and str(seller_profile.get("brand_name") or "").strip():
-        if not stages["stage_3_fit"]["passed"]:
-            reason = stages["stage_3_fit"]["blocker"]
-            msg = (
-                f"⛔ 【卖方能力门控拦截 · 已禁止生成推荐话术】\n"
-                f"原因：{reason}\n"
-                f"处置要求：请切换至适配【{target_competitor}】且包含完整核准能力的卖方档案，或切回「默认中立核验视角」仅生成中立调研问题。"
-            )
-            return _finalize_policy({
-                "policy_status": "blocked",
-                "can_outreach": False,
-                "can_recommend_product": False,
-                "reason": reason,
-                "public_reply": msg,
-                "pitch_dev": msg,
-                "pitch_exec": msg,
-            })
-
-        # Check if budget & authority are both unknown (even with a matched seller profile, must verify before pitching!)
-        auth_src = (qual_meta.get("decision_authority") or {}).get("source", "未知")
-        budget_src = (qual_meta.get("budget_status") or {}).get("source", "未知")
-        b_name = str(seller_profile.get("brand_name")).strip()
-        actor_role = str(seller_profile.get("actor_role") or "产品团队成员").strip()
-        b_caps_raw = seller_profile.get("approved_capabilities") or ""
-        b_caps = "；".join(str(x).strip() for x in b_caps_raw) if isinstance(b_caps_raw, list) else str(b_caps_raw).strip()
-        b_limits_raw = seller_profile.get("known_limitations") or "需结合贵司实际环境验证兼容性"
-        b_limits = "；".join(str(x).strip() for x in b_limits_raw) if isinstance(b_limits_raw, list) else str(b_limits_raw).strip()
-        b_link = str(seller_profile.get("cta_link") or "").strip()
-
-        role_disclosure = f"利益相关披露：我是【{b_name}】的{actor_role}。"
-
-        if auth_src == "未知" and budget_src == "未知":
-            reason = f"已匹配【{b_name}】，但原帖预算与决策权限均为【未知】，仅允许披露身份后先做需求边界提问。"
-            q_reply = (
-                f"{role_disclosure}\n"
-                f"看到你在寻找 {target_competitor} 的替代方案（“{evidence_snippet}”）。"
-                f"由于原帖尚未提及具体使用模块、团队席位数以及倾向开源自托管还是云服务，"
-                f"方便补充一下你们最核心的 1-2 个必选工作流吗？我们可以据此帮你客观核对是否属于【{b_name}】的支持范围（已知限制：{b_limits}）。"
-            )
-            return _finalize_policy({
-                "policy_status": "neutral_inquiry_only",
-                "can_outreach": True,
-                "can_recommend_product": False,
-                "reason": reason,
-                "public_reply": q_reply,
-                "pitch_dev": q_reply,
-                "pitch_exec": q_reply,
-            })
-
-        # Approved Recommendation (Stage 1..3 passed, authority/budget not both blank)
-        reason = f"卖方【{b_name}】赛道与核准能力已匹配，且已绑定真实身份披露（{actor_role}）。"
-        link_clause = f" 这里有对应的迁移验证文档供参考：{b_link} 。" if b_link else ""
-        public_reply = (
-            f"{role_disclosure}\n"
-            f"针对你在原帖提到的「{evidence_snippet}」（{churn_summary}），【{b_name}】目前已核准支持的能力为：{b_caps}。\n"
-            f"同时需要客观说明已知边界：【{b_limits}】；此外原帖尚未披露【{primary_blocker}】，仍需结合你们的实际环境确认。{link_clause}"
-        )
-        pitch_dev = (
-            f"Hi @{sig.author}，在 {sig.source} 看到你关于 {target_competitor} 的讨论（“{evidence_snippet}”）。\n"
-            f"{role_disclosure}针对该场景，我们已核准支持：{b_caps}。\n"
-            f"在判断是否适合你们团队前，想先请教并确认两个边界问题：1) {b_limits}；2) {primary_blocker}。{link_clause}"
-        )
-        pitch_exec = (
-            f"您好 @{sig.author}，关注到贵团队在 {sig.source} 评估 {target_competitor} 的替代可能。\n"
-            f"{role_disclosure}对照原帖痛点（{churn_summary}），我方已核准支持：{b_caps}。\n"
-            f"目前尚待核实的阻碍项包括：【{primary_blocker}】以及【{b_limits}】。建议先基于小样本数据做迁移可行性验证，确认完全适配后再评估商务方案。"
-        )
-        return _finalize_policy({
-            "policy_status": "approved_recommendation",
-            "can_outreach": True,
-            "can_recommend_product": True,
-            "reason": reason,
-            "public_reply": public_reply,
-            "pitch_dev": pitch_dev,
-            "pitch_exec": pitch_exec,
-        })
-
-    # 2. DEFAULT NEUTRAL MODE (No seller_profile configured):
-    # Strictly neutral qualification questions! ZERO claims of "我是研发成员" or "我们已支持标准迁移"!
-    unknown_dims = []
-    for label, key in [("团队规模", "team_scale"), ("预算范围", "budget_status"), ("选型决策角色", "decision_authority"), ("迁移时间表", "migration_urgency")]:
-        src = (qual_meta.get(key) or {}).get("source", "未知")
-        if src == "未知":
-            unknown_dims.append(label)
-    unknown_str = "、".join(unknown_dims) if unknown_dims else "现有数据规模与合规边界"
-
-    reason = f"当前未配置特定卖方产品能力档案（阶段 3 待核验），系统仅生成不带任何产品推销承诺的【中立资格核验提问】。"
-    neutral_reply = (
-        f"【中立资格核验提问草稿 · 未绑定特定卖方品牌】\n"
-        f"看到你在原帖提到 “{evidence_snippet}”（核心痛点：{churn_summary}）。"
-        f"为了更准确地缩小 {target_competitor} 的候选替代范围，方便补充说明一下以下待核验信息吗？\n"
-        f"1. 当前待确认维度：{unknown_str}；\n"
-        f"2. 具体架构与迁移约束：{primary_blocker}。\n"
-        f"（注：请先在上方配置卖方能力档案并通过阶段 3 匹配后，再生成带真实利益披露的产品推荐回复。）"
-    )
-    neutral_dev = (
-        f"【1v1 技术需求核验提问 · 未绑定卖方能力承诺】\n"
-        f"Hi @{sig.author}，在 {sig.source} 看到你关于 {target_competitor} 的替换讨论（“{evidence_snippet}”）。"
-        f"想请教一下你们目前在 {churn_summary} 上的具体技术指标要求（如 API 并发量、是否要求私有化自托管、历史数据导出格式），"
-        f"以及【{unknown_str}】目前是否已有明确边界？"
-    )
-    neutral_exec = (
-        f"【商业选型资格核验清单 · 待配置卖方档案】\n"
-        f"针对 @{sig.author} 发起的 {target_competitor} 替换评估（原帖 ID: {sig.source_id}）：\n"
-        f"• 原文明示痛点：{churn_summary}\n"
-        f"• 尚待核实的未知维度：{unknown_str}\n"
-        f"• 关键阻碍条件：{primary_blocker}\n"
-        f"• 下一步动作：请先完成上述未知维度的首轮提问核实，并在工作台绑定已核准的卖方产品能力档案。"
-    )
-    return _finalize_policy({
-        "policy_status": "neutral_inquiry_only",
-        "can_outreach": True,
-        "can_recommend_product": False,
-        "reason": reason,
-        "public_reply": neutral_reply,
-        "pitch_dev": neutral_dev,
-        "pitch_exec": neutral_exec,
-    })
+        profile = seller_profile or {}
+        message = (f"利益相关披露：我是【{text(profile.get('brand_name'))}】的{text(profile.get('actor_role'))}。\n"
+                   f"我方已核准能力：{text(profile.get('approved_capabilities'))}。\n"
+                   f"已知限制：{text(profile.get('known_limitations')) or '尚需按实际环境验证'}。\n"
+                   "建议先以脱敏样本核对迁移可行性，再评估商务方案。")
+    return {**decision, "allow_copy": decision["can_outreach"],
+            "allow_export_outreach": decision["can_outreach"],
+            "reason": status, "public_reply": message, "pitch_dev": message, "pitch_exec": message}
 
 
 class EnrichedSignal:
@@ -844,6 +487,7 @@ class EnrichedSignal:
             "contiguous_stage_num": self.contiguous_stage_num,
             "qualification_stages": self.qualification_stages,
             "qualification_meta": self.qualification_meta,
+            "policy_facts": self.qualification_meta.get("policy_facts", {}),
             "outreach_policy": self.outreach_policy,
         })
         return base
@@ -1192,6 +836,10 @@ class IntentAnalyzer:
             score = 64
             intent_level = "⚠️ 阶段 1/4 · 仅抱怨痛点（无替换决策权）"
             buyer_persona = f"受困于 {target_competitor} 的一线工程师（原文明示无选型权）"
+        elif intent_type == "pain_only":
+            score = 55
+            intent_level = "阶段 1/4 · 仅痛点，缺乏替换证据"
+            buyer_persona = "使用者（选型意图未核实）"
         elif both_budget_and_auth_unknown and len(sig.content.strip()) < 100:
             score = 72
             intent_level = "🔍 阶段 2/4 · 初步寻优（预算与权限未知）"
@@ -1312,7 +960,10 @@ class IntentAnalyzer:
         if not isinstance(parsed, dict):
             raise ValueError("LLM response must be a JSON object")
 
-        is_saas = parsed.get("is_software_or_saas", True)
+        required = {"is_software_or_saas", "has_decision_authority", "intent_score", "intent_type", "target_competitor", "candidate_alternatives"}
+        if not required.issubset(parsed):
+            raise ValueError("Missing required classification fields")
+        is_saas = parsed["is_software_or_saas"]
         if not isinstance(is_saas, bool):
             raise ValueError(f"Invalid type for is_software_or_saas: {type(is_saas).__name__}")
 
@@ -1321,7 +972,7 @@ class IntentAnalyzer:
             raise ValueError(f"Invalid enum for has_decision_authority: {has_auth!r}")
 
         raw_score = parsed.get("intent_score", 70)
-        if isinstance(raw_score, bool) or not isinstance(raw_score, (int, float)):
+        if isinstance(raw_score, bool) or not isinstance(raw_score, int) or not 0 <= raw_score <= 100:
             raise ValueError(f"Invalid type for intent_score: {raw_score!r}")
         score_int = max(0, min(100, int(raw_score)))
 
@@ -1332,14 +983,14 @@ class IntentAnalyzer:
             "negative_no_replacement",
             "vendor_self_promotion",
         ):
-            intent_type = "buyer_evaluation"
+            raise ValueError("Invalid intent_type")
 
         target_comp = parsed.get("target_competitor") or ""
         if not isinstance(target_comp, str) or len(target_comp) > 100:
             raise ValueError("Invalid target_competitor field")
 
         cands = parsed.get("candidate_alternatives", [])
-        if not isinstance(cands, list) or not all(isinstance(x, str) for x in cands):
+        if not isinstance(cands, list) or len(cands) > 20 or not all(isinstance(x, str) and len(x) <= 100 for x in cands):
             raise ValueError("candidate_alternatives must be a list of strings")
 
         for list_field in ("churn_drivers", "pain_points", "migration_triggers"):
@@ -1446,38 +1097,26 @@ class IntentAnalyzer:
         if not validated["is_software_or_saas"]:
             base.intent_score = min(base.intent_score, 25)
             base.intent_type = "vendor_self_promotion"
-            return base
+            validated["intent_type"] = "vendor_self_promotion"
 
         full_text_lower = f"{sig.title} {sig.content}".lower()
 
-        # Respect directional LLM target_competitor if it is a known product mentioned in the text
-        # and does not invert an explicit syntactic "from A to B" rule already found
-        llm_norm_target = normalize_product_name(validated["target_competitor"])
-        if llm_norm_target and base.target_competitor in ("未知", "通用行业竞品", "同赛道传统竞品"):
-            base.target_competitor = llm_norm_target
-            base.category = get_category_for_product(llm_norm_target, full_text_lower)
-
-        # Only accept LLM candidate_alternatives that literally appear in the post text and are not the incumbent
-        for c in validated["candidate_alternatives"]:
-            norm_c = normalize_product_name(c) or c
-            if (
-                norm_c
-                and norm_c.lower() not in base.target_competitor.lower()
-                and re.search(r"\b" + re.escape(norm_c.lower()) + r"\b", full_text_lower)
-                and norm_c not in base.candidate_alternatives
-            ):
-                base.candidate_alternatives.append(norm_c)
+        # Entity direction and mentioned candidates come only from source-grounded
+        # deterministic extraction; a model cannot upgrade an unknown entity.
 
         # Deterministic enforcement of negative decision authority or negative intent from LLM
-        if validated["intent_type"] in ("vendor_self_promotion", "negative_no_replacement"):
+        if validated["intent_type"] in ("vendor_self_promotion", "negative_no_replacement", "pain_only"):
             base.intent_type = validated["intent_type"]
             base.intent_score = min(base.intent_score, validated["intent_score"], 25)
             stages, contiguous, stage_label = evaluate_four_stages(
                 sig, base.target_competitor, base.qualification_meta, base.intent_type, sig.evidence_quote, self.seller_profile
             )
             base.qualification_stages = stages
+            base.stage_evaluations = stages
             base.contiguous_stage_num = contiguous
             base.qualification_stage = stage_label
+            base.intent_level = stage_label
+            base.post_intent_type = base.intent_type
             base.outreach_policy = evaluate_outreach_policy(
                 sig, base.target_competitor, base.category, base.churn_drivers,
                 base.qualification_meta, stages, contiguous, base.intent_type, self.seller_profile
@@ -1491,8 +1130,8 @@ class IntentAnalyzer:
         if validated["has_decision_authority"] == "no":
             base.qualification_meta["decision_authority"] = {
                 "value": "无采购与替换决策权（经模型与规则核验为 no）",
-                "source": "原文明示",
-                "provenance": "原文明示",
+                "source": "模型推断",
+                "provenance": "模型推断",
                 "evidence": sig.evidence_quote,
             }
             base.intent_type = "lack_of_authority"
@@ -1502,8 +1141,10 @@ class IntentAnalyzer:
                 sig, base.target_competitor, base.qualification_meta, "lack_of_authority", sig.evidence_quote, self.seller_profile
             )
             base.qualification_stages = stages
+            base.stage_evaluations = stages
             base.contiguous_stage_num = contiguous
             base.qualification_stage = stage_label
+            base.post_intent_type = base.intent_type
             base.outreach_policy = evaluate_outreach_policy(
                 sig, base.target_competitor, base.category, base.churn_drivers,
                 base.qualification_meta, stages, contiguous, "lack_of_authority", self.seller_profile
@@ -1517,14 +1158,6 @@ class IntentAnalyzer:
         # Even when authority is not "no", cap score by deterministic bounds and NEVER allow unapproved LLM claims
         base.intent_score = min(base.intent_score, validated["intent_score"])
 
-        # Only allow LLM outreach text if policy_status == "approved_recommendation" AND it passes unapproved-claim filter
-        if base.outreach_policy.get("policy_status") == "approved_recommendation":
-            for field_name in ("public_reply", "pitch_dev", "pitch_exec"):
-                candidate_txt = validated.get(field_name, "").strip()
-                if candidate_txt and not UNAPPROVED_CLAIM_PATTERNS.search(candidate_txt):
-                    if field_name == "public_reply" and not candidate_txt.startswith("利益相关披露"):
-                        candidate_txt = "利益相关披露：" + candidate_txt
-                    setattr(base, field_name, candidate_txt)
-            base.suggested_pitch = base.pitch_exec
-
+        # Outreach is rendered solely from approved structured facts. Model prose
+        # cannot expand promises, certifications, identity or migration scope.
         return base

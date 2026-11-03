@@ -1,21 +1,19 @@
-"""
-Multi-source High-Intent Signal & Competitor Intelligence Collector (v3.1).
-Enforces production pilot invariants:
-1. Full untruncated raw_content & normalized content preservation (zero 500/600-char body truncation).
-2. RFC-compliant Retry-After parsing (both integer/float seconds AND HTTP-date format).
-3. Shared per-source rate limiting & cooldown state: if Retry-After exceeds current run budget,
-   immediately defers the source instead of sleeping 5s and retrying early.
-4. True non-blocking timeout isolation in CollectorHub.run(): uses explicit executor.shutdown(wait=False, cancel_futures=True)
-   and propagates monotonic deadline into request budgets.
-5. Persistent SQLite deduplication & version tracking via IntentStateStore, plus separated published_at vs updated_at.
-6. Explicit dataset_kind ('live_production' vs 'historical_benchmark'), freshness_status, and delivery_eligible flags.
+"""Full-content collectors, strict source timestamps, Retry-After and killable
+per-source process supervision. Only the parent writes the persistent ledger.
 """
 
-import concurrent.futures
+import inspect
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
 import email.utils
 import hashlib
 import html
 import logging
+import math
 import random
 import re
 import threading
@@ -34,7 +32,7 @@ logger = logging.getLogger("Collector")
 DEFAULT_TIMEOUT = 8.0
 DEFAULT_MAX_WAIT_BUDGET = 3.0
 HEADERS = {
-    "User-Agent": "IntentRadar-VerificationEngine/3.1 (+https://github.com/jakelihua/intent-radar-preview)"
+    "User-Agent": "IntentRadar-VerificationEngine/3.2 (+https://github.com/jakelihua/intent-radar-preview)"
 }
 
 
@@ -75,6 +73,8 @@ def parse_retry_after(header_val: Optional[str], now_epoch: Optional[float] = No
     # 1. Numeric seconds (integer or float)
     try:
         secs = float(raw)
+        if not math.isfinite(secs):
+            return None
         return max(0.0, secs)
     except ValueError:
         pass
@@ -118,27 +118,25 @@ class SourceRateLimiter:
         Returns (allowed: bool, reason_if_blocked: Optional[str]).
         """
         key = self._source_key(url)
-        now = time.monotonic()
-        with self._lock:
-            cd_until = self._cooldown_until_mono.get(key, 0.0)
-            if cd_until > now:
-                remaining_cd = cd_until - now
-                reason = f"Source {key} is in cooldown for another {remaining_cd:.2f}s"
-                self._deferred_sources[key] = reason
-                return False, reason
-
-            next_ok = self._next_allowed_mono.get(key, 0.0)
-            wait_needed = max(0.0, next_ok - now)
-            if deadline is not None and (now + wait_needed) >= deadline:
-                reason = f"Source {key} rate spacing exceeds deadline"
-                return False, reason
-
-            target_time = max(now, next_ok)
-            self._next_allowed_mono[key] = target_time + self.min_interval_sec
-
-        if wait_needed > 0:
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                if deadline is not None and now >= deadline:
+                    return False, "Run deadline reached"
+                cd_until = self._cooldown_until_mono.get(key, 0.0)
+                if cd_until > now:
+                    reason = f"Source {key} is in cooldown for another {cd_until - now:.2f}s"
+                    self._deferred_sources[key] = reason
+                    return False, reason
+                wait_needed = max(0.0, self._next_allowed_mono.get(key, 0.0) - now)
+                if deadline is not None and now + wait_needed >= deadline:
+                    return False, "Rate spacing exceeds deadline"
+                if wait_needed <= 0:
+                    self._next_allowed_mono[key] = now + self.min_interval_sec
+                    return True, None
+            # Recheck BOTH cooldown and deadline after every wait. Another caller
+            # may have received a 429 while this caller was sleeping.
             time.sleep(wait_needed)
-        return True, None
 
     def set_cooldown(self, url: str, cooldown_seconds: float, reason: str = "") -> None:
         key = self._source_key(url)
@@ -169,7 +167,7 @@ class SourceRateLimiter:
 GLOBAL_RATE_LIMITER = SourceRateLimiter(min_interval_sec=0.05)
 
 
-def request_with_retry(
+def _request_with_retry(
     url: str,
     params: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None,
@@ -264,6 +262,19 @@ def request_with_retry(
     return None
 
 
+SOURCE_OUTCOMES = {}
+
+
+def request_with_retry(url, *args, **kwargs):
+    result = _request_with_retry(url, *args, **kwargs)
+    limiter = kwargs.get("rate_limiter") or GLOBAL_RATE_LIMITER
+    host = urllib.parse.urlsplit(url).netloc
+    status = "complete" if result is not None and result.status_code == 200 else (
+        "deferred" if limiter.get_cooldown_remaining(url) > 0 else "failed")
+    SOURCE_OUTCOMES.setdefault(host, []).append(status)
+    return result
+
+
 def strip_html_tags(raw: str) -> str:
     if not raw:
         return ""
@@ -274,48 +285,33 @@ def strip_html_tags(raw: str) -> str:
     return "\n\n".join(ln for ln in lines if ln).strip()
 
 
-def evaluate_freshness(
-    timestamp_str: Optional[str],
-    dataset_kind: str = "live_production",
-    fresh_days_window: int = 30,
-) -> Tuple[str, bool]:
-    """
-    Evaluates signal freshness from UTC timestamp and dataset_kind.
-    Returns (freshness_status, delivery_eligible).
-    - Historical benchmark samples ('historical_benchmark') are NEVER eligible for automated live sales delivery.
-    - Live signals published within fresh_days_window days are 'fresh_within_window' and delivery_eligible=True.
-    """
+def parse_timestamp(value):
+    """Parse known source formats as UTC; missing/invalid timestamps stay unknown."""
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        dt = datetime.fromisoformat(value.strip().replace(" UTC", "+00:00").replace("Z", "+00:00"))
+    except ValueError:
+        try:
+            dt = email.utils.parsedate_to_datetime(value)
+        except (ValueError, TypeError, OverflowError):
+            return None
+    if dt is None:
+        return None
+    return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt.astimezone(timezone.utc)
+
+
+def evaluate_freshness(timestamp_str, dataset_kind="live_production", fresh_days_window=30):
     if dataset_kind != "live_production":
         return "historical_benchmark_archive", False
-
-    if not timestamp_str:
+    published = parse_timestamp(timestamp_str)
+    if published is None:
         return "unknown_timestamp", False
-
-    clean_ts = timestamp_str.replace("UTC", "").strip()
-    parsed_dt = None
-    for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
-        try:
-            parsed_dt = datetime.strptime(clean_ts[:19].strip(), fmt)
-            break
-        except ValueError:
-            continue
-
-    if parsed_dt is None:
-        try:
-            dt_obj = email.utils.parsedate_to_datetime(timestamp_str)
-            if dt_obj is not None:
-                parsed_dt = dt_obj.astimezone(timezone.utc).replace(tzinfo=None)
-        except Exception:
-            pass
-
-    if parsed_dt is None:
-        return "unknown_timestamp", False
-
-    age_days = (datetime.utcnow() - parsed_dt).total_seconds() / 86400.0
-    if age_days <= fresh_days_window:
+    age = (datetime.now(timezone.utc) - published).total_seconds()
+    if age < 0:
+        return "future_timestamp", False
+    if age <= fresh_days_window * 86400:
         return "fresh_within_window", True
-    elif age_days <= 90:
-        return "recent_research_90d", False
     return "historical_archive", False
 
 
@@ -340,6 +336,7 @@ class IntentSignal:
         dataset_kind: str = "live_production",
         freshness_status: Optional[str] = None,
         delivery_eligible: Optional[bool] = None,
+        content_complete: bool = True,
     ):
         self.title = title.strip()
         self.url = url.strip()
@@ -351,7 +348,7 @@ class IntentSignal:
         self.summary_excerpt = self.content[:280] + ("..." if len(self.content) > 280 else "")
         self.author = author
         self.keyword = keyword
-        self.timestamp = timestamp or datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+        self.timestamp = timestamp or ""
         self.updated_at = updated_at or self.timestamp
         self.collected_at = collected_at or datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
         self.comments_count = comments_count
@@ -362,7 +359,8 @@ class IntentSignal:
         self.dataset_kind = dataset_kind
         calc_fresh, calc_elig = evaluate_freshness(self.timestamp, dataset_kind=self.dataset_kind)
         self.freshness_status = freshness_status if freshness_status is not None else calc_fresh
-        self.delivery_eligible = delivery_eligible if delivery_eligible is not None else calc_elig
+        self.content_complete = content_complete is True
+        self.delivery_eligible = bool(calc_elig and self.content_complete and delivery_eligible is not False)
         self.content_hash = compute_content_hash(self.title, self.raw_content or self.content)
         self.version_num = 1
         self.sync_status = "new"
@@ -392,6 +390,7 @@ class IntentSignal:
             "normalized_url": self.normalized_url,
             "source": self.source,
             "raw_content": self.raw_content,
+            "content_complete": self.content_complete,
             "content": self.content,
             "summary_excerpt": self.summary_excerpt,
             "evidence_quote": self.evidence_quote,
@@ -545,7 +544,10 @@ class DevToCollector:
                 art_id = str(item.get("id") or "")
                 title = item.get("title") or ""
                 url = item.get("url") or ""
-                full_body = item.get("body_markdown") or strip_html_tags(item.get("body_html") or "") or item.get("description") or title
+                detail_res = request_with_retry(f"{self.base_url}/{art_id}", timeout=self.timeout, deadline=deadline)
+                detail = detail_res.json() if detail_res is not None and detail_res.status_code == 200 else {}
+                complete = bool(detail.get("body_markdown") or detail.get("body_html"))
+                full_body = detail.get("body_markdown") or strip_html_tags(detail.get("body_html") or "") or item.get("description") or title
                 author = item.get("user", {}).get("username", "Dev.to Author")
                 comments = item.get("comments_count", 0)
                 reactions = item.get("positive_reactions_count", 0)
@@ -567,6 +569,7 @@ class DevToCollector:
                             source_id=f"devto_{art_id}" if art_id else None,
                             evidence_quote=full_body[:280],
                             dataset_kind="live_production",
+                            content_complete=complete,
                         )
                     )
         return signals
@@ -626,6 +629,7 @@ class GoogleNewsRSSCollector:
                                 source_id=f"gnews_{g_hash}",
                                 evidence_quote=content[:280],
                                 dataset_kind="live_production",
+                                content_complete=False,
                             )
                         )
             except Exception as e:
@@ -721,71 +725,87 @@ class CollectorHub:
         self.google_news = GoogleNewsRSSCollector()
         self.v2ex = V2EXCollector()
         self.state_store = state_store or IntentStateStore(config.get("state_db_path"))
+        self.last_run_status = {}
 
-    def run(self, global_timeout: Optional[float] = None, only_new_or_updated: bool = False) -> List[IntentSignal]:
-        all_signals_by_id: Dict[str, IntentSignal] = {}
-        seen_urls = set()
-        limit = self.config.get("limit_per_query", 3)
-        timeout_budget = float(
-            global_timeout if global_timeout is not None else self.config.get("collector_global_timeout", 18.0)
-        )
-        deadline = time.monotonic() + timeout_budget
+    @staticmethod
+    def _worker_command(source, result_path):
+        return [sys.executable, "-m", "engine.collector_worker", source, str(result_path)]
 
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=8)
-        tasks: List[concurrent.futures.Future] = []
-        try:
-            hn_queries = self.config.get(
-                "hacker_news_queries",
-                ["Ask HN Jira alternative", "Ask HN Postman alternative", "Ask HN Salesforce alternative", "DocuSign alternative"],
-            )
-            for q in hn_queries:
-                tasks.append(executor.submit(self.hn.fetch, q, limit, deadline))
-
-            github_queries = self.config.get("github_queries", ["migrate from Jira", "replace Postman"])
-            for q in github_queries:
-                tasks.append(executor.submit(self.github.fetch, q, limit, deadline))
-
-            if self.config.get("enable_devto", True):
-                tasks.append(executor.submit(self.devto.fetch, "alternative", limit, deadline))
-
-            if self.config.get("enable_google_news", True):
-                gnews_queries = self.config.get("google_news_queries", ["Postman alternative", "Jira migration"])
-                for gq in gnews_queries:
-                    tasks.append(executor.submit(self.google_news.fetch, gq, limit, "en", deadline))
-
-            if self.config.get("enable_v2ex", True):
-                v2ex_kws = self.config.get("v2ex_keywords", ["替代", "求推荐", "平替", "迁移"])
-                tasks.append(executor.submit(self.v2ex.fetch, v2ex_kws, limit * 2, deadline))
-
-            remaining_window = max(0.005, deadline - time.monotonic())
+    def run(self, global_timeout=None, only_new_or_updated=False):
+        budget = float(global_timeout if global_timeout is not None else self.config.get("collector_global_timeout", 18.0))
+        if not math.isfinite(budget) or budget <= 0:
+            raise ValueError("collector_global_timeout must be positive")
+        deadline = time.monotonic() + budget
+        specs = {
+            "hn": self.config.get("hacker_news_queries", ["Jira alternative", "Postman alternative"]),
+            "github": self.config.get("github_queries", ["migrate from Jira"]),
+        }
+        if self.config.get("enable_devto", True): specs["devto"] = ["alternative"]
+        if self.config.get("enable_google_news", True):
+            specs["news"] = self.config.get("google_news_queries", self.config.get("news_queries", ["Jira alternative"]))
+        if self.config.get("enable_v2ex", True): specs["v2ex"] = [self.config.get("v2ex_keywords", ["替代", "求推荐", "迁移"])]
+        host_for = {"hn": "hn.algolia.com", "github": "api.github.com", "devto": "dev.to", "news": "news.google.com", "v2ex": "www.v2ex.com"}
+        accepted, seen_urls, workers = {}, set(), {}
+        self.last_run_status = {}
+        kwargs = set(inspect.signature(IntentSignal).parameters) - {"self"}
+        with tempfile.TemporaryDirectory(prefix="intent-radar-collect-") as directory:
             try:
-                for future in concurrent.futures.as_completed(tasks, timeout=remaining_window):
-                    try:
-                        items = future.result(timeout=0.05)
-                        for item in items or []:
-                            key = f"{item.source}:{item.source_id}"
-                            norm_u = item.normalized_url
-                            # If the same source_id appears multiple times in the same run, keep the newer/longer version
-                            if key in all_signals_by_id:
-                                prev = all_signals_by_id[key]
-                                if len(item.content) <= len(prev.content) and item.updated_at <= prev.updated_at:
-                                    continue
-                            elif norm_u in seen_urls:
-                                continue
+                for source, queries in specs.items():
+                    if not queries: continue
+                    if self.state_store.source_cooldown_remaining(host_for[source]) > 0:
+                        self.last_run_status[source] = "deferred"
+                        continue
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0: break
+                    result_path = Path(directory) / (source + ".json")
+                    settings = {"queries": queries, "limit": self.config.get("limit_per_query", 3), "remaining_seconds": remaining}
+                    # A private input file avoids pipe writes that could block on large query lists.
+                    input_path = Path(directory) / (source + "-input.json")
+                    input_path.write_text(json.dumps(settings), encoding="utf-8")
+                    with input_path.open('rb') as input_file, result_path.with_suffix('.stderr').open('wb') as error_file:
+                        proc = subprocess.Popen(self._worker_command(source, result_path), stdin=input_file,
+                            stdout=subprocess.DEVNULL, stderr=error_file,
+                            cwd=str(Path(__file__).resolve().parent.parent))
+                    workers[source] = (proc, result_path)
+                while workers and time.monotonic() < deadline:
+                    for source, (proc, result_path) in list(workers.items()):
+                        if proc.poll() is None: continue
+                        del workers[source]
+                        if proc.returncode != 0 or not result_path.exists():
+                            self.last_run_status[source] = "failed"
+                            logger.error("Collector %s failed: %s", source,
+                                result_path.with_suffix('.stderr').read_text(encoding="utf-8", errors="replace")[-1000:])
+                            continue
+                        try:
+                            data = json.loads(result_path.read_text(encoding="utf-8"))
+                            events = [event for values in data.get("outcomes", {}).values() for event in values]
+                            self.last_run_status[source] = ("deferred" if data.get("deferred") else
+                                "partial" if "failed" in events and data.get("signals") else
+                                "failed" if "failed" in events else "complete")
+                            for host, seconds in data.get("cooldowns", {}).items():
+                                self.state_store.set_source_cooldown(host, seconds)
+                            for record in data.get("signals", []):
+                                item = IntentSignal(**{k: v for k, v in record.items() if k in kwargs})
+                                key = (item.source, item.source_id)
+                                previous = accepted.get(key)
+                                if previous and item.updated_at <= previous.updated_at: continue
+                                if not previous and item.normalized_url in seen_urls: continue
+                                sync = self.state_store.upsert_signal(item)
+                                if only_new_or_updated and not sync["should_analyze"]: continue
+                                accepted[key] = item
+                                seen_urls.add(item.normalized_url)
+                        except (ValueError, TypeError, OSError):
+                            self.last_run_status[source] = "failed"
+                    if workers:
+                        time.sleep(min(0.01, max(0, deadline - time.monotonic())))
+            finally:
+                # ThreadPool shutdown cannot cancel a blocked HTTP read. Processes
+                # are killed and reaped before returning; none survive into the next run.
+                for source, (proc, _) in workers.items():
+                    self.last_run_status[source] = "timeout"
+                    if proc.poll() is None: proc.kill()
+                for proc, _ in workers.values(): proc.wait()
+        return list(accepted.values())
 
-                            sync_info = self.state_store.upsert_signal(item)
-                            if only_new_or_updated and not sync_info["should_analyze"]:
-                                continue
-                            seen_urls.add(norm_u)
-                            all_signals_by_id[key] = item
-                    except Exception as e:
-                        logger.warning(f"Individual collector task failed: {e}")
-            except concurrent.futures.TimeoutError:
-                logger.warning(f"Global collector wait window ({timeout_budget:.3f}s) reached; cancelling unfinished tasks immediately.")
-        finally:
-            # CRITICAL: Do NOT wait for hung/slow background threads when budget expires
-            executor.shutdown(wait=False, cancel_futures=True)
-
-        results = list(all_signals_by_id.values())
-        logger.info(f"Total deduplicated signals collected concurrently: {len(results)}")
-        return results
+    def close(self):
+        self.state_store.close()

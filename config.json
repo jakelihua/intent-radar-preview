@@ -1,6 +1,6 @@
 {
   "project_name": "IntentRadar - 商机雷达",
-  "version": "1.0.0",
+  "version": "3.2.0",
   "min_intent_score": 50,
   "limit_per_query": 3,
   "hacker_news_queries": [
@@ -29,5 +29,8 @@
   "use_llm_api": true,
   "llm_api_base": "https://api.deepseek.com",
   "llm_api_key": "",
-  "llm_model": "deepseek-chat"
+  "llm_model": "deepseek-chat",
+  "state_db_path": ".intent-radar/state.sqlite3",
+  "collector_global_timeout": 18.0,
+  "client_id": "pilot_customer_1"
 }

@@ -1,61 +1,78 @@
-# 🎯 IntentRadar · 公开社区竞品替换信号核验与销售赋能引擎 (v3.1 Production Pilot Edition)
+# IntentRadar v3.2 — Production Pilot 修复版
 
-> **核心定位**：帮助**具备企业版和迁移承接能力的挑战者软件团队**，发现并核验公开技术社区（Hacker News、GitHub Issues、Dev.to、Google News RSS、V2EX）中的竞品替换需求，交付**有原文证据、匹配产品能力边界、可采取下一步行动**的销售机会。
+基于 `c38cef3` 修复第三轮复审问题。工作台用于发现、研究和核验公开社区替换需求。**分数仅排序；品牌预设不证明产品能力匹配；历史样本不计当期交付。**
 
----
+## 运行
 
-## 🔍 一、 四步连续资格核验体系（Sequential 4-Stage Qualification）
-
-公开社区讨论转化为真实销售机会，必须按顺序通过 **4 个连续核验阶段**（排序分仅用于优先级排序，绝不替代资格阶段；客户产品能力未绑定时最高仅达阶段 2/4）：
-
-```
-[阶段 1: 抱怨竞品/痛点存在] ──► [阶段 2: 买方正在评估替代] ──► [阶段 3: 卖方产品能力匹配] ──► [阶段 4: 可触达并推进]
-```
-
-1. **生产模式与历史基准集严格物理隔离（Dataset & Freshness Isolation）**：
-   - 实时生产模式（`python3 main.py`）绝不自动混入 `get_mock_signals()` 历史基准集；当实时采集为空或异常时，如实输出 0 条生产状态报告。
-   - 每条信号显式标注 `dataset_kind`（`live_production` / `historical_benchmark`）、`freshness_status` 与 `delivery_eligible`，由工作台、导出与飞书/企微 Webhook 统一执行门控。
-2. **完整原文保存与三态证据来源（Full Verbatim Text & Tri-State Provenance）**：
-   - 5 类采集器与 10 条 HN 官方 Firebase API 基准样本（含 `hn_38227662` 完整 8 段原文）均 100% 保存未截断的 `raw_content` 与规范化 `content`。
-   - 对 **企业/团队规模（`team_scale`）**、**预算状态（`budget_status`）**、**选型决策角色（`decision_authority`）**、**迁移窗口（`migration_urgency`）** 分别标注 `[原文明示]` / `[模型推断]` / `[未知]` 及对应原文依据片段（`evidence`）。
-   - 严格区分 **作者原文点名的候选产品（`candidate_alternatives`）** 与 **系统同赛道参考候选（`system_recommended_alternatives`）**。
-3. **句法方向性实体抽取与负向/推广帖拦截（Syntactic Directionality & Adversarial Gate）**：
-   - 识别 `"Migrating from A to B"` / `"Replacing A with B"` 句法方向，确保 `A` 为被替换竞品、`B` 为迁移目标候选。
-   - 自动识别并阻断 **买方明示不替换**（`"NOT looking to replace"` / `"no plans to switch"` -> 阶段 1/4，已阻断）、**厂商自我推广帖**（`"Show HN: We built..."` -> 阶段 0/4，已排除）以及 **无选型决策权抱怨**（`"not my choice"` -> 阶段 1/4，已阻断）。
-4. **全链路统一话术门控与同源 BD 手册（Unified Outreach Policy Gate）**：
-   - 后端统一输出 `outreach_policy`（`blocked` / `neutral_inquiry_only` / `approved_recommendation`），由前端展示、单条复制、批量复制、CSV/XLSX 导出与 Webhook 推送共同执行。
-   - 默认未绑定特定卖方能力档案时，系统仅生成不带任何产品承诺的 **中立资格核验提问**；绑定卖方档案时强制校验非空适配竞品与核准能力（严禁 `*` 通配符或自动补造能力），并按真实发送人身份（研发团队 / 销售顾问 / 选型顾问）披露。
-   - 内部 BD 种子客户敲门信 100% 从 `get_mock_signals()` 同一条已核验记录动态生成，默认隔离输出至 `/tmp/intent_radar_internal/internal_bd_ops.html`，且 GitHub Pages 工作流仅打包公开客户端构建目录 `_site`。
-
----
-
-## 🏗️ 二、 仓库模块与代码结构
-
-```text
-intent-radar/
-├── main.py                      # CLI 主入口：严格隔离实时生产模式与 --demo 历史基准模式
-├── config.json                  # 采集源查询词、并发超时、评分阈值与 Webhook 配置
-├── test_suite.py                # 自动化对抗与生产试点验收测试套件（覆盖 8 大类反例与门控测试）
-├── report.html                  # 客户交付端：公开社区竞品替换信号核验工作台（预编译 CSS，零内部 BD 数据）
-└── engine/
-    ├── state_store.py           # SQLite 跨轮次状态存储：按 (source, source_id) 去重、计算 content_hash 追踪版本更新与客户推送记录
-    ├── collector.py             # 5源并发采集器（HN/GitHub/Dev.to/Google News RSS/V2EX，支持 HTTP-date Retry-After、源冷却与非阻塞超时）
-    ├── analyzer.py              # 四步连续资格判研引擎（句法方向抽取、反例阻断、System/User 提示隔离、JSON Schema 校验与话术门控）
-    ├── dispatcher.py            # 交付与推送门控器（生成 report.html、隔离输出内部 BD 手册、执行 Webhook 资格与版本门控）
-    ├── frontend_assets.py       # 前端交互与导出引擎（会话内存权威回退、无障碍焦点恢复、CSV 公式转义与 OpenPyXL 零警告 XLSX 生成）
-    ├── compiled_css.py          # 预编译生产级 Tailwind CSS v3.4.17 样式表
-    ├── growth_playbook.py       # 卖方能力档案预设（含真实发送人角色）与同源动态生成的内部试点方案定义
-    └── mock_data.py             # 10 条经 Hacker News 官方 Firebase API 逐字核验的历史基准样本集
-```
-
----
-
-## 🚀 三、 快速运行与验收测试
+要求 Python 3.9+。测试环境另需 Node 20+。
 
 ```bash
-# 1. 运行自动化生产试点与反例测试套件
-python3 test_suite.py -v
-
-# 2. 生成历史基准核验工作台 (report.html)
+python3 -m pip install -r requirements.txt
 python3 main.py --demo
 ```
+
+`--demo` 禁用模型调用，生成历史核验工作台 `report.html`；公开预览 `index.html` 使用同一份生成内容。实时模式不混入任何历史样本：
+
+```bash
+python3 main.py --config config.json --html report_local.html
+```
+
+每个客户必须使用独立且明确的 `client_id`；未提供时禁止启用 Webhook。只有四阶段通过的当期记录可以进入已配置的 Webhook。默认未配置卖方核验档案，因此不会自动交付。实时模式开启 `use_llm_api` 且存在模型密钥时会调用模型；可设置为 `false` 使用确定性判研。不要将密钥、Webhook 或客户核验配置提交到公开仓库。
+
+## 四步资格与人工核验
+
+1. 确认买方痛点和软件标的。厂商推广不通过。
+2. 必须有正向替换评估证据；普通抱怨、明确不替换、无决定权停留在阶段 1。
+3. 在卖方档案中填写真实身份、核准能力和限制，再在**单条详情**中逐项核实必选能力，填写核验人和依据。任一必选能力不支持，选择“不匹配”；尚未确认，保持“待核验”。
+4. 另行核实联系人参与选型且可推进，记录联系 URL 和权限核验依据。还必须满足当期 30 天窗口、完整内容、生产数据集等条件。历史样本最高阶段 3。
+
+核验记录绑定 `(source, source_id, content_hash, seller_snapshot)`，有效期 30 天；修改原帖或卖方能力会使旧记录失效。仅有关键词或一段能力宣传不能通过阶段 3。权限和预算的推断标签不能替代阶段 4 的联系人核验。
+
+网页核验记录仅在当前会话生效。使用“导出核验配置”，在私有环境载入：
+
+```bash
+python3 main.py --seller-profile intent-radar-seller-review.json --html report_local.html
+```
+
+这会将 JSON 中的 `seller_profile` 用于本轮判研。不要编辑版本哈希以绕过失效检查。前端与 Python 消费同一组后端事实，阶段与策略的跨语言契约由测试覆盖。模型可以保守降级，不能升级资格；外发文本由结构化已核准事实确定性生成，不采用模型自由话术。
+
+## 采集、时效和状态
+
+- 每个来源在独立子进程顺序执行查询，共享该来源限速与冷却。父进程截止时终止并回收未完成的进程；没有遗留 HTTP 线程阻止 CLI 退出。
+- 支持数字和 HTTP-date `Retry-After`；长冷却延期，等待速率间隔后再次检查冷却和截止时间。冷却期限持久化到 SQLite。
+- 缺失、非法、未来发布时间均不可交付。每次推送重新评估时效。
+- Dev.to 列表只作发现，额外请求详情；详情失败标记内容不完整。Google News RSS 是摘要研究材料，不宣称新闻全文，不自动交付。
+- SQLite 保存原文版本、交付状态；配置默认路径为仓库下 `.intent-radar/state.sqlite3`，已从 Git 和 Pages 排除。相对路径按配置文件目录解析。`INTENT_RADAR_STATE_DIR` 可改变未指定路径时的默认目录。
+- 来源失败、限流延期和正常空结果分别展示。生产任务应监控来源状态，不能把全源失败解释为没有市场需求。
+
+## 交付与异常处理
+
+发送前以 `(source, source_id, client_id:channel, version)` 在 SQLite 事务中原子认领。只有认领成功者发送；已交付版本只增不减。
+
+状态为 `sending / sent / failed / uncertain`。明确被接收端拒绝的任务最多可认领 3 次；网络超时、无有效回执或进程中断**不自动重发**，避免对方已收到却再次发送。没有接收端幂等协议时无法同时保证绝不重复与绝不遗漏，本版选择保留不确定状态供人工核对。
+
+```bash
+python3 main.py --list-deliveries
+# 在接收端核实后，二选一；以下命令本身不会发送消息：
+python3 main.py --resolve-delivery TOKEN --resolution sent
+python3 main.py --resolve-delivery TOKEN --resolution not-sent
+python3 main.py --backup-state backups/intent-radar-state.sqlite3
+```
+
+`not-sent` 仅在确认未收到后使用，允许后续任务重试。不得仅因为“等得久”就清除认领。备份使用 SQLite backup API，连接在任务结束时关闭；重启后复用相同数据库。升级已有服务时，先将 `state_db_path` 指向旧库，备份到新持久化路径，再切换配置；保持原有 `client_id`，避免丢失既有交付记录。
+
+## 验证与部署
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+python3 -m unittest test_suite test_regressions -v
+npm ci
+npx playwright install chromium
+python3 main.py --demo
+cp report.html index.html
+npm run test:browser
+```
+
+回归覆盖普通抱怨、能力不匹配、版本失效、历史/未来/不完整内容、模型越权话术、跨连接并发投递、歧义超时、冷却并发变更、可终止采集进程、真实进程序列化、Python/JS 策略一致、存储回退和 XLSX 实际读取。浏览器测试覆盖焦点、零结果导出与人工核验流程。
+
+GitHub Pages 部署必须先通过 Python、Node 和 Chromium 检查，只打包 `index.html`、`report.html` 和 `.nojekyll`。内部 BD 手册写入系统临时目录，不进入公开站点。私有客户配置与状态库应部署在受控运行环境；公开预览仍为历史演练数据。

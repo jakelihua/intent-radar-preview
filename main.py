@@ -22,6 +22,7 @@ from engine.collector import CollectorHub
 from engine.analyzer import IntentAnalyzer
 from engine.dispatcher import Dispatcher
 from engine.mock_data import get_mock_signals
+from engine.state_store import IntentStateStore
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,7 +35,10 @@ logger = logging.getLogger("Main")
 def load_config(config_path: str) -> Dict:
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            config = json.load(f)
+            if config.get("state_db_path") and not os.path.isabs(config["state_db_path"]):
+                config["state_db_path"] = os.path.join(os.path.dirname(os.path.abspath(config_path)), config["state_db_path"])
+            return config
     logger.warning(f"Config file {config_path} not found. Using default parameters.")
     return {}
 
@@ -44,45 +48,31 @@ def run_pipeline(config: Dict, demo_mode: bool = False, output_html_path: str = 
     Executes the collection -> qualification -> dispatch pipeline with strict dataset separation.
     In non-demo (live production) mode, historical benchmark samples are NEVER mixed in.
     """
-    if demo_mode:
-        logger.info("Running in HISTORICAL BENCHMARK mode (--demo): loading 10 API-verified HN benchmark samples...")
-        config = dict(config)
-        config["use_llm_api"] = False
-        config["run_mode"] = "historical_benchmark"
-        raw_signals = get_mock_signals()
-    else:
-        logger.info("Running in LIVE PRODUCTION mode: querying active collectors (HN, GitHub Issues, Dev.to, Google News RSS, V2EX)...")
-        config = dict(config)
-        config["run_mode"] = "live_production"
-        collector_hub = CollectorHub(config)
-        raw_signals = collector_hub.run()
-        # CRITICAL (Audit Finding #1): Never mix get_mock_signals() into live production mode!
-        if not raw_signals:
-            logger.warning("Live collection returned 0 signals. Generating honest empty production report (zero historical padding).")
-
-    logger.info(f"Step 1 Complete: Collected {len(raw_signals)} candidate signals (mode={config['run_mode']}).")
-
-    logger.info("Step 2: Performing 4-Stage Sequential Qualification & Provenance Extraction...")
+    config = dict(config)
+    config["run_mode"] = "historical_benchmark" if demo_mode else "live_production"
+    store = IntentStateStore(config.get("state_db_path"))
     analyzer = IntentAnalyzer(config)
-    enriched_signals = analyzer.analyze_signals(raw_signals)
-    logger.info(f"Step 2 Complete: Qualified {len(enriched_signals)} signals (Score >= {config.get('min_intent_score', 50)}).")
-
-    logger.info("Step 3: Generating Client Verification Workbench & Isolated Internal BD Manual...")
-    dispatcher = Dispatcher(config)
-    if not internal_bd_path:
-        internal_dir = os.path.join(tempfile.gettempdir(), "intent_radar_internal")
-        os.makedirs(internal_dir, exist_ok=True)
-        internal_bd_path = os.path.join(internal_dir, "internal_bd_ops.html")
-
-    report_summary = dispatcher.dispatch(
-        enriched_signals,
-        output_html_path=output_html_path,
-        internal_bd_path=internal_bd_path,
-    )
-    report_summary["run_mode"] = config["run_mode"]
-    report_summary["raw_collected_count"] = len(raw_signals)
-    report_summary["qualified_count"] = len(enriched_signals)
-    return report_summary
+    try:
+        if demo_mode:
+            analyzer.use_llm_api = False
+            raw_signals = get_mock_signals()
+        else:
+            hub = CollectorHub(config, state_store=store)
+            raw_signals = hub.run()
+            config["collection_status"] = hub.last_run_status
+        enriched = analyzer.analyze_signals(raw_signals)
+        if not internal_bd_path:
+            internal_dir = os.path.join(tempfile.gettempdir(), "intent_radar_internal")
+            os.makedirs(internal_dir, exist_ok=True)
+            internal_bd_path = os.path.join(internal_dir, "internal_bd_ops.html")
+        result = Dispatcher(config, state_store=store).dispatch(enriched,
+            output_html_path=output_html_path, internal_bd_path=internal_bd_path)
+        result.update(run_mode=config["run_mode"], raw_collected_count=len(raw_signals),
+                      qualified_count=len(enriched), collection_status=config.get("collection_status", {}))
+        return result
+    finally:
+        analyzer.session.close()
+        store.close()
 
 
 def main():
@@ -96,15 +86,36 @@ def main():
         default=os.path.join(tempfile.gettempdir(), "intent_radar_internal", "internal_bd_ops.html"),
         help="内部 BD 运营手册输出路径（默认隔离在系统临时目录，不写入公开部署目录）",
     )
+    parser.add_argument("--seller-profile", help="载入网页导出的卖方核验配置 JSON")
+    parser.add_argument("--list-deliveries", action="store_true", help="查看最近 100 条投递状态（不发消息）")
+    parser.add_argument("--backup-state", metavar="PATH", help="一致性备份 SQLite 状态库（不发消息）")
+    parser.add_argument("--resolve-delivery", metavar="TOKEN", help="人工核对后处理不确定投递")
+    parser.add_argument("--resolution", choices=["sent", "not-sent"])
     args = parser.parse_args()
 
     config = load_config(args.config)
+    if args.seller_profile:
+        with open(args.seller_profile, encoding="utf-8") as profile_file:
+            config["seller_profile"] = json.load(profile_file)["seller_profile"]
+    if args.list_deliveries or args.resolve_delivery or args.backup_state:
+        store = IntentStateStore(config.get("state_db_path"))
+        try:
+            if args.backup_state:
+                store.backup(args.backup_state)
+            if args.resolve_delivery:
+                if not args.resolution:
+                    parser.error("--resolve-delivery 需要 --resolution sent 或 not-sent")
+                store.resolve_delivery(args.resolve_delivery, args.resolution == "sent")
+            print(json.dumps(store.list_outbox(), ensure_ascii=False, indent=2))
+        finally:
+            store.close()
+        return
     if args.score is not None:
         config["min_intent_score"] = args.score
 
     print("""
 ==============================================================================
-   🎯 IntentRadar · 公开社区竞品替换信号核验引擎 (v3.1 Production Pilot Edition)
+   🎯 IntentRadar · 公开社区竞品替换信号核验引擎 (v3.2 Production Pilot)
    定位: 帮助具备企业版与迁移承接能力的挑战者团队发现并核验公开替换机会
 ==============================================================================
     """)

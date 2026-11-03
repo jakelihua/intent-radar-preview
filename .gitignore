@@ -8,3 +8,11 @@ report_local.html
 internal_bd_ops.html
 *.sqlite3
 .intent_radar_state.sqlite3
+
+.intent-radar/
+_site/
+*.sqlite3-wal
+*.sqlite3-shm
+node_modules/
+playwright-report/
+test-results/

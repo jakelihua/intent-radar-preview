@@ -170,7 +170,7 @@ class TestIntentRadarProductionPilot(unittest.TestCase):
             if item.signal.id != "hn_37146814":
                 self.assertTrue(len(item.system_recommended_alternatives) >= 1)
 
-        # 3B: When a matching seller_profile is configured, active evaluation passes 4/4 while single-sentence stays 2/4
+        # 3B: A matching brand without a version-bound fit review remains Stage 2/4.
         postman_seller = {
             **self.mock_config,
             "seller_profile": {
@@ -185,8 +185,10 @@ class TestIntentRadarProductionPilot(unittest.TestCase):
         seller_analyzer = IntentAnalyzer(postman_seller)
         seller_enriched = {e.signal.id: e for e in seller_analyzer.analyze_signals(mocks)}
 
-        # Postman active evaluation -> Stage 4/4
-        self.assertIn("阶段 4/4", seller_enriched["hn_41648918"].qualification_stage)
+        # Postman active evaluation alone cannot prove seller capability fit.
+        self.assertIn("阶段 2/4", seller_enriched["hn_41648918"].qualification_stage)
+        # Brand keywords alone are not evidence that mandatory requirements fit.
+        self.assertFalse(seller_enriched["hn_41648918"].qualification_stages["stage_3_fit"]["passed"])
         self.assertGreaterEqual(seller_enriched["hn_41648918"].intent_score, 85)
 
         # Salesforce (hn_42749172) & Notion (hn_36537006) single-sentence with unknown budget/authority -> Stage 2/4, score <= 75
@@ -345,20 +347,13 @@ class TestIntentRadarProductionPilot(unittest.TestCase):
         # and IntentStateStore deduplicates unchanged posts and bumps version_num on content edits
         with tempfile.TemporaryDirectory() as tmpdir:
             hub = CollectorHub({**self.mock_config, "state_db_path": os.path.join(tmpdir, "hub_state.db")})
-            def slow_fetch(*args, **kwargs):
-                time.sleep(0.35)
-                return []
-
-            hub.hn.fetch = slow_fetch
-            hub.github.fetch = lambda *args, **kwargs: []
-            hub.devto.fetch = lambda *args, **kwargs: []
-            hub.google_news.fetch = lambda *args, **kwargs: []
-            hub.v2ex.fetch = lambda *args, **kwargs: []
-
-            t_start = time.monotonic()
-            hub.run(global_timeout=0.04)
-            hub_elapsed = time.monotonic() - t_start
-            self.assertLess(hub_elapsed, 0.18, f"CollectorHub.run should return promptly on timeout, took {hub_elapsed:.3f}s")
+            import sys
+            with patch.object(hub, "_worker_command", return_value=[sys.executable, "-c", "import time; time.sleep(10)"]):
+                t_start = time.monotonic()
+                hub.run(global_timeout=0.04)
+                self.assertLess(time.monotonic() - t_start, 0.5)
+                self.assertIn("timeout", hub.last_run_status.values())
+            hub.close()
 
             store = IntentStateStore(os.path.join(tmpdir, "state.db"))
             sig1 = IntentSignal(

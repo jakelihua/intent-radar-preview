@@ -31,6 +31,7 @@ from .growth_playbook import (
     get_seed_clients,
 )
 from .state_store import IntentStateStore
+from .policy import evaluate_facts
 
 logger = logging.getLogger("Dispatcher")
 
@@ -71,6 +72,8 @@ class Dispatcher:
         self.config = config
         self.feishu_webhook = config.get("feishu_webhook")
         self.wechat_webhook = config.get("wechat_webhook")
+        if (self.feishu_webhook or self.wechat_webhook) and not str(config.get("client_id", "")).strip():
+            raise ValueError("Webhook delivery requires an explicit client_id")
         self.client_id = config.get("client_id", "default_pilot_client")
         self.state_store = state_store or IntentStateStore(config.get("state_db_path"))
 
@@ -88,8 +91,8 @@ class Dispatcher:
                 continue
             if not getattr(sig, "delivery_eligible", False):
                 continue
-            policy = getattr(item, "outreach_policy", {}) or {}
-            if policy.get("policy_status") == "blocked" or not policy.get("can_outreach", False):
+            policy = evaluate_facts(item.qualification_meta.get("policy_facts", {}), self.config.get("seller_profile"))
+            if not policy["allow_webhook_push"]:
                 continue
             ver = int(getattr(sig, "version_num", 1))
             if not self.state_store.should_deliver(sig.source, sig.source_id, f"{self.client_id}:{channel}", ver):
@@ -162,7 +165,7 @@ class Dispatcher:
             print("-" * 78 + "\n")
 
     def send_feishu_card(self, top_signals: List[EnrichedSignal]) -> bool:
-        eligible = self.filter_deliverable_signals(top_signals, channel="feishu")
+        eligible, claims = self._claim_signals(top_signals, "feishu")
         if not eligible:
             logger.info("No deliverable signals passed policy/freshness/version gates for Feishu push.")
             return False
@@ -201,25 +204,10 @@ class Dispatcher:
                 "elements": elements,
             },
         }
-        try:
-            res = requests.post(self.feishu_webhook, json=card_payload, timeout=10)
-            ok = res.status_code == 200 and res.json().get("code") == 0
-            if ok:
-                for item in eligible:
-                    self.state_store.record_delivery(
-                        item.signal.source,
-                        item.signal.source_id,
-                        f"{self.client_id}:feishu",
-                        int(getattr(item.signal, "version_num", 1)),
-                        channel="feishu",
-                    )
-            return ok
-        except Exception as e:
-            logger.error(f"Error sending to Feishu: {e}")
-            return False
+        return self._post_claimed(self.feishu_webhook, card_payload, claims, "feishu", "code")
 
     def send_wechat_markdown(self, top_signals: List[EnrichedSignal]) -> bool:
-        eligible = self.filter_deliverable_signals(top_signals, channel="wechat")
+        eligible, claims = self._claim_signals(top_signals, "wechat")
         if not eligible:
             logger.info("No deliverable signals passed policy/freshness/version gates for WeChat push.")
             return False
@@ -233,22 +221,45 @@ class Dispatcher:
             md_text += f"- **证据**：“{item.signal.evidence_quote}”\n"
             md_text += f"- **合规草稿**：{item.public_reply.replace(chr(10), ' ')}\n\n"
         payload = {"msgtype": "markdown", "markdown": {"content": md_text}}
+        return self._post_claimed(self.wechat_webhook, payload, claims, "wechat", "errcode")
+
+    def _claim_signals(self, signals, channel):
+        eligible, claims = [], []
+        for item in self.filter_deliverable_signals(signals, channel):
+            sig = item.signal
+            token = self.state_store.claim_delivery(sig.source, sig.source_id,
+                f"{self.client_id}:{channel}", sig.version_num)
+            if token:
+                eligible.append(item)
+                claims.append((sig, token))
+        return eligible, claims
+
+    def _post_claimed(self, url, payload, claims, channel, code_key):
+        outcome = "uncertain"
         try:
-            res = requests.post(self.wechat_webhook, json=payload, timeout=10)
-            ok = res.status_code == 200 and res.json().get("errcode") == 0
-            if ok:
-                for item in eligible:
-                    self.state_store.record_delivery(
-                        item.signal.source,
-                        item.signal.source_id,
-                        f"{self.client_id}:wechat",
-                        int(getattr(item.signal, "version_num", 1)),
-                        channel="wechat",
-                    )
-            return ok
-        except Exception as e:
-            logger.error(f"Error sending to WeChat Work: {e}")
-            return False
+            # No automatic HTTP retries: a timeout may mean the receiver accepted
+            # the message. Outbox ownership is acquired BEFORE constructing it.
+            response = requests.post(url, json=payload, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, dict) and type(data.get(code_key)) is int:
+                    outcome = "sent" if data[code_key] == 0 else "failed"
+            elif 400 <= response.status_code < 500:
+                outcome = "failed"
+        except (requests.RequestException, ValueError, TypeError):
+            logger.warning("Webhook result is uncertain; automatic resend disabled (%s)", channel)
+        stored = True
+        for sig, token in claims:
+            try:
+                self.state_store.finish_delivery(sig.source, sig.source_id,
+                    f"{self.client_id}:{channel}", sig.version_num, token, outcome, channel)
+            except Exception:
+                stored = False
+                logger.exception("Delivery ledger update failed; claim remains reserved")
+        return outcome == "sent" and stored
+
+    def close(self):
+        self.state_store.close()
 
     def generate_internal_bd_report(self, output_path: Optional[str] = None):
         if not output_path:
@@ -267,6 +278,11 @@ class Dispatcher:
 
     def generate_html_report(self, signals: List[EnrichedSignal], output_path: str):
         today_date = datetime.now().strftime("%Y-%m-%d")
+        source_names = {"hn": "Hacker News", "github": "GitHub Issues", "devto": "Dev.to", "news": "Google News", "v2ex": "V2EX"}
+        status_names = {"complete": "采集完成", "failed": "采集失败", "partial": "部分失败", "deferred": "限流延期", "timeout": "采集超时"}
+        collection_status_text = _html.escape(" / ".join(
+            f"{source_names.get(k, k)}：{status_names.get(v, v)}" for k, v in self.config.get("collection_status", {}).items()
+        ) or ("历史核验演练，不计实时交付" if self.config.get("run_mode") == "historical_benchmark" else "未执行实时采集"))
         comp_counter = Counter(s.target_competitor for s in signals)
         sorted_competitors = comp_counter.most_common()
 
@@ -308,6 +324,8 @@ class Dispatcher:
                 "url": s.signal.url,
                 "source": s.signal.source,
                 "content": s.signal.content,
+                "raw_content": s.signal.raw_content,
+                "content_complete": s.signal.content_complete,
                 "evidence_quote": getattr(s.signal, "evidence_quote", "") or s.signal.content,
                 "author": s.signal.author,
                 "timestamp": s.signal.timestamp,
@@ -324,6 +342,7 @@ class Dispatcher:
                 "contiguous_stage_num": getattr(s, "contiguous_stage_num", 2),
                 "qualification_stages": getattr(s, "qualification_stages", {}),
                 "qualification_meta": getattr(s, "qualification_meta", {}),
+                "policy_facts": s.qualification_meta.get("policy_facts", {}),
                 "outreach_policy": getattr(s, "outreach_policy", {}),
                 "competitor": s.target_competitor,
                 "candidate_alternatives": getattr(s, "candidate_alternatives", []),
@@ -390,7 +409,7 @@ class Dispatcher:
         run_mode = self.config.get("run_mode", "historical_benchmark")
         dataset_badge_text = (
             "公开社区历史基准核验集（Hacker News 官方 API 已核验 · 不计当期实时交付配额）"
-            if run_mode == "historical_benchmark" or all(getattr(s.signal, "dataset_kind", "") == "historical_benchmark" for s in signals)
+            if run_mode == "historical_benchmark" or (bool(signals) and all(getattr(s.signal, "dataset_kind", "") == "historical_benchmark" for s in signals))
             else "实时公开源生产采集模式（HN / GitHub Issues / Dev.to / Google News RSS / V2EX）"
         )
 
@@ -411,6 +430,10 @@ class Dispatcher:
         ::-webkit-scrollbar-track {{ background: transparent; }}
         ::-webkit-scrollbar-thumb {{ background: #d4d4d8; border-radius: 9999px; }}
         ::-webkit-scrollbar-thumb:hover {{ background: #a1a1aa; }}
+        .review-panel {{ padding:12px; border:1px solid #d4d4d8; border-radius:8px; font-size:12px; margin:12px 0; }}
+        .review-panel label {{ display:block; margin:8px 0; }}
+        .review-panel input:not([type="checkbox"]), .review-panel textarea, .review-panel select {{ display:block; width:100%; padding:6px; border:1px solid #a1a1aa; border-radius:4px; }}
+        .review-panel button {{ padding:6px 10px; margin:4px; background:#18181b; color:white; border-radius:4px; }}
         .drawer-mask {{ background: rgba(9, 9, 11, 0.45); backdrop-filter: blur(3px); }}
     </style>
 </head>
@@ -431,7 +454,7 @@ class Dispatcher:
             <div class="flex flex-col">
                 <div class="flex items-center gap-1.5">
                     <span class="text-xs font-bold text-white tracking-wide">IntentRadar</span>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1 py-0.2 rounded border border-emerald-500/30">v3.1 Pilot</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-1 py-0.2 rounded border border-emerald-500/30">v3.2 Pilot</span>
                 </div>
                 <span class="text-[10px] text-zinc-400 font-mono">公开竞品替换信号核验台</span>
             </div>
@@ -448,13 +471,13 @@ class Dispatcher:
 
             <button type="button" onclick="setFilterCategory('high-intent', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>评估意图明确 (阶段≥2·有选型权)</span>
+                <span>替换评估证据（权限另行核验）</span>
                 <span id="badgeCountHigh" class="ml-auto bg-emerald-500/20 text-emerald-300 py-0.5 px-2 rounded-full text-[10px] font-mono">{high_intent_count}</span>
             </button>
 
             <button type="button" onclick="setFilterCategory('caution', this)" class="nav-btn w-full flex items-center px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 rounded-lg text-left transition-all">
                 <svg class="w-4 h-4 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <span>权限未知 / 无决策权校准</span>
+                <span>替换意图未核实 / 已阻断</span>
                 <span id="badgeCountCaution" class="ml-auto bg-amber-500/20 text-amber-300 py-0.5 px-2 rounded-full text-[10px] font-mono">{caution_count}</span>
             </button>
 
@@ -625,6 +648,7 @@ class Dispatcher:
         <main class="flex-1 overflow-y-auto p-3 sm:p-4 min-w-0 max-w-full" id="mainContainer">
 
             <!-- 1. DATA GRID VIEW -->
+            <p role="status" style="font-size:12px;padding:8px;color:#52525b">来源执行状态：{collection_status_text or "历史演练"}</p>
             <div id="tableViewWrapper" class="bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden max-w-full">
                 <div class="overflow-x-auto max-w-full">
                     <table class="w-full divide-y divide-zinc-200 text-left text-xs">
@@ -692,7 +716,8 @@ class Dispatcher:
                             <!-- Priority 2: Tri-state Qualification Provenance Grid -->
                             <div class="space-y-1.5">
                                 <div class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">🔍 2. 四维资格核验、证据来源与原文依据 ([原文明示] / [模型推断] / [未知])</div>
-                                <div id="splitProvenanceGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                                <div id="splitReviewPanel" class="review-panel"></div>
+            <div id="splitProvenanceGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
                             </div>
 
                             <!-- Priority 3: Blocking Conditions & Next Action -->
@@ -733,7 +758,7 @@ class Dispatcher:
                             <!-- Collapsible Full Post & Extended Analysis -->
                             <details class="group bg-zinc-50 rounded-xl border border-zinc-200/80 p-3">
                                 <summary class="text-xs font-bold text-zinc-700 cursor-pointer select-none flex items-center justify-between">
-                                    <span>📂 展开原帖完整全文与扩展分析 (完整保留未截断原文)</span>
+                                    <span>📂 展开原文 / 摘要与扩展分析（摘要会单独标明）</span>
                                     <span class="text-zinc-400 group-open:rotate-180 transition-transform">▼</span>
                                 </summary>
                                 <div class="mt-3 space-y-3 pt-2 border-t border-zinc-200/60 text-xs">
@@ -838,7 +863,8 @@ class Dispatcher:
             <!-- 2. Tri-state Provenance Grid -->
             <div class="space-y-1.5">
                 <span class="text-xs font-bold text-zinc-700">🔍 2. 四维资格核验、证据来源与原文依据 ([原文明示] / [模型推断] / [未知])</span>
-                <div id="drawerProvenanceGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                <div id="drawerReviewPanel" class="review-panel"></div>
+            <div id="drawerProvenanceGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
             </div>
 
             <!-- 3. Blockers & Next Action -->
@@ -879,7 +905,7 @@ class Dispatcher:
             <!-- Collapsible Full Post & Extended Analysis -->
             <details class="group bg-zinc-50 rounded-xl border border-zinc-200 p-3.5">
                 <summary class="text-xs font-bold text-zinc-700 cursor-pointer select-none flex items-center justify-between">
-                    <span>📂 展开原帖完整全文与扩展分析 (完整保留未截断原文)</span>
+                    <span>📂 展开原文 / 摘要与扩展分析（摘要会单独标明）</span>
                     <span class="text-zinc-400 group-open:rotate-180 transition-transform">▼</span>
                 </summary>
                 <div class="mt-3 space-y-3 pt-2 border-t border-zinc-200 text-xs">

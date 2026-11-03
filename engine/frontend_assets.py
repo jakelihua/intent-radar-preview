@@ -15,6 +15,7 @@ Resolves Audit Round-2 Findings:
 """
 
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List
 
 
@@ -264,184 +265,73 @@ function hasReplacementAuthority(lead) {
     return authSrc === '原文明示' || authSrc === '模型推断';
 }
 
-function checkBrandCompatibility(lead, profile) {
-    if (!profile || !profile.brand_name) {
-        return { compatible: false, mode: 'unconfigured', reason: '当前未配置特定卖方产品能力档案（阶段 3 待核验）' };
-    }
-    const cleanTargets = (profile.target_competitors || []).map(t => String(t).trim()).filter(t => t && t !== '*');
-    const approvedCaps = String(profile.approved_capabilities || '').trim();
-    if (cleanTargets.length === 0 || !approvedCaps) {
-        return {
-            compatible: false,
-            mode: 'incomplete_profile',
-            reason: `卖方档案【${profile.brand_name}】缺少明确的「适配被替换竞品」或「已核准真实能力」（系统禁止默认使用 * 通配符或自动补造能力）。`
-        };
-    }
-    const leadCompLower = (lead.competitor || '').toLowerCase();
-    const isMatch = cleanTargets.some(t => {
-        const tl = t.toLowerCase();
-        return leadCompLower.includes(tl) || tl.includes(leadCompLower);
-    });
-    if (!isMatch) {
-        return {
-            compatible: false,
-            mode: 'mismatch',
-            reason: `当前已选卖方产品为【${profile.brand_name}】（仅适配替换：${cleanTargets.join(' / ')}），而本条线索被替换标的为【${lead.competitor}】（${lead.category}）。跨赛道强行套用话术已被系统拦截。`
-        };
-    }
-    return { compatible: true, mode: 'matched', reason: `卖方【${profile.brand_name}】赛道与核准能力已匹配` };
-}
-
 function evaluateLeadStages(lead, profile) {
-    const qm = lead.qualification_meta || {};
-    const authSrc = (qm.decision_authority && (qm.decision_authority.source || qm.decision_authority.provenance)) || '未知';
-    const budgetSrc = (qm.budget_status && (qm.budget_status.source || qm.budget_status.provenance)) || '未知';
-    const negated = isAuthorityNegated(lead);
-
-    const s1Passed = lead.intent_type !== 'vendor_self_promotion' && lead.competitor && lead.competitor !== '未知';
-    const s2Passed = s1Passed && !negated;
-
-    let s3Passed = false;
-    let s3Status = '待核验 · 未配置特定卖方能力档案';
-    let s3Blocker = '客户能力未知时不能通过阶段 3；请先在上方选择或填写卖方能力档案';
-    const compat = checkBrandCompatibility(lead, profile);
-    if (!s2Passed) {
-        s3Status = '未通过 · 前置阶段未成立';
-        s3Blocker = '发帖人无替换决策权或明确不考虑替换';
-    } else if (profile && profile.brand_name) {
-        if (compat.compatible) {
-            s3Passed = true;
-            s3Status = `已通过 · 适配【${profile.brand_name}】`;
-            s3Blocker = profile.known_limitations || '';
-        } else {
-            s3Passed = false;
-            s3Status = compat.mode === 'incomplete_profile' ? '受阻 · 卖方档案不完整' : '已拦截 · 跨赛道能力不匹配';
-            s3Blocker = compat.reason;
-        }
-    }
-
-    const bothUnknown = (authSrc === '未知' && budgetSrc === '未知');
-    const isSparse = ((lead.content || '').trim().length < 100 && bothUnknown);
-    let s4Passed = false;
-    let s4Status = '待推进';
-    if (s3Passed && !isSparse && lead.delivery_eligible) {
-        s4Passed = true;
-        s4Status = '已通过 · 当期可推进商机';
-    } else if (s3Passed && isSparse) {
-        s4Status = '待核验 · 预算与权限未知（仅可提问）';
-    } else if (s3Passed && !lead.delivery_eligible) {
-        s4Status = '历史基准样本 · 仅供核验演练（不计当期交付）';
-    }
-
-    let contiguous = 0;
-    for (const p of [s1Passed, s2Passed, s3Passed, s4Passed]) {
-        if (p) contiguous += 1;
-        else break;
-    }
-
-    let stageLabel = lead.qualification_stage || '阶段 2/4 · 正在评估替代';
-    if (contiguous === 0) {
-        stageLabel = '阶段 0/4 · 非买方替换线索';
-    } else if (contiguous === 1) {
-        stageLabel = '阶段 1/4 · 仅抱怨竞品（无替换决策权）';
-    } else if (contiguous === 2) {
-        if (profile && profile.brand_name && !compat.compatible) {
-            stageLabel = `阶段 2/4 · 阶段3受阻（${compat.mode === 'mismatch' ? '跨赛道不匹配' : '档案不完整'}）`;
-        } else if (bothUnknown) {
-            stageLabel = '阶段 2/4 · 初步寻优（预算/权限与卖方适配待核验）';
-        } else {
-            stageLabel = '阶段 2/4 · 正在评估替代（待绑定卖方能力核验阶段3）';
-        }
-    } else if (contiguous === 3) {
-        if (bothUnknown) {
-            stageLabel = '阶段 3/4 · 卖方能力已匹配（预算/权限未知·先提问核实）';
-        } else if (!lead.delivery_eligible) {
-            stageLabel = '阶段 3/4 · 卖方能力已匹配（历史基准样本·不计当期交付）';
-        } else {
-            stageLabel = '阶段 3/4 · 卖方能力已匹配（待首轮确认）';
-        }
-    } else {
-        stageLabel = '阶段 4/4 · 四步核验全部通过（当期可推进商机）';
-    }
-
-    return {
-        contiguous,
-        stageLabel,
-        s1Passed,
-        s2Passed,
-        s3Passed,
-        s4Passed,
-        s3Status,
-        s3Blocker,
-        s4Status,
-        compat,
-        bothUnknown
-    };
+    const d = evaluatePolicyFacts(lead.policy_facts || {}, profile);
+    const descriptions = ['非买方线索', '痛点记录（替换资格未成立）', '正在评估替代（能力待核验）', '能力已核验（触达/时效待核验）', '四步核验通过（当期可推进）'];
+    return { ...d, stageLabel: `阶段 ${d.contiguous}/4 · ${descriptions[d.contiguous]}`,
+        s1Passed: d.passed[0], s2Passed: d.passed[1], s3Passed: d.passed[2], s4Passed: d.passed[3],
+        s3Status: d.passed[2] ? '能力已核验' : '能力待核验', s3Blocker: '需要版本绑定的人工匹配记录',
+        s4Status: d.passed[3] ? '当期可推进' : '联系人、权限或时效待核验',
+        compat: {compatible: d.compatible, mode: d.compatible ? 'pending_review' : 'mismatch', reason: '请填写真实身份与核准能力，并记录本条线索的必选能力核验结果'},
+        bothUnknown: !hasReplacementAuthority(lead) };
 }
 
 function getEffectivePitch(lead, type = 'reply') {
     if (!lead) return '';
-    const st = evaluateLeadStages(lead, customBrandProfile);
-
-    // 1. Blocked if Stage 1 or Stage 2 failed (lack of authority / negative intent / vendor post)
-    if (!st.s2Passed) {
-        if (lead.outreach_policy && lead.outreach_policy.policy_status === 'blocked' && lead.public_reply) {
-            return lead.public_reply;
-        }
-        const quote = lead.evidence_quote || lead.content || '';
-        return `⚠️ 【资格核验拦截 · 已禁止发送推销话术】\n` +
-               `原因：原帖作者 @${lead.author} 在正文中明确表示 "${quote}"（无工具选型与替换决策权）。\n` +
-               `处置要求：将该帖标记为「不合格（原因：无替换决策权）」，仅保留痛点作为产品研发参考，严禁外呼打扰。`;
+    const d = evaluateLeadStages(lead, customBrandProfile);
+    if (d.policy_status === 'blocked') return '⛔ 资格核验拦截：缺乏替换资格，或产品能力不匹配。仅保留研究记录，禁止销售推销。';
+    if (d.policy_status !== 'approved_recommendation') {
+        return `看到你关于 ${lead.competitor} 的讨论。方便补充当前需要解决的工作流、必选能力、选型权限和计划时间吗？确认需求与支持边界前，仅作中立核验，不推荐特定产品。`;
     }
+    const p = customBrandProfile;
+    return `利益相关披露：我是【${policyText(p.brand_name)}】的${policyText(p.actor_role)}。\n` +
+        `我方已核准能力：${policyText(p.approved_capabilities)}。\n` +
+        `已知限制：${policyText(p.known_limitations) || '尚需按实际环境验证'}。\n` +
+        '建议先以脱敏样本核对迁移可行性，再评估商务方案。';
+}
 
-    // 2. If no custom brand is active, return backend's strictly neutral qualification questions (zero capability claims)
-    if (!customBrandProfile || !customBrandProfile.brand_name) {
-        if (type === 'dev') return lead.pitch_dev || lead.suggested_pitch || '';
-        if (type === 'exec') return lead.pitch_exec || lead.suggested_pitch || '';
-        return lead.public_reply || '';
-    }
+function renderReviewPanel(prefix, lead) {
+    const host = document.getElementById(`${prefix}ReviewPanel`);
+    if (!host) return;
+    if (!customBrandProfile) { host.textContent = '先配置卖方真实身份与能力，才能记录本条线索的匹配核验。'; return; }
+    const r = (customBrandProfile.reviews || {})[lead.source_id] || {};
+    host.innerHTML = `<strong>人工核验记录（仅当前会话）</strong>
+        <p>逐项核对原帖必选需求。不支持任一必选项请选择“不匹配”。修改原帖或卖方能力后记录失效。</p>
+        <label>核验人 <input id="${prefix}Reviewer" value="${escapeHtml(r.reviewer || '')}" /></label>
+        <label>匹配结果 <select id="${prefix}Fit"><option value="pending">待核验</option><option value="supported">必选能力均已核实支持</option><option value="unsupported">存在不支持的必选能力</option></select></label>
+        <label>逐项需求与能力核对依据 <textarea id="${prefix}ReviewEvidence">${escapeHtml(r.evidence || '')}</textarea></label>
+        <label><input type="checkbox" id="${prefix}Authority" ${r.authority_confirmed ? 'checked' : ''}/> 已核实联系人参与选型且可推进</label>
+        <label>核验后的联系路径 URL <input id="${prefix}ContactUrl" value="${escapeHtml(r.contact_url || '')}" /></label>
+        <label>联系人与选型权限核验依据 <textarea id="${prefix}ContactEvidence">${escapeHtml(r.contact_evidence || '')}</textarea></label>
+        <button type="button" data-action="save-review" data-prefix="${prefix}" data-lead-id="${escapeHtml(lead.id)}">保存本条核验</button>
+        <button type="button" data-action="export-review-profile">导出核验配置</button>`;
+    document.getElementById(`${prefix}Fit`).value = r.fit || 'pending';
+}
 
-    // 3. If custom brand is active, check Stage 3 compatibility & profile completeness
-    if (!st.s3Passed) {
-        return `⛔ 【卖方能力门控拦截 · 已禁止生成推荐话术】\n${st.compat.reason}\n💡 解决方案：请在上方「卖方产品能力档案」中切换至适配【${lead.competitor}】且包含完整核准能力的预设，或切回「默认中立核验视角」。`;
-    }
+function saveReview(prefix, id) {
+    const lead = LEADS_DATA.find(l => l.id === id);
+    if (!lead || !customBrandProfile) return;
+    const value = suffix => document.getElementById(prefix + suffix).value.trim();
+    const reviewer = value('Reviewer'), evidence = value('ReviewEvidence');
+    if (!reviewer || !evidence) { showToast('请填写核验人及逐项能力核对依据', true); return; }
+    const contactUrl = value('ContactUrl');
+    if (contactUrl && sanitizeUrl(contactUrl) === '#') { showToast('联系路径必须为有效的 HTTP(S) 地址', true); return; }
+    customBrandProfile.reviews = customBrandProfile.reviews || {};
+    customBrandProfile.reviews[lead.source_id] = { source: lead.source, content_hash: lead.policy_facts.content_hash,
+        seller_snapshot: sellerSnapshot(customBrandProfile), reviewer, reviewed_at: new Date().toISOString(),
+        evidence, fit: value('Fit'), authority_confirmed: document.getElementById(prefix + 'Authority').checked,
+        contact_url: contactUrl, contact_evidence: value('ContactEvidence') };
+    applyRender();
+    populateDetailPane(prefix, id);
+    document.getElementById(prefix + 'Reviewer').focus();
+    showToast('核验记录已在当前会话生效；可导出配置用于服务端试点');
+}
 
-    const bName = customBrandProfile.brand_name;
-    const actorRole = customBrandProfile.actor_role || '产品团队成员';
-    const bCaps = customBrandProfile.approved_capabilities;
-    const bLimits = customBrandProfile.known_limitations || '具体生产环境兼容性仍需根据贵司实际架构核实';
-    const bLink = customBrandProfile.cta_link || '';
-    const evidenceSnippet = (lead.evidence_quote || lead.title || '').slice(0, 120);
-    const blockers = (lead.qualification_meta && lead.qualification_meta.blocking_conditions && lead.qualification_meta.blocking_conditions.length > 0)
-        ? lead.qualification_meta.blocking_conditions.join('；')
-        : '具体席位规模与现有历史数据迁移边界待确认';
-
-    const disclosure = `利益相关披露：我是【${bName}】的${actorRole}。`;
-
-    // 4. If budget & authority are both unknown (e.g., 1-sentence inquiry), only allow neutral qualification question with disclosure
-    if (st.bothUnknown) {
-        return `${disclosure}\n` +
-               `看到你在寻找 ${lead.competitor} 的替代方案（“${evidenceSnippet}”）。\n` +
-               `由于原帖尚未披露具体使用模块、团队席位数与预算形式（开源自托管或商业托管），方便补充一下你们最核心的 1-2 个必选需求吗？\n` +
-               `我们可以据此客观核对是否属于【${bName}】的已核准支持范围（已知边界：${bLimits}）。`;
-    }
-
-    // 5. Stage 3 passed & authority/budget not blank -> Approved Recommendation with role-accurate disclosure
-    if (type === 'reply') {
-        return `${disclosure}\n` +
-               `针对你在原帖提到的「${evidenceSnippet}」，【${bName}】目前已核准支持的能力包括：${bCaps}。\n` +
-               `但需要客观说明已知边界：【${bLimits}】；同时原帖尚未涉及【${blockers}】，仍需结合你们的具体场景确认。\n` +
-               `${bLink ? '这里有对应的迁移核验文档：' + bLink + ' ，' : ''}建议先用一小份脱敏数据做最小化验证。`;
-    } else if (type === 'dev') {
-        return `Hi @${lead.author}，在 ${lead.source} 看到你关于 ${lead.competitor} 的讨论（原帖提及：“${evidenceSnippet}”）。\n` +
-               `${disclosure}针对该场景，我们已核准支持：${bCaps}。\n` +
-               `在判断是否适合你们团队前，想先请教并确认两个边界问题：1) ${bLimits}；2) ${blockers}。\n` +
-               `${bLink ? '迁移验证指南参考：' + bLink : '方便的话可以先跑一下沙箱导入测试。'}`;
-    } else {
-        return `您好 @${lead.author}，关注到贵团队在 ${lead.source} 评估 ${lead.competitor} 的替代方案。\n` +
-               `${disclosure}对照原帖提到的痛点，我方已核准支持：${bCaps}。\n` +
-               `目前尚待确认的阻碍条件包括：【${blockers}】以及【${bLimits}】。建议先安排 15 分钟技术边界核对或小样本导入测试，确认完全匹配后再评估商务方案。`;
-    }
+function exportReviewProfile() {
+    const blob = new Blob([JSON.stringify({seller_profile: customBrandProfile}, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a'), url = URL.createObjectURL(blob);
+    a.href = url; a.download = 'intent-radar-seller-review.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
 // ============================================================================
@@ -450,9 +340,9 @@ function getEffectivePitch(lead, type = 'reply') {
 function isHighIntentLead(item) {
     const st = evaluateLeadStages(item, customBrandProfile);
     if (customBrandProfile && customBrandProfile.brand_name) {
-        return st.contiguous >= 3 && hasReplacementAuthority(item);
+        return st.contiguous >= 3;
     }
-    return st.contiguous >= 2 && item.intent_score >= 80 && hasReplacementAuthority(item);
+    return st.s2Passed;
 }
 
 function isCautionOrPendingLead(item) {
@@ -862,10 +752,7 @@ function copyFilteredPitches(btn) {
         return;
     }
     const eligibleLeads = leads.filter(l => {
-        const st = evaluateLeadStages(l, customBrandProfile);
-        if (!st.s2Passed) return false;
-        if (customBrandProfile && customBrandProfile.brand_name && !st.s3Passed) return false;
-        return true;
+        return evaluateLeadStages(l, customBrandProfile).can_outreach;
     });
     if (eligibleLeads.length === 0) {
         showToast('当前筛选线索均因「跨赛道不匹配」「档案不完整」或「无选型决策权」被拦截', true);
@@ -1001,7 +888,7 @@ function renderTable(leads) {
         let compatBadge = '';
         if (customBrandProfile && customBrandProfile.brand_name) {
             if (!st.s3Passed) {
-                compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">⛔ ${st.compat.mode === 'incomplete_profile' ? '档案不完整' : '跨赛道不匹配'}</span>`;
+                compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">⛔ ${st.compat.compatible ? '能力待核验' : '档案不完整或赛道不匹配'}</span>`;
             } else {
                 compatBadge = `<span class="whitespace-nowrap flex-shrink-0 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ 阶段3适配 ${escapeHtml(customBrandProfile.brand_name)}</span>`;
             }
@@ -1268,7 +1155,7 @@ function populateDetailPane(prefix, id) {
     if (collectedEl) collectedEl.innerText = `核验时间：${lead.collected_at}`;
     if (engagementEl) engagementEl.innerText = `${lead.source} ID:${lead.source_id} (${lead.engagement})`;
     if (evidenceEl) evidenceEl.innerText = `“${lead.evidence_quote || lead.content}”`;
-    if (contentEl) contentEl.innerText = lead.content;
+    if (contentEl) contentEl.innerText = (lead.content_complete === false ? '【当前仅摘要，未获取全文；不可自动交付】\n' : '') + lead.content;
     if (sourceLinkEl) sourceLinkEl.setAttribute('href', sanitizeUrl(lead.url));
 
     if (provenanceGridEl) {
@@ -1299,6 +1186,7 @@ function populateDetailPane(prefix, id) {
     if (tacticsEl) tacticsEl.innerText = lead.tactical_action_plan || '';
     if (objectionEl) objectionEl.innerText = lead.objection_handling || '';
 
+    renderReviewPanel(prefix, lead);
     if (prefix === 'drawer') {
         switchPitchTab(currentPitchTab || 'reply');
         updateDrawerStatusUI(getLeadStatus(id), getDisqualifyReason(id));
@@ -1818,7 +1706,11 @@ document.addEventListener('click', (e) => {
     const action = actionEl.getAttribute('data-action');
     const leadId = actionEl.getAttribute('data-lead-id');
 
-    if (action === 'open-drawer' && leadId) {
+    if (action === 'save-review') {
+        saveReview(actionEl.dataset.prefix, leadId);
+    } else if (action === 'export-review-profile') {
+        exportReviewProfile();
+    } else if (action === 'open-drawer' && leadId) {
         openDrawer(leadId, actionEl);
     } else if (action === 'cycle-status' && leadId) {
         e.stopPropagation();
@@ -1945,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 def get_full_client_js() -> str:
-    return CLIENT_WORKBENCH_JS + "\n" + CLIENT_WORKBENCH_UI_JS + "\n" + CLIENT_WORKBENCH_EVENTS_JS
+    return Path(__file__).with_name("policy_client.js").read_text(encoding="utf-8") + "\n" + CLIENT_WORKBENCH_JS + "\n" + CLIENT_WORKBENCH_UI_JS + "\n" + CLIENT_WORKBENCH_EVENTS_JS
 
 
 def render_internal_bd_html(

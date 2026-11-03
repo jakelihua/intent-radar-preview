@@ -10,8 +10,9 @@ Resolves Audit Finding #8:
 import hashlib
 import os
 import sqlite3
-import tempfile
 import threading
+import uuid
+import time
 from datetime import datetime
 from typing import Any, Dict, Optional
 
@@ -28,13 +29,17 @@ class IntentStateStore:
 
     def __init__(self, db_path: Optional[str] = None):
         if not db_path:
-            state_dir = os.path.join(tempfile.gettempdir(), "intent_radar_internal")
+            state_dir = os.environ.get("INTENT_RADAR_STATE_DIR", os.path.join(os.getcwd(), ".intent-radar"))
             os.makedirs(state_dir, exist_ok=True)
             db_path = os.path.join(state_dir, "intent_radar_state.sqlite3")
         self.db_path = db_path
+        if db_path != ":memory:":
+            os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
         self._lock = threading.Lock()
         self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
+        self._conn.execute("PRAGMA busy_timeout=5000")
+        self._conn.execute("PRAGMA journal_mode=WAL")
         self._init_schema()
 
     def _init_schema(self) -> None:
@@ -72,7 +77,28 @@ class IntentStateStore:
                 )
                 """
             )
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS delivery_outbox (
+                    source TEXT NOT NULL, source_id TEXT NOT NULL, client_id TEXT NOT NULL,
+                    version_num INTEGER NOT NULL, token TEXT NOT NULL,
+                    status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY (source, source_id, client_id, version_num)
+                )
+            """)
+            cur.execute("CREATE TABLE IF NOT EXISTS source_cooldowns (host TEXT PRIMARY KEY, until_epoch REAL NOT NULL)")
             self._conn.commit()
+
+    def set_source_cooldown(self, host, seconds):
+        with self._lock:
+            self._conn.execute("INSERT INTO source_cooldowns VALUES (?, ?) ON CONFLICT(host) DO UPDATE SET until_epoch=MAX(until_epoch, excluded.until_epoch)",
+                               (host, time.time() + max(0, float(seconds))))
+            self._conn.commit()
+
+    def source_cooldown_remaining(self, host):
+        with self._lock:
+            row = self._conn.execute("SELECT until_epoch FROM source_cooldowns WHERE host=?", (host,)).fetchone()
+            return max(0, row[0] - time.time()) if row else 0
 
     def upsert_signal(self, sig: Any) -> Dict[str, Any]:
         """
@@ -90,13 +116,14 @@ class IntentStateStore:
         norm_url = getattr(sig, "normalized_url", getattr(sig, "url", ""))
         title = getattr(sig, "title", "")
         author = getattr(sig, "author", "Unknown")
-        published_at = getattr(sig, "timestamp", now_utc) or now_utc
+        published_at = getattr(sig, "timestamp", "") or ""
         updated_at = getattr(sig, "updated_at", None) or published_at
         collected_at = getattr(sig, "collected_at", now_utc) or now_utc
         raw_text = getattr(sig, "raw_content", None) or getattr(sig, "content", "")
         c_hash = compute_content_hash(title, raw_text)
 
-        with self._lock:
+        with self._lock, self._conn:
+            self._conn.execute("BEGIN IMMEDIATE")
             cur = self._conn.cursor()
             cur.execute(
                 "SELECT content_hash, version_num, first_seen_at, published_at FROM signals_ledger WHERE source = ? AND source_id = ?",
@@ -200,9 +227,67 @@ class IntentStateStore:
                 (source, source_id, client_id),
             )
             row = cur.fetchone()
-            if row is None:
-                return True
-            return int(row["delivered_version"]) < int(version_num)
+            if row is not None and int(row["delivered_version"]) >= int(version_num):
+                return False
+            pending = cur.execute("SELECT status, attempts FROM delivery_outbox WHERE source=? AND source_id=? AND client_id=? AND version_num=?",
+                                  (source, source_id, client_id, int(version_num))).fetchone()
+            return pending is None or (pending["status"] == "failed" and pending["attempts"] < 3)
+
+    def claim_delivery(self, source, source_id, client_id, version_num):
+        """Atomically reserve one version across threads AND independent processes.
+
+        A crashed sender remains 'sending'. A timeout becomes 'uncertain'. Neither
+        is automatically retried: without receiver idempotency, delivery cannot
+        be both loss-free and duplicate-free after an ambiguous network outcome.
+        """
+        token = uuid.uuid4().hex
+        key = (source, source_id, client_id, int(version_num))
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                row = self._conn.execute("SELECT delivered_version FROM client_deliveries WHERE source=? AND source_id=? AND client_id=?", key[:3]).fetchone()
+                if row and row[0] >= version_num:
+                    self._conn.rollback()
+                    return None
+                cur = self._conn.execute("""
+                    INSERT INTO delivery_outbox VALUES (?, ?, ?, ?, ?, 'sending', 1, ?)
+                    ON CONFLICT(source, source_id, client_id, version_num) DO UPDATE SET
+                        token=excluded.token, status='sending', attempts=attempts+1, updated_at=excluded.updated_at
+                    WHERE status='failed' AND attempts < 3
+                """, (*key, token, datetime.utcnow().isoformat()))
+                claimed = cur.rowcount == 1
+                self._conn.commit()
+                return token if claimed else None
+            except Exception:
+                self._conn.rollback()
+                raise
+
+    def finish_delivery(self, source, source_id, client_id, version_num, token, outcome, channel):
+        if outcome not in ("sent", "failed", "uncertain"):
+            raise ValueError("Invalid delivery outcome")
+        with self._lock:
+            try:
+                self._conn.execute("BEGIN IMMEDIATE")
+                cur = self._conn.execute("""UPDATE delivery_outbox SET status=?, updated_at=?
+                    WHERE source=? AND source_id=? AND client_id=? AND version_num=? AND token=? AND status='sending'""",
+                    (outcome, datetime.utcnow().isoformat(), source, source_id, client_id, version_num, token))
+                if cur.rowcount != 1:
+                    raise ValueError("Delivery claim no longer owned")
+                if outcome == "sent":
+                    self._record_delivery(source, source_id, client_id, version_num, channel)
+                self._conn.commit()
+            except Exception:
+                self._conn.rollback()
+                raise
+
+    def _record_delivery(self, source, source_id, client_id, version_num, channel):
+        self._conn.execute("""
+            INSERT INTO client_deliveries VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(source, source_id, client_id) DO UPDATE SET
+                delivered_version=excluded.delivered_version,
+                delivered_at=excluded.delivered_at, channel=excluded.channel
+            WHERE excluded.delivered_version > client_deliveries.delivered_version
+        """, (source, source_id, client_id, int(version_num), datetime.utcnow().isoformat(), channel))
 
     def record_delivery(
         self,
@@ -212,20 +297,8 @@ class IntentStateStore:
         version_num: int,
         channel: str = "webhook",
     ) -> None:
-        now_utc = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
         with self._lock:
-            cur = self._conn.cursor()
-            cur.execute(
-                """
-                INSERT INTO client_deliveries (source, source_id, client_id, delivered_version, delivered_at, channel)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT(source, source_id, client_id) DO UPDATE SET
-                    delivered_version = excluded.delivered_version,
-                    delivered_at = excluded.delivered_at,
-                    channel = excluded.channel
-                """,
-                (source, source_id, client_id, int(version_num), now_utc, channel),
-            )
+            self._record_delivery(source, source_id, client_id, version_num, channel)
             self._conn.commit()
 
     def get_signal_record(self, source: str, source_id: str) -> Optional[Dict[str, Any]]:
@@ -238,6 +311,36 @@ class IntentStateStore:
             row = cur.fetchone()
             return dict(row) if row else None
 
+    def list_outbox(self):
+        with self._lock:
+            return [dict(row) for row in self._conn.execute(
+                "SELECT * FROM delivery_outbox ORDER BY updated_at DESC LIMIT 100")]
+
+    def resolve_delivery(self, token, received):
+        """Operator confirms an ambiguous outcome; this method never sends."""
+        with self._lock:
+            row = self._conn.execute("SELECT * FROM delivery_outbox WHERE token=? AND status IN ('sending','uncertain')", (token,)).fetchone()
+        if row is None:
+            raise ValueError("No unresolved delivery with this token")
+        # Move uncertain back to sending only for the same claim; finish_delivery
+        # uses a compare-and-set so a concurrent operator cannot resolve it twice.
+        with self._lock:
+            self._conn.execute("UPDATE delivery_outbox SET status='sending' WHERE token=? AND status='uncertain'", (token,))
+            self._conn.commit()
+        self.finish_delivery(row["source"], row["source_id"], row["client_id"], row["version_num"],
+                             token, "sent" if received else "failed", row["client_id"].rsplit(":", 1)[-1])
+
     def close(self) -> None:
         with self._lock:
             self._conn.close()
+
+    def backup(self, destination):
+        if os.path.realpath(destination) == os.path.realpath(self.db_path):
+            raise ValueError("Backup destination must differ from state DB")
+        os.makedirs(os.path.dirname(os.path.abspath(destination)), exist_ok=True)
+        with self._lock:
+            target = sqlite3.connect(destination)
+            try:
+                self._conn.backup(target)
+            finally:
+                target.close()
