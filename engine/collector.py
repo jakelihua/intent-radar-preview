@@ -350,7 +350,7 @@ class IntentSignal:
         self.keyword = keyword
         self.timestamp = timestamp or ""
         self.updated_at = updated_at or self.timestamp
-        self.collected_at = collected_at or datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+        self.collected_at = collected_at or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         self.comments_count = comments_count
         self.engagement_metric = engagement_metric
         self.source_id = source_id or hashlib.md5(f"{self.source}:{self.normalized_url}".encode("utf-8")).hexdigest()[:12]
@@ -672,12 +672,12 @@ class V2EXCollector:
                         author = topic.get("member", {}).get("username", "V2EX User")
                         replies = topic.get("replies", 0)
                         created_ts = (
-                            datetime.utcfromtimestamp(topic.get("created", 0)).strftime("%Y-%m-%d %H:%M UTC")
+                            datetime.fromtimestamp(topic.get("created", 0), tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
                             if topic.get("created")
                             else None
                         )
                         modified_ts = (
-                            datetime.utcfromtimestamp(topic.get("last_modified", topic.get("created", 0))).strftime("%Y-%m-%d %H:%M UTC")
+                            datetime.fromtimestamp(topic.get("last_modified", topic.get("created", 0)), tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
                             if topic.get("last_modified") or topic.get("created")
                             else created_ts
                         )
@@ -745,18 +745,26 @@ class CollectorHub:
             specs["news"] = self.config.get("google_news_queries", self.config.get("news_queries", ["Jira alternative"]))
         if self.config.get("enable_v2ex", True): specs["v2ex"] = [self.config.get("v2ex_keywords", ["替代", "求推荐", "迁移"])]
         host_for = {"hn": "hn.algolia.com", "github": "api.github.com", "devto": "dev.to", "news": "news.google.com", "v2ex": "www.v2ex.com"}
+        max_workers = max(1, int(self.config.get("collector_max_workers", 5)))
         accepted, seen_urls, workers = {}, set(), {}
         self.last_run_status = {}
         kwargs = set(inspect.signature(IntentSignal).parameters) - {"self"}
+        pending_sources = []
+        for source, queries in specs.items():
+            if not queries:
+                continue
+            if self.state_store.source_cooldown_remaining(host_for[source]) > 0:
+                self.last_run_status[source] = "deferred"
+                continue
+            pending_sources.append((source, queries))
+
         with tempfile.TemporaryDirectory(prefix="intent-radar-collect-") as directory:
-            try:
-                for source, queries in specs.items():
-                    if not queries: continue
-                    if self.state_store.source_cooldown_remaining(host_for[source]) > 0:
-                        self.last_run_status[source] = "deferred"
-                        continue
+            def _launch_next_workers():
+                while pending_sources and len(workers) < max_workers:
                     remaining = deadline - time.monotonic()
-                    if remaining <= 0: break
+                    if remaining <= 0:
+                        break
+                    source, queries = pending_sources.pop(0)
                     result_path = Path(directory) / (source + ".json")
                     settings = {"queries": queries, "limit": self.config.get("limit_per_query", 3), "remaining_seconds": remaining}
                     # A private input file avoids pipe writes that could block on large query lists.
@@ -767,10 +775,15 @@ class CollectorHub:
                             stdout=subprocess.DEVNULL, stderr=error_file,
                             cwd=str(Path(__file__).resolve().parent.parent))
                     workers[source] = (proc, result_path)
-                while workers and time.monotonic() < deadline:
+
+            try:
+                _launch_next_workers()
+                while (workers or pending_sources) and time.monotonic() < deadline:
+                    _launch_next_workers()
                     for source, (proc, result_path) in list(workers.items()):
                         if proc.poll() is None: continue
                         del workers[source]
+                        _launch_next_workers()
                         if proc.returncode != 0 or not result_path.exists():
                             self.last_run_status[source] = "failed"
                             logger.error("Collector %s failed: %s", source,
@@ -801,6 +814,8 @@ class CollectorHub:
             finally:
                 # ThreadPool shutdown cannot cancel a blocked HTTP read. Processes
                 # are killed and reaped before returning; none survive into the next run.
+                for source, _ in pending_sources:
+                    self.last_run_status[source] = "timeout"
                 for source, (proc, _) in workers.items():
                     self.last_run_status[source] = "timeout"
                     if proc.poll() is None: proc.kill()

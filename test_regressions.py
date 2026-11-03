@@ -274,5 +274,36 @@ fs.writeFileSync(process.argv[2],Buffer.from(await b.arrayBuffer()))})();"""
                 workbook.close()
                 self.assertEqual(caught, [])
 
+    def test_bounded_worker_pool_and_atomic_worker_write(self):
+        from engine.collector_worker import atomic_write_json
+        with tempfile.TemporaryDirectory() as directory:
+            out_file = Path(directory) / "atomic.json"
+            atomic_write_json(out_file, {"ok": True})
+            self.assertEqual(json.loads(out_file.read_text(encoding="utf-8")), {"ok": True})
+            self.assertFalse(out_file.with_suffix(".json.tmp").exists())
+
+            config = {
+                "state_db_path": str(Path(directory) / "state.db"),
+                "collector_max_workers": 2,
+                "hacker_news_queries": ["Jira"],
+                "github_queries": ["Jira"],
+                "enable_devto": True,
+                "enable_google_news": False,
+                "enable_v2ex": False,
+            }
+            hub = CollectorHub(config)
+            code = """
+import json, sys
+from pathlib import Path
+from engine.collector_worker import atomic_write_json
+atomic_write_json(Path(sys.argv[1]), {"signals": [], "outcomes": {}, "deferred": {}, "cooldowns": {}})
+"""
+            try:
+                with patch.object(hub, "_worker_command", side_effect=lambda source, path: [sys.executable, "-c", code, str(path)]):
+                    hub.run(global_timeout=3)
+                    self.assertEqual(hub.last_run_status, {"hn": "complete", "github": "complete", "devto": "complete"})
+            finally:
+                hub.close()
+
 
 if __name__ == "__main__": unittest.main()

@@ -76,6 +76,7 @@ class Dispatcher:
             raise ValueError("Webhook delivery requires an explicit client_id")
         self.client_id = config.get("client_id", "default_pilot_client")
         self.state_store = state_store or IntentStateStore(config.get("state_db_path"))
+        self._last_sent_count = 0
 
     def filter_deliverable_signals(self, signals: List[EnrichedSignal], channel: str = "webhook") -> List[EnrichedSignal]:
         """
@@ -132,7 +133,7 @@ class Dispatcher:
                 res = self.send_feishu_card(feishu_candidates)
                 report_summary["feishu_status"] = "SUCCESS" if res else "FAILED"
                 if res:
-                    report_summary["delivered_count"] += len(feishu_candidates)
+                    report_summary["delivered_count"] += self._last_sent_count
 
         if self.wechat_webhook:
             wechat_candidates = self.filter_deliverable_signals(signals, channel="wechat")[:5]
@@ -140,7 +141,7 @@ class Dispatcher:
                 res = self.send_wechat_markdown(wechat_candidates)
                 report_summary["wechat_status"] = "SUCCESS" if res else "FAILED"
                 if res:
-                    report_summary["delivered_count"] += len(wechat_candidates)
+                    report_summary["delivered_count"] += self._last_sent_count
 
         return report_summary
 
@@ -249,13 +250,17 @@ class Dispatcher:
         except (requests.RequestException, ValueError, TypeError):
             logger.warning("Webhook result is uncertain; automatic resend disabled (%s)", channel)
         stored = True
+        sent_count = 0
         for sig, token in claims:
             try:
                 self.state_store.finish_delivery(sig.source, sig.source_id,
                     f"{self.client_id}:{channel}", sig.version_num, token, outcome, channel)
+                if outcome == "sent":
+                    sent_count += 1
             except Exception:
                 stored = False
                 logger.exception("Delivery ledger update failed; claim remains reserved")
+        self._last_sent_count = sent_count if (outcome == "sent" and stored) else 0
         return outcome == "sent" and stored
 
     def close(self):

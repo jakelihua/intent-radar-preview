@@ -5,6 +5,7 @@ Results are written before process exit, so the supervisor never blocks reading
 an incomplete IPC message at its deadline.
 """
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -14,6 +15,8 @@ from .collector import (GLOBAL_RATE_LIMITER, SOURCE_OUTCOMES, HackerNewsCollecto
 
 
 def collect(source, settings):
+    SOURCE_OUTCOMES.clear()
+    GLOBAL_RATE_LIMITER.reset()
     deadline = time.monotonic() + settings['remaining_seconds']
     limit = settings['limit']
     collectors = {'hn': HackerNewsCollector, 'github': GitHubCollector,
@@ -28,12 +31,18 @@ def collect(source, settings):
         else:
             batch = collector.fetch(query, limit, deadline)
         items.extend(batch)
-    return {'signals': [item.to_dict() for item in items], 'outcomes': SOURCE_OUTCOMES,
+    return {'signals': [item.to_dict() for item in items], 'outcomes': dict(SOURCE_OUTCOMES),
             'deferred': GLOBAL_RATE_LIMITER.get_deferred_sources(),
             'cooldowns': {host: GLOBAL_RATE_LIMITER.get_cooldown_remaining('https://' + host)
                           for host in GLOBAL_RATE_LIMITER.get_deferred_sources()}}
 
 
+def atomic_write_json(target_path: Path, data: dict) -> None:
+    tmp_path = target_path.with_suffix(target_path.suffix + '.tmp')
+    tmp_path.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
+    os.replace(tmp_path, target_path)
+
+
 if __name__ == '__main__':
     result = collect(sys.argv[1], json.load(sys.stdin))
-    Path(sys.argv[2]).write_text(json.dumps(result, ensure_ascii=False), encoding='utf-8')
+    atomic_write_json(Path(sys.argv[2]), result)

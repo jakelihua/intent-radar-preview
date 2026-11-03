@@ -13,7 +13,7 @@ import sqlite3
 import threading
 import uuid
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 
@@ -110,7 +110,7 @@ class IntentStateStore:
         - first_seen_at: str
         - last_seen_at: str
         """
-        now_utc = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+        now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         source = getattr(sig, "source", "Unknown")
         source_id = getattr(sig, "source_id", getattr(sig, "id", ""))
         norm_url = getattr(sig, "normalized_url", getattr(sig, "url", ""))
@@ -254,7 +254,7 @@ class IntentStateStore:
                     ON CONFLICT(source, source_id, client_id, version_num) DO UPDATE SET
                         token=excluded.token, status='sending', attempts=attempts+1, updated_at=excluded.updated_at
                     WHERE status='failed' AND attempts < 3
-                """, (*key, token, datetime.utcnow().isoformat()))
+                """, (*key, token, datetime.now(timezone.utc).isoformat()))
                 claimed = cur.rowcount == 1
                 self._conn.commit()
                 return token if claimed else None
@@ -270,7 +270,7 @@ class IntentStateStore:
                 self._conn.execute("BEGIN IMMEDIATE")
                 cur = self._conn.execute("""UPDATE delivery_outbox SET status=?, updated_at=?
                     WHERE source=? AND source_id=? AND client_id=? AND version_num=? AND token=? AND status='sending'""",
-                    (outcome, datetime.utcnow().isoformat(), source, source_id, client_id, version_num, token))
+                    (outcome, datetime.now(timezone.utc).isoformat(), source, source_id, client_id, version_num, token))
                 if cur.rowcount != 1:
                     raise ValueError("Delivery claim no longer owned")
                 if outcome == "sent":
@@ -287,7 +287,7 @@ class IntentStateStore:
                 delivered_version=excluded.delivered_version,
                 delivered_at=excluded.delivered_at, channel=excluded.channel
             WHERE excluded.delivered_version > client_deliveries.delivered_version
-        """, (source, source_id, client_id, int(version_num), datetime.utcnow().isoformat(), channel))
+        """, (source, source_id, client_id, int(version_num), datetime.now(timezone.utc).isoformat(), channel))
 
     def record_delivery(
         self,
